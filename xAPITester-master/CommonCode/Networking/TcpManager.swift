@@ -10,8 +10,6 @@ public typealias ReplyHandler = (_ command: String, _ seqNum: String, _ response
 public typealias SequenceId = String
 public typealias ReplyTuple = (replyTo: ReplyHandler?, command: String)
 
-import Foundation
-
 // --------------------------------------------------------------------------------
 // MARK: - TcpManager delegate protocol
 //
