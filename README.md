@@ -1,4 +1,4 @@
-# xAPITesterSL
+# xAPITester
 ## Tcp API Explorer for the FlexRadio (TM) 6000 series software defined radios.
 
 Builds on macOS 10.13 using XCode 9.2 and Swift 4 with a Deployment
