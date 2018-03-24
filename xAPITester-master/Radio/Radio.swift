@@ -1,6 +1,6 @@
 //
 //  Radio.swift
-//  xAPITesterSL
+//  xAPITester
 //
 //  Created by Douglas Adams on 8/15/15.
 //  Copyright © 2015 Douglas Adams & Mario Illgen. All rights reserved.
@@ -12,8 +12,7 @@ import Foundation
 // --------------------------------------------------------------------------------
 // MARK: - Radio Class implementation
 //
-//      as the object analog to the Radio (hardware), manages the use of all of
-//      the other model objects
+//      This is a "Stub" version of Radio included to allow the use of the CommonCode.
 //
 // --------------------------------------------------------------------------------
 
