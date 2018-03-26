@@ -1,0 +1,7 @@
+xAPITester Change Log
+
+v4.0.524
+
+added this file - ChangeLog.txt
+Changed project name & project folder from xAPITester-master to xAPITester
+added run script to increment build version when recompiled

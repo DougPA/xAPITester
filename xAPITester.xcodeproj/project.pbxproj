@@ -43,6 +43,7 @@
 		9102C21C2066C27A00F4B655 /* SwiftyUserDefaults.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */; };
 		9102C21D2066C27A00F4B655 /* SwiftyUserDefaults.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		913F7EB52066C8BB00F35E9B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 913F7EB42066C8BB00F35E9B /* Assets.xcassets */; };
+		91A2D8DD2069481000676728 /* ChangeLog.txt in Resources */ = {isa = PBXBuildFile; fileRef = 91A2D8DC2069481000676728 /* ChangeLog.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -100,6 +101,7 @@
 		9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SwiftyUserDefaults.framework; sourceTree = "<group>"; };
 		9102C2212066C59C00F4B655 /* xAPITester-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "xAPITester-Bridging-Header.h"; sourceTree = "<group>"; };
 		913F7EB42066C8BB00F35E9B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		91A2D8DC2069481000676728 /* ChangeLog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ChangeLog.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,8 +119,9 @@
 		9102C1A22066BE0700F4B655 = {
 			isa = PBXGroup;
 			children = (
-				9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */,
+				91A2D8DC2069481000676728 /* ChangeLog.txt */,
 				9102C1F12066C03700F4B655 /* README.md */,
+				9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */,
 				9102C1AD2066BE0700F4B655 /* xAPITester */,
 				9102C1AC2066BE0700F4B655 /* Products */,
 			);
@@ -275,6 +278,7 @@
 				9102C1A82066BE0700F4B655 /* Frameworks */,
 				9102C1A92066BE0700F4B655 /* Resources */,
 				9102C21E2066C27A00F4B655 /* Embed Frameworks */,
+				91A2D8DB206947E000676728 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -329,10 +333,27 @@
 				9102C1F22066C03700F4B655 /* xAPITester.pdf in Resources */,
 				9102C1F62066C03700F4B655 /* Main.storyboard in Resources */,
 				913F7EB52066C8BB00F35E9B /* Assets.xcassets in Resources */,
+				91A2D8DD2069481000676728 /* ChangeLog.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		91A2D8DB206947E000676728 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "buildNumber=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\")\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9102C1A72066BE0700F4B655 /* Sources */ = {
