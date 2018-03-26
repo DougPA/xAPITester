@@ -1,13 +1,13 @@
 xAPITester Change Log
 
+v4.0.527
+
+WanRadioPickerViewController.swift - added: isJWTValid(_ jwt: JWT) -> Bool & usage
+Auth0ViewController.swift - added: static let kAuth0Domain = "https://frtest.auth0.com/"
+
 v4.0.524
 
 Added this file - ChangeLog.txt
 Changed project name & project folder from xAPITester-master to xAPITester
 Added run script to increment build version when recompiled
-
-v4.0.527
-
-WanRadioPickerViewController.swift - added: isJWTValid(_ jwt: JWT) -> Bool & usage
-Auth0ViewController.swift - added: static let kAuth0Domain = "https://frtest.auth0.com/"
 
