@@ -1,5 +1,9 @@
 xAPITester Change Log
 
+v4.0.528
+
+Auth0ViewController.swift - used kAuth0Domain in smartLinkURL property
+
 v4.0.527
 
 WanRadioPickerViewController.swift - added: isJWTValid(_ jwt: JWT) -> Bool & usage
