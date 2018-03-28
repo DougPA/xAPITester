@@ -724,7 +724,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
       let numericHandle = Int( String(suffix), radix: 16 )
       myHandle = String(format: "%X", numericHandle!)
       
-      _api.wanConnectionHandle = myHandle
+      _api.connectionHandle = myHandle
       
       showInTable(text)
       

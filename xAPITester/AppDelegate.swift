@@ -8,7 +8,7 @@
 
 import Cocoa
 
-let kClientName = "xAPITesterSL"
+let kClientName = "xAPITester"
 
 // ------------------------------------------------------------------------------
 // MARK: - App Delegate Class implementation

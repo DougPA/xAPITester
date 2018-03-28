@@ -1,12 +1,31 @@
 xAPITester Change Log
 
+v4.0.534
+
+Radio.swift - removed isWan property from initializer
+TcpManager.swift - removed default value for isWan from connect(...) method
+UdpManager.swift - removed default value for isWan from bind(...) method
+
+v4.0.531
+
+Radio.swift - removed default value for isWan from initializer
+Api.swift, connected(...) - added missing param "isWan: isWan" to Radio init method
+APi.swift, setConnectionState(...) - changed wanConnectionHandle to radio?.connectionHandle ?? "" to _udp.bind(...) method
+
+v4.0.530
+
+AppDelegate.swift - changed kClientName from "xAPITesterSL" to "xAPITester"
+Deleted CommonCode folder and its contents
+Added CommonClientCode & CommonLibraryCode folders (not copied into project folders)
+Added SwiftyUserDefaults definitions to AppExtensions.swift (previously in CommonCode/Extensions/SwiftyExtensions.swift)
+
 v4.0.528
 
 Auth0ViewController.swift - used kAuth0Domain in smartLinkURL property
 
 v4.0.527
 
-WanRadioPickerViewController.swift - added: isJWTValid(_ jwt: JWT) -> Bool & usage
+WanRadioPickerViewController.swift - added: isJWTValid(_ jwt: JWT) -> Bool & its usage
 Auth0ViewController.swift - added: static let kAuth0Domain = "https://frtest.auth0.com/"
 
 v4.0.524

@@ -18,8 +18,6 @@ import Foundation
 
 public final class Radio                    : NSObject {
   
-  public private(set) var isWan             : Bool
-
   // ----------------------------------------------------------------------------
   // MARK: - Static properties
   
@@ -49,11 +47,10 @@ public final class Radio                    : NSObject {
   /// - Parameters:
   ///   - api:        an Api instance
   ///
-  public init(api: Api, objectQ: DispatchQueue, isWan: Bool = false) {
+  public init(api: Api, objectQ: DispatchQueue) {
     
     _api = api
     _objectQ = objectQ
-    self.isWan = isWan
 
     super.init()
   }
