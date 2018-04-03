@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import xLib6000
 import SwiftyUserDefaults
 
 // --------------------------------------------------------------------------------
@@ -48,7 +49,7 @@ protocol RadioPickerDelegate: class {
 // MARK: - ViewController Class implementation
 // ------------------------------------------------------------------------------
 
-public final class ViewController             : NSViewController, RadioPickerDelegate, NSTableViewDelegate, NSTableViewDataSource, NSTextFieldDelegate, ApiDelegate, NSTabViewDelegate, LogHandler {
+public final class ViewController             : NSViewController, RadioPickerDelegate,  NSTextFieldDelegate {
   
   private(set) var activeRadio                : RadioParameters? {          // Radio currently in use (if any)
     didSet {
@@ -62,47 +63,32 @@ public final class ViewController             : NSViewController, RadioPickerDel
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
   
-  public enum FilterTag: Int {                                              // types of filtering
-    case none = 0
-    case prefix
-    case contains
-    case streamId
-  }
   
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
   private var _api                            = Api.sharedInstance          // Api to the Radio
   
-  @IBOutlet weak private var _filter          : NSTextField!
-  @IBOutlet weak private var _command         : NSTextField!
-  @IBOutlet weak private var _enablePinging   : NSButton!
-  @IBOutlet weak private var _showAllReplies  : NSButton!
-  @IBOutlet weak private var _showPings       : NSButton!
-  @IBOutlet weak private var _connectButton   : NSButton!
-  @IBOutlet weak private var _clearAtConnect  : NSButton!
-  @IBOutlet weak private var _useLowBw        : NSButton!
-  @IBOutlet weak private var _sendButton      : NSButton!
-  @IBOutlet weak private var _filterBy        : NSPopUpButton!
-  @IBOutlet weak private var _tableView       : NSTableView!
-  @IBOutlet weak private var _streamId        : NSTextField!
-  @IBOutlet weak private var _clearOnSend     : NSButton!
-  @IBOutlet weak private var _localRemote     : NSTextField!
+  @IBOutlet weak internal var _filter         : NSTextField!
+  @IBOutlet weak internal var _command        : NSTextField!
+  @IBOutlet weak internal var _enablePinging  : NSButton!
+  @IBOutlet weak internal var _showAllReplies : NSButton!
+  @IBOutlet weak internal var _showPings      : NSButton!
+  @IBOutlet weak internal var _connectButton  : NSButton!
+  @IBOutlet weak internal var _clearAtConnect : NSButton!
+  @IBOutlet weak internal var _useLowBw       : NSButton!
+  @IBOutlet weak internal var _sendButton     : NSButton!
+  @IBOutlet weak internal var _filterBy       : NSPopUpButton!
+  @IBOutlet weak internal var _streamId       : NSTextField!
+  @IBOutlet weak internal var _clearOnSend    : NSButton!
+  @IBOutlet weak internal var _localRemote    : NSTextField!
   
   // ----------------------------------------------------------------------------
   // MARK: - Private properties - Setters / Getters with synchronization
   
-  private var myHandle: String {
+  public var myHandle: String {
     get { return _objectQ.sync { _myHandle } }
     set { _objectQ.sync(flags: .barrier) { _myHandle = newValue } } }
-  
-  public var replyHandlers: [SequenceId: ReplyTuple] {
-    get { return _objectQ.sync { _replyHandlers } }
-    set { _objectQ.sync(flags: .barrier) { _replyHandlers = newValue } } }
-  
-  private var textArray: [String] {
-    get { return _objectQ.sync { _textArray } }
-    set { _objectQ.sync(flags: .barrier) { _textArray = newValue } } }
   
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
@@ -110,41 +96,25 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private var _previousCommand                = ""                          // last command issued
   private var _commandsIndex                  = 0
   private var _commandsArray                  = [String]()                  // commands history
-  private var _filteredTextArray              : [String] {                  // filtered version of textArray
-    get {
-      switch FilterTag(rawValue: _filterBy.selectedTag())! {
-      case .none:
-        return textArray
-        
-      case .prefix:
-        return textArray.filter { $0.hasPrefix(_filter.stringValue) }
-        
-      case .contains:
-        return textArray.filter { $0.contains(_filter.stringValue) }
-        
-      case .streamId:
-        return textArray.filter { $0.hasPrefix("S" + myHandle) }
-      }
-    }}
+
   private var _notifications                  = [NSObjectProtocol]()        // Notification observers
-  private var _font                           : NSFont!                     // font for table entries
   
   private var _radioPickerTabViewController   : NSTabViewController?
   
-  private var _timestampsInUse                = false
-  private var _startTimestamp                 : Date?
+  internal var _timestampsInUse                = false
+  internal var _startTimestamp                 : Date?
   
   // backing storage
   private var _myHandle                       = "" {
     didSet { DispatchQueue.main.async { self._streamId.stringValue = self._myHandle } } }
-  private var _replyHandlers                  = [SequenceId: ReplyTuple]()  // Dictionary of pending replies
-  private var _textArray                      = [String]()                  // backing storage for the table
+  private var _splitViewViewController        : SplitViewController?
   
   // constants
-  private let _objectQ                        = DispatchQueue(label: kClientName + ".objectQ", attributes: [.concurrent])
+  internal let _objectQ                        = DispatchQueue(label: kClientName + ".objectQ", attributes: [.concurrent])
   
   private let _dateFormatter                  = DateFormatter()
   
+  private let kAutosaveName                   = NSWindow.FrameAutosaveName("xAPITesterWindow")
   private let kSend                           = "Send"
   private let kConnect                        = "Connect"
   private let kDisconnect                     = "Disconnect"
@@ -159,9 +129,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
   public override func viewDidLoad() {
     super.viewDidLoad()
     
-    // give the Log object (in the API) access to our logger
-    Log.sharedInstance.delegate = self
-
     _dateFormatter.timeZone = NSTimeZone.local
     _dateFormatter.dateFormat = "mm:ss.SSS"
     
@@ -173,21 +140,15 @@ public final class ViewController             : NSViewController, RadioPickerDel
     // setup & register Defaults
     setupDefaults()
     
-    // setup the font
-    _font = NSFont(name: Defaults[.fontName], size: CGFloat(Defaults[.fontSize] ))!
-    _tableView.rowHeight = _font.capHeight * 1.7
-    
     // color the text field to match the kMyHandleColor
     _streamId.backgroundColor = Defaults[.myHandleColor]
-    
-    _api.delegate = self
     
     // is the default Radio available?
     if let defaultRadio = defaultRadioFound() {
       
       // YES, open the default radio (local only)
       if !openRadio(defaultRadio) {
-        msg("Error opening default radio, \(defaultRadio.name ?? "")", level: .warning, function: #function, file: #file, line: #line)
+        _splitViewViewController?.msg("Error opening default radio, \(defaultRadio.name ?? "")", level: .warning, function: #function, file: #file, line: #line)
         
         // open the Radio Picker
         openRadioPicker( self)
@@ -199,7 +160,31 @@ public final class ViewController             : NSViewController, RadioPickerDel
       openRadioPicker( self)
     }
   }
+  override public func viewWillAppear() {
+    
+    super.viewWillAppear()
+    // position it
+    view.window!.setFrameUsingName(kAutosaveName)
+  }
   
+  override public func viewWillDisappear() {
+    
+    super.viewWillDisappear()
+    // save its position
+    view.window!.saveFrame(usingName: kAutosaveName)
+  }
+
+  public override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
+    
+    if segue.identifier!.rawValue == "SplitView" {
+      _splitViewViewController = segue.destinationController as? SplitViewController
+      _splitViewViewController!._parent = self
+      
+      _splitViewViewController?.view.translatesAutoresizingMaskIntoConstraints = false
+      _api.testerDelegate = _splitViewViewController
+      
+    }
+  }
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
@@ -258,7 +243,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _filter.stringValue = ""
     
     // force a redraw
-    reloadTable()
+    _splitViewViewController?.reloadTable()
   }
   /// The Filter text field changed
   ///
@@ -270,47 +255,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     Defaults[.filter] = sender.stringValue
     
     // force a redraw
-    reloadTable()
-  }
-  /// 1st Responder to the Format->Font->Bigger menu (or Command=)
-  ///
-  /// - Parameter sender:     the sender
-  ///
-  @IBAction func fontBigger(_ sender: AnyObject) {
-    
-    // limit the font size
-    var newSize =  Defaults[.fontSize] + 1
-    if newSize > Defaults[.fontMaxSize] { newSize = Defaults[.fontMaxSize] }
-    
-    // save change to preferences
-    Defaults[.fontSize] = newSize
-    
-    // update the font
-    _font = NSFont(name: Defaults[.fontName], size: CGFloat(Defaults[.fontSize] ))!
-    _tableView.rowHeight = _font.capHeight * 1.7
-    
-    // force a redraw
-    reloadTable()
-  }
-  /// 1st Responder to the Format->Font->Smaller menu (or Command-)
-  ///
-  /// - Parameter sender:     the sender
-  ///
-  @IBAction func fontSmaller(_ sender: AnyObject) {
-    
-    // limit the font size
-    var newSize =  Defaults[.fontSize] - 1
-    if newSize < Defaults[.fontMinSize] { newSize = Defaults[.fontMinSize] }
-    
-    // save change to preferences
-    Defaults[.fontSize] = newSize
-    
-    // update the font
-    _font = NSFont(name: Defaults[.fontName], size: CGFloat(Defaults[.fontSize] ))!
-    _tableView.rowHeight = _font.capHeight * 1.7
-    
-    // force a redraw
-    reloadTable()
+    _splitViewViewController?.reloadTable()
   }
   /// Respond to the Connect button
   ///
@@ -394,18 +339,18 @@ public final class ViewController             : NSViewController, RadioPickerDel
           try fileString = String(contentsOf: url)
           
           // separate into lines
-          self.textArray = fileString.components(separatedBy: "\n")
+          self._splitViewViewController?.textArray = fileString.components(separatedBy: "\n")
           
           // eliminate the last one (it's blank)
-          self.textArray.removeLast()
+          self._splitViewViewController?.textArray.removeLast()
           
           // force a redraw
-          self.reloadTable()
+          self._splitViewViewController?.reloadTable()
           
         } catch {
           
           // something bad happened!
-          self.msg("Error reading file", level: .error, function: #function, file: #file, line: #line)
+          self._splitViewViewController?.msg("Error reading file", level: .error, function: #function, file: #file, line: #line)
         }
       }
     })
@@ -417,10 +362,10 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func clear(_ sender: NSButton) {
     
     // clear all previous commands & replies
-    textArray.removeAll()
+    _splitViewViewController?.textArray.removeAll()
     
     // force a redraw
-    reloadTable()
+    _splitViewViewController?.reloadTable()
   }
   /// Respond to the Save button
   ///
@@ -441,7 +386,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
         var fileString = ""
         
         // build a string of all the commands & replies
-        for row in self._filteredTextArray {
+        for row in self._splitViewViewController!._filteredTextArray {
           
           fileString += row + "\n"
         }
@@ -470,11 +415,11 @@ public final class ViewController             : NSViewController, RadioPickerDel
     var cmd = ""
     
     // get the indexes of the selected rows
-    let indexSet = _tableView.selectedRowIndexes
+    let indexSet = _splitViewViewController!._tableView.selectedRowIndexes
     
     for (_, rowIndex) in indexSet.enumerated() {
       
-      cmd = _filteredTextArray[rowIndex]
+      cmd = _splitViewViewController!._filteredTextArray[rowIndex]
       break
     }
     
@@ -491,14 +436,14 @@ public final class ViewController             : NSViewController, RadioPickerDel
     var textToCopy = ""
     
     // if no rows selected, select all
-    if _tableView.numberOfSelectedRows == 0 { _tableView.selectAll(self) }
+    if _splitViewViewController!._tableView.numberOfSelectedRows == 0 { _splitViewViewController!._tableView.selectAll(self) }
     
     // get the indexes of the selected rows
-    let indexSet = _tableView.selectedRowIndexes
+    let indexSet = _splitViewViewController!._tableView.selectedRowIndexes
     
     for (_, rowIndex) in indexSet.enumerated() {
       
-      let text = _filteredTextArray[rowIndex]
+      let text = _splitViewViewController!._filteredTextArray[rowIndex]
       textToCopy += text + "\n"
     }
     // eliminate the last newline
@@ -566,104 +511,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     }
     return defaultRadioParameters
   }
-  /// Parse a Reply message. format: <sequenceNumber>|<hexResponse>|<message>[|<debugOutput>]
-  ///
-  /// - parameter commandSuffix:    a Command Suffix
-  ///
-  private func parseReply(_ commandSuffix: String) {
-    
-    // separate it into its components
-    let components = commandSuffix.components(separatedBy: "|")
-    
-    // ignore incorrectly formatted replies
-    if components.count < 2 {
-      
-      _api.log.msg("Incomplete reply, c\(commandSuffix)", level: .error, function: #function, file: #file, line: #line)
-      return
-    }
-    
-    // is there an Object expecting to be notified?
-    if let replyTuple = replyHandlers[ components[0] ] {
-      
-      // an Object is waiting for this reply, send the Command to the Handler on that Object
-      
-      let command = replyTuple.command
-      
-      // is there a ReplyHandler for this command?
-      if let handler = replyTuple.replyTo {
-        
-        // YES, pass it to the ReplyHandler
-        handler(command, components[0], components[1], (components.count == 3) ? components[2] : "")
-      }
-      // Show all replies?
-      if Defaults[.showAllReplies] {
-        
-        // SHOW ALL, is it a ping reply?
-        if command == "ping" {
-          
-          // YES, are pings being shown?
-          if Defaults[.showPings] {
-            
-            // YES, show the ping reply
-            showInTable("R\(commandSuffix)")
-          }
-        } else {
-          
-          // SHOW ALL, it's not a ping reply
-          showInTable("R\(commandSuffix)")
-        }
-        
-      } else if components[1] != "0" || (components.count > 2 && components[2] != "") {
-        
-        // NOT SHOW ALL, only show non-zero replies with no additional information
-        showInTable("R\(commandSuffix)")
-      }
-      // Remove the object from the notification list
-      replyHandlers[components[0]] = nil
-      
-    } else {
-      
-      // no Object is waiting for this reply, show it
-      showInTable("R\(commandSuffix)")
-    }
-  }
-  /// Refresh the TableView & make its last row visible
-  ///
-  private func reloadTable() {
-    
-    DispatchQueue.main.async { [unowned self] in
-      // reload the table
-      self._tableView?.reloadData()
-      
-      // make sure the last row is visible
-      if self._tableView.numberOfRows > 0 {
-        
-        self._tableView.scrollRowToVisible(self._tableView.numberOfRows - 1)
-      }
-    }
-  }
-  /// Add text to the table
-  ///
-  /// - Parameter text:       a text String
-  ///
-  public func showInTable(_ text: String, addTimestamp: Bool = true) {
-    
-    DispatchQueue.main.async {
-      // add the Text to the Array (with or without a timestamp)
-      if self._timestampsInUse && addTimestamp {
-        let timeInterval = Date().timeIntervalSince(self._startTimestamp!)
-        
-        let timestamp = String( format: "%0.3f", timeInterval)
-        self.textArray.append( timestamp + " " + text )
-        
-      } else {
-        
-        self.textArray.append( text )
-      }
-      
-      self.reloadTable()
-    }
-  }
   /// Write the Log to the App Support folder
   ///
   /// - parameter filterBy:   a MessageLevel
@@ -672,7 +519,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     var fileString = ""
     
     // build a string of all the entries
-    for row in _filteredTextArray {
+    for row in _splitViewViewController!._filteredTextArray {
       
       fileString += row + "\n"
     }
@@ -689,118 +536,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
       
       _api.log.msg("Error writing Log", level: .error, function: #function, file: #file, line: #line)
     }
-  }
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - ApiDelegate methods
-  
-  /// Process a sent message
-  ///
-  /// - Parameter text:       text of the command
-  ///
-  public func sentMessage(_ text: String) {
-    
-    if !text.hasSuffix("|ping") { showInTable(text) }
-    
-    if text.hasSuffix("|ping") && Defaults[.showPings] { showInTable(text) }
-  }
-  /// Process a received message
-  ///
-  /// - Parameter text:       text received from the Radio
-  ///
-  public func receivedMessage(_ text: String) {
-    
-    // get all except the first character
-    let suffix = String(text.dropFirst())
-    
-    // switch on the first character
-    switch text[text.startIndex] {
-      
-    case "C":   // Commands
-      showInTable(text)
-      
-    case "H":   // Handle type
-      // convert to drop leading zero (if any)
-      let numericHandle = Int( String(suffix), radix: 16 )
-      myHandle = String(format: "%X", numericHandle!)
-      
-      _api.connectionHandle = myHandle
-      
-      showInTable(text)
-      
-    case "M":   // Message Type
-      showInTable(text)
-      
-    case "R":   // Reply Type
-      parseReply(suffix)
-      
-    case "S":   // Status type
-      // format: <apiHandle>|<message>, where <message> is of the form: <msgType> <otherMessageComponents>
-      
-      // is this a "Client connected" status
-      let components = suffix.split(separator: "|")
-      if components.count == 2 && components[0] == myHandle && components[1].hasPrefix("client") && components[1].contains(" connected") {
-        // YES, set the API State
-        _api.setConnectionState(.clientConnected)
-      }
-      showInTable(text)
-      
-    case "V":   // Version Type
-      showInTable(text)
-      
-    default:    // Unknown Type
-      _api.log.msg("Unexpected Message Type from radio, \(text[text.startIndex])", level: .error, function: #function, file: #file, line: #line)
-    }
-  }
-  /// Add a Reply Handler for a specific Sequence/Command
-  ///
-  /// - Parameters:
-  ///   - sequenceId:         sequence number of the Command
-  ///   - replyTuple:         a Reply Tuple
-  ///
-  public func addReplyHandler(_ sequenceId: SequenceId, replyTuple: ReplyTuple) {
-    
-    // add the handler
-    replyHandlers[sequenceId] = replyTuple
-  }
-  /// Process the Reply to a command, reply format: <value>,<value>,...<value>
-  ///
-  /// - Parameters:
-  ///   - command:            the original command
-  ///   - seqNum:             the Sequence Number of the original command
-  ///   - responseValue:      the response value
-  ///   - reply:              the reply
-  ///
-  public func defaultReplyHandler(_ command: String, seqNum: String, responseValue: String, reply: String) {
-    
-    // unused in xAPITester
-  }
-  /// Receive a UDP Stream packet
-  ///
-  /// - Parameter vita: a Vita packet
-  ///
-  public func streamHandler(_ vitaPacket: Vita) {
-
-    // unused in xAPITester
-  }
-  
-
-  // ----------------------------------------------------------------------------
-  // MARK: - LogHandlerDelegate methods
-  
-  /// Process log messages
-  ///
-  /// - Parameters:
-  ///   - msg:        a message
-  ///   - level:      the severity level of the message
-  ///   - function:   the name of the function creating the msg
-  ///   - file:       the name of the file containing the function
-  ///   - line:       the line number creating the msg
-  ///
-  public func msg(_ msg: String, level: MessageLevel, function: StaticString, file: StaticString, line: Int ) -> Void {
-    
-    // Show API log messages
-    showInTable("----- \(msg) -----", addTimestamp: false)
   }
 
   // ----------------------------------------------------------------------------
@@ -877,7 +612,10 @@ public final class ViewController             : NSViewController, RadioPickerDel
   func clearTable() {
     
     // clear the previous Commands, Replies & Messages
-    if Defaults[.clearAtConnect] { textArray.removeAll() ;_tableView.reloadData() }
+    if Defaults[.clearAtConnect] { _splitViewViewController!.textArray.removeAll() ;_splitViewViewController!._tableView.reloadData() }
+    
+    // clear the objects
+    _splitViewViewController!.objectsArray.removeAll() ;_splitViewViewController!._objectsTableView.reloadData()
   }
   
   /// Close the application
@@ -885,83 +623,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
   func terminateApp() {
     
     terminate(self)
-  }
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - NSTableView DataSource methods
-  
-  /// Return the number of rows in the TableView
-  ///
-  /// - Parameter aTableView: the TableView
-  /// - Returns:              number of rows
-  ///
-  public func numberOfRows(in aTableView: NSTableView) -> Int {
-    
-    return _filteredTextArray.count
-  }
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - NSTableView Delegate methods
-  
-  /// Return a view to be used for the row/column
-  ///
-  /// - Parameters:
-  ///   - tableView:          the TableView
-  ///   - tableColumn:        the current TableColumn
-  ///   - row:                the current row number
-  /// - Returns:              the view for the column & row
-  ///
-  public func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-    
-    // get a view for the cell
-    let view = tableView.makeView(withIdentifier: tableColumn!.identifier, owner:self) as! NSTableCellView
-    
-    // get the text
-    let rowText = _filteredTextArray[row]
-    var msgText = rowText
-    
-    if _timestampsInUse { msgText = msgText.components(separatedBy: " ")[1] }
-    
-    // determine the type of text, assign a background color
-    if rowText.hasPrefix("-----") {                                         // application messages
-      
-      // application messages from this app
-      view.textField!.backgroundColor = Defaults[.messageColor]
-      
-    } else if msgText.hasPrefix("c") || msgText.hasPrefix("C") {
-      
-      // commands sent by this app
-      view.textField!.backgroundColor = Defaults[.commandColor]
-      
-    } else if msgText.hasPrefix("r") || msgText.hasPrefix("R") {
-      
-      // reply messages
-      view.textField!.backgroundColor = Defaults[.myHandleColor]
-      
-    } else if msgText.hasPrefix("v") || msgText.hasPrefix("V") ||
-      msgText.hasPrefix("h") || msgText.hasPrefix("H") ||
-      msgText.hasPrefix("m") || msgText.hasPrefix("M") {
-      
-      // messages not directed to a specific client
-      view.textField!.backgroundColor = Defaults[.neutralColor]
-      
-    } else if msgText.hasPrefix("s" + myHandle) || msgText.hasPrefix("S" + myHandle) {
-      
-      // status sent to myHandle
-      view.textField!.backgroundColor = Defaults[.myHandleColor]
-      
-    } else {
-      
-      // status sent to a handle other than mine
-      view.textField!.backgroundColor = Defaults[.otherHandleColor]
-    }
-    // set the font
-    view.textField!.font = _font
-    
-    // set the text
-    view.textField!.stringValue = rowText
-    
-    return view
   }
   /// Allow the user to press Enter to send a command
   ///
