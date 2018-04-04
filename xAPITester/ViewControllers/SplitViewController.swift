@@ -16,6 +16,9 @@ import SwiftyUserDefaults
 
 class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelegate, NSTableViewDataSource,  LogHandler {
   
+  static let kAddedColor                      = NSColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 0.2)
+  static let kRemovedColor                    = NSColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 0.2)
+  
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
   
@@ -23,9 +26,16 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     case none = 0
     case prefix
     case contains
+    case exclude
     case streamId
   }
-  
+  public enum FilterObjectsTag: Int {                                              // types of filtering
+    case none = 0
+    case prefix
+    case contains
+    case exclude
+  }
+
   // ----------------------------------------------------------------------------
   // MARK: - Internal properties
   
@@ -58,8 +68,27 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       case .contains:
         return textArray.filter { $0.contains(_parent._filter.stringValue) }
         
+      case .exclude:
+        return textArray.filter { !$0.contains(_parent._filter.stringValue) }
+        
       case .streamId:
         return textArray.filter { $0.hasPrefix("S" + _parent.myHandle) }
+      }
+    }}
+  internal var _filteredObjectsArray           : [String] {                  // filtered version of objectsArray
+    get {
+      switch FilterObjectsTag(rawValue: _parent._filterObjectsBy.selectedTag())! {
+      case .none:
+        return objectsArray
+        
+      case .prefix:
+        return objectsArray.filter { $0.hasPrefix(_parent._filterObjects.stringValue) }
+        
+      case .contains:
+        return objectsArray.filter { $0.contains(_parent._filterObjects.stringValue) }
+
+      case .exclude:
+        return objectsArray.filter { !$0.contains(_parent._filterObjects.stringValue) }
       }
     }}
 
@@ -311,8 +340,6 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       let numericHandle = Int( String(suffix), radix: 16 )
       _parent.myHandle = String(format: "%X", numericHandle!)
       
-      _api.connectionHandle = _parent.myHandle
-      
       showInTable(text)
       
     case "M":   // Message Type
@@ -324,12 +351,6 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     case "S":   // Status type
       // format: <apiHandle>|<message>, where <message> is of the form: <msgType> <otherMessageComponents>
       
-      // is this a "Client connected" status
-      let components = suffix.split(separator: "|")
-      if components.count == 2 && components[0] == _parent.myHandle && components[1].hasPrefix("client") && components[1].contains(" connected") {
-        // YES, set the API State
-        _api.setConnectionState(.clientConnected)
-      }
       showInTable(text)
       
     case "V":   // Version Type
@@ -405,7 +426,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     } else {
 
-      return _objectsArray.count
+      return _filteredObjectsArray.count
     }
   }
   
@@ -428,73 +449,81 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     // Which table?
     if tableView === _tableView! {
     
-      // Replies & Commands, get the text
-      let rowText = _filteredTextArray[row]
-      var msgText = rowText
-      
-      if _parent._timestampsInUse { msgText = msgText.components(separatedBy: " ")[1] }
-      
-      // determine the type of text, assign a background color
-      if rowText.hasPrefix("-----") {                                         // application messages
+      // validate the index
+      if _filteredTextArray.count - 1 >= row {
         
-        // application messages from this app
-        view.textField!.backgroundColor = Defaults[.messageColor]
+        // Replies & Commands, get the text
+        let rowText = _filteredTextArray[row]
+        var msgText = rowText
         
-      } else if msgText.hasPrefix("c") || msgText.hasPrefix("C") {
+        if _parent._timestampsInUse { msgText = msgText.components(separatedBy: " ")[1] }
         
-        // commands sent by this app
-        view.textField!.backgroundColor = Defaults[.commandColor]
+        // determine the type of text, assign a background color
+        if rowText.hasPrefix("-----") {                                         // application messages
+          
+          // application messages from this app
+          view.textField!.backgroundColor = Defaults[.messageColor]
+          
+        } else if msgText.hasPrefix("c") || msgText.hasPrefix("C") {
+          
+          // commands sent by this app
+          view.textField!.backgroundColor = Defaults[.commandColor]
+          
+        } else if msgText.hasPrefix("r") || msgText.hasPrefix("R") {
+          
+          // reply messages
+          view.textField!.backgroundColor = Defaults[.myHandleColor]
+          
+        } else if msgText.hasPrefix("v") || msgText.hasPrefix("V") ||
+          msgText.hasPrefix("h") || msgText.hasPrefix("H") ||
+          msgText.hasPrefix("m") || msgText.hasPrefix("M") {
+          
+          // messages not directed to a specific client
+          view.textField!.backgroundColor = Defaults[.neutralColor]
+          
+        } else if msgText.hasPrefix("s" + _parent.myHandle) || msgText.hasPrefix("S" + _parent.myHandle) {
+          
+          // status sent to myHandle
+          view.textField!.backgroundColor = Defaults[.myHandleColor]
+          
+        } else {
+          
+          // status sent to a handle other than mine
+          view.textField!.backgroundColor = Defaults[.otherHandleColor]
+        }
+        // set the font
+        view.textField!.font = _font
         
-      } else if msgText.hasPrefix("r") || msgText.hasPrefix("R") {
-        
-        // reply messages
-        view.textField!.backgroundColor = Defaults[.myHandleColor]
-        
-      } else if msgText.hasPrefix("v") || msgText.hasPrefix("V") ||
-        msgText.hasPrefix("h") || msgText.hasPrefix("H") ||
-        msgText.hasPrefix("m") || msgText.hasPrefix("M") {
-        
-        // messages not directed to a specific client
-        view.textField!.backgroundColor = Defaults[.neutralColor]
-        
-      } else if msgText.hasPrefix("s" + _parent.myHandle) || msgText.hasPrefix("S" + _parent.myHandle) {
-        
-        // status sent to myHandle
-        view.textField!.backgroundColor = Defaults[.myHandleColor]
-        
-      } else {
-        
-        // status sent to a handle other than mine
-        view.textField!.backgroundColor = Defaults[.otherHandleColor]
+        // set the text
+        view.textField!.stringValue = rowText
       }
-      // set the font
-      view.textField!.font = _font
-      
-      // set the text
-      view.textField!.stringValue = rowText
     
     }
     else {
 
-      // Objects, get the text
-      let msgText = _objectsArray[row]
-      
-      // determine the type of text, assign a background color
-      if msgText.hasPrefix("ADDED") {
-
-        // ADD message
-        view.textField!.backgroundColor = NSColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 0.2)
-
-      } else {
-
-        // REMOVED message
-        view.textField!.backgroundColor = NSColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 0.2)
+      // validate the index
+      if _filteredObjectsArray.count - 1 >= row {
+        
+        // Objects, get the text
+        let msgText = _filteredObjectsArray[row]
+        
+        // determine the type of text, assign a background color
+        if msgText.hasPrefix("ADDED") {
+          
+          // ADD message
+          view.textField!.backgroundColor = SplitViewController.kAddedColor
+          
+        } else {
+          
+          // REMOVED message
+          view.textField!.backgroundColor = SplitViewController.kRemovedColor
+        }
+        // set the font
+        view.textField!.font = _font
+        
+        // set the text
+        view.textField!.stringValue = msgText
       }
-      // set the font
-      view.textField!.font = _font
-
-      // set the text
-      view.textField!.stringValue = msgText
     }
     
     return view
@@ -571,7 +600,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       text += "Memory, \((obj as! Memory).id)"
     case is Meter:
       let meter = obj as! Meter
-      text += "Meter, \(meter.id), desc = \(meter.name), low = \(meter.low), high = \(meter.high)"
+      text += "Meter, \(meter.id), name = \(meter.name), desc = \(meter.description), low = \(meter.low), high = \(meter.high), fps = \(meter.fps)"
     case is MicAudioStream:
       text += "MicAudioStream, \((obj as! MicAudioStream).id)"
     case is Opus:
@@ -582,7 +611,8 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     case is Profile:
       text += "Profile"
     case is Radio:
-      text += "Radio"
+      let radio = Api.sharedInstance.activeRadio
+      text += "Radio, name = \(radio?.nickname ?? ""), model = \(radio?.model ?? "")"
     case is xLib6000.Slice:
       let slice = obj as! xLib6000.Slice
       text += "Slice, \(slice.id), frequency = \(slice.frequency.hzToMhz())"
@@ -615,7 +645,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       text += "Memory, \((obj as! Memory).id)"
     case is Meter:
       let meter = obj as! Meter
-      text += "Meter, \(meter.id), desc = \(meter.name), low = \(meter.low), high = \(meter.high)"
+      text += "Meter, \(meter.id), name = \(meter.name), desc = \(meter.description), low = \(meter.low), high = \(meter.high), fps = \(meter.fps)"
     case is MicAudioStream:
       text += "MicAudioStream, \((obj as! MicAudioStream).id)"
     case is Opus:
@@ -626,7 +656,8 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     case is Profile:
       text += "Profile"
     case is Radio:
-      text += "Radio"
+      let radio = Api.sharedInstance.activeRadio
+      text += "Radio, name = \(radio?.nickname ?? ""), model = \(radio?.model ?? "")"
     case is xLib6000.Slice:
       let slice = obj as! xLib6000.Slice
       text += "Slice, \(slice.id), frequency = \(slice.frequency.hzToMhz())"

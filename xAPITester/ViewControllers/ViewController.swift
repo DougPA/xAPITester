@@ -70,6 +70,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private var _api                            = Api.sharedInstance          // Api to the Radio
   
   @IBOutlet weak internal var _filter         : NSTextField!
+  @IBOutlet weak internal var _filterObjects  : NSTextField!
   @IBOutlet weak internal var _command        : NSTextField!
   @IBOutlet weak internal var _enablePinging  : NSButton!
   @IBOutlet weak internal var _showAllReplies : NSButton!
@@ -79,6 +80,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBOutlet weak internal var _useLowBw       : NSButton!
   @IBOutlet weak internal var _sendButton     : NSButton!
   @IBOutlet weak internal var _filterBy       : NSPopUpButton!
+  @IBOutlet weak internal var _filterObjectsBy: NSPopUpButton!
   @IBOutlet weak internal var _streamId       : NSTextField!
   @IBOutlet weak internal var _clearOnSend    : NSButton!
   @IBOutlet weak internal var _localRemote    : NSTextField!
@@ -257,6 +259,33 @@ public final class ViewController             : NSViewController, RadioPickerDel
     // force a redraw
     _splitViewViewController?.reloadTable()
   }
+  /// The FilterBy PopUp changed
+  ///
+  /// - Parameter sender:     the popup
+  ///
+  @IBAction func updateFilterObjectsBy(_ sender: NSPopUpButton) {
+    
+    // save change to preferences
+    Defaults[.filterByObjectsTag] = sender.selectedTag()
+    
+    // clear the Filter string field
+    _filterObjects.stringValue = ""
+    
+    // force a redraw
+    _splitViewViewController?.reloadObjectsTable()
+  }
+  /// The Filter text field changed
+  ///
+  /// - Parameter sender:     the text field
+  ///
+  @IBAction func updateFilterObjects(_ sender: NSTextField) {
+    
+    // save change to preferences
+    Defaults[.filterObjects] = sender.stringValue
+    
+    // force a redraw
+    _splitViewViewController?.reloadObjectsTable()
+  }
   /// Respond to the Connect button
   ///
   /// - Parameter sender:     the button
@@ -273,12 +302,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
       
     case kDisconnect:
       
-      // disconnect the active radio
-      _api.disconnect()
-      
-      _sendButton.isEnabled = false
-      _connectButton.title = kConnect
-      _localRemote.stringValue = ""
+      // close the active Radio
+      closeRadio()
       
     default:    // should never happen
       break
@@ -592,8 +617,12 @@ public final class ViewController             : NSViewController, RadioPickerDel
       
       self._connectButton.title = self.kDisconnect
       self._sendButton.isEnabled = true
+
+      setTitle()
+      
       return true
     }
+    setTitle()
     return false
   }
   /// Close the currently active Radio
@@ -606,6 +635,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _sendButton.isEnabled = false
     _connectButton.title = kConnect
     _localRemote.stringValue = ""
+  
+    setTitle()
   }
   /// Clear the reply table
   ///
@@ -617,7 +648,14 @@ public final class ViewController             : NSViewController, RadioPickerDel
     // clear the objects
     _splitViewViewController!.objectsArray.removeAll() ;_splitViewViewController!._objectsTableView.reloadData()
   }
-  
+  /// Set the Window's title
+  ///
+  func setTitle() {
+    let title = (_api.activeRadio == nil ? "" : " - Connected to \(_api.activeRadio!.nickname ?? "") @ \(_api.activeRadio!.ipAddress)")
+    DispatchQueue.main.async {
+      self.view.window?.title = "\(kClientName)\(title)"
+    }
+  }
   /// Close the application
   ///
   func terminateApp() {

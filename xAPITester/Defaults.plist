@@ -20,6 +20,10 @@
 	<string>wan</string>
 	<key>filterByTag</key>
 	<integer>0</integer>
+	<key>filterObjects</key>
+	<string></string>
+	<key>filterByObjectsTag</key>
+	<integer>0</integer>
 	<key>fontMaxSize</key>
 	<integer>18</integer>
 	<key>fontMinSize</key>
