@@ -17,12 +17,12 @@
 	<key>enablePinging</key>
 	<true/>
 	<key>filter</key>
-	<string>wan</string>
+	<string></string>
 	<key>filterByTag</key>
 	<integer>0</integer>
 	<key>filterObjects</key>
 	<string></string>
-	<key>filterByObjectsTag</key>
+	<key>filterObjectsByTag</key>
 	<integer>0</integer>
 	<key>fontMaxSize</key>
 	<integer>18</integer>

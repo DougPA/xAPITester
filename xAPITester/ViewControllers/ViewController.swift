@@ -51,19 +51,6 @@ protocol RadioPickerDelegate: class {
 
 public final class ViewController             : NSViewController, RadioPickerDelegate,  NSTextFieldDelegate {
   
-  private(set) var activeRadio                : RadioParameters? {          // Radio currently in use (if any)
-    didSet {
-      let title = (activeRadio == nil ? "" : " - Connected to \(activeRadio!.nickname ?? "") @ \(activeRadio!.ipAddress)")
-      DispatchQueue.main.async {
-        self.view.window?.title = "\(kClientName)\(title)"
-      }
-    }
-  }
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Public properties
-  
-  
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
@@ -72,12 +59,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBOutlet weak internal var _filter         : NSTextField!
   @IBOutlet weak internal var _filterObjects  : NSTextField!
   @IBOutlet weak internal var _command        : NSTextField!
-  @IBOutlet weak internal var _enablePinging  : NSButton!
-  @IBOutlet weak internal var _showAllReplies : NSButton!
-  @IBOutlet weak internal var _showPings      : NSButton!
   @IBOutlet weak internal var _connectButton  : NSButton!
-  @IBOutlet weak internal var _clearAtConnect : NSButton!
-  @IBOutlet weak internal var _useLowBw       : NSButton!
   @IBOutlet weak internal var _sendButton     : NSButton!
   @IBOutlet weak internal var _filterBy       : NSPopUpButton!
   @IBOutlet weak internal var _filterObjectsBy: NSPopUpButton!
@@ -99,17 +81,16 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private var _commandsIndex                  = 0
   private var _commandsArray                  = [String]()                  // commands history
 
-  private var _notifications                  = [NSObjectProtocol]()        // Notification observers
-  
   private var _radioPickerTabViewController   : NSTabViewController?
   
   internal var _timestampsInUse                = false
   internal var _startTimestamp                 : Date?
   
+  private var _splitViewViewController        : SplitViewController?
+
   // backing storage
   private var _myHandle                       = "" {
     didSet { DispatchQueue.main.async { self._streamId.stringValue = self._myHandle } } }
-  private var _splitViewViewController        : SplitViewController?
   
   // constants
   internal let _objectQ                        = DispatchQueue(label: kClientName + ".objectQ", attributes: [.concurrent])
@@ -131,6 +112,9 @@ public final class ViewController             : NSViewController, RadioPickerDel
   public override func viewDidLoad() {
     super.viewDidLoad()
     
+    _filterBy.selectItem(withTag: Defaults[.filterByTag])
+    _filterObjectsBy.selectItem(withTag: Defaults[.filterObjectsByTag])
+
     _dateFormatter.timeZone = NSTimeZone.local
     _dateFormatter.dateFormat = "mm:ss.SSS"
     
@@ -223,26 +207,15 @@ public final class ViewController             : NSViewController, RadioPickerDel
       self.presentViewControllerAsSheet(self._radioPickerTabViewController!)
     }
   }
-  /// The Enable Pings checkbox changed
-  ///
-  /// - Parameter sender:     the checkbox
-  ///
-  @IBAction func updateEnablePinging(_ sender: NSButton) {
-    
-    // allow the user to show / not show pings
-    Defaults[.showPings] = (sender.state == NSControl.StateValue.on)
-  }
   /// The FilterBy PopUp changed
   ///
   /// - Parameter sender:     the popup
   ///
   @IBAction func updateFilterBy(_ sender: NSPopUpButton) {
     
-    // save change to preferences
-    Defaults[.filterByTag] = sender.selectedTag()
-    
     // clear the Filter string field
     _filter.stringValue = ""
+    Defaults[.filter] = ""
     
     // force a redraw
     _splitViewViewController?.reloadTable()
@@ -253,9 +226,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
   ///
   @IBAction func updateFilter(_ sender: NSTextField) {
     
-    // save change to preferences
-    Defaults[.filter] = sender.stringValue
-    
     // force a redraw
     _splitViewViewController?.reloadTable()
   }
@@ -265,11 +235,9 @@ public final class ViewController             : NSViewController, RadioPickerDel
   ///
   @IBAction func updateFilterObjectsBy(_ sender: NSPopUpButton) {
     
-    // save change to preferences
-    Defaults[.filterByObjectsTag] = sender.selectedTag()
-    
     // clear the Filter string field
     _filterObjects.stringValue = ""
+    Defaults[.filterObjects] = ""
     
     // force a redraw
     _splitViewViewController?.reloadObjectsTable()
@@ -279,9 +247,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
   /// - Parameter sender:     the text field
   ///
   @IBAction func updateFilterObjects(_ sender: NSTextField) {
-    
-    // save change to preferences
-    Defaults[.filterObjects] = sender.stringValue
     
     // force a redraw
     _splitViewViewController?.reloadObjectsTable()

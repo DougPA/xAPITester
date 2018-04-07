@@ -47,7 +47,7 @@ public final class PanadapterHandler         : NSObject, PanadapterStreamHandler
       // YES, set active
       active = true
       
-      _delegate.showInObjectsTable("START   Panadapter \(_id.hex) stream")
+      _delegate.showInObjectsTable("START   Panadapter     \(_id.hex) stream")
     }
   }
   

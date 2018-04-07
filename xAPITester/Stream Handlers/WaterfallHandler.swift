@@ -47,7 +47,7 @@ public final class WaterfallHandler         : NSObject, WaterfallStreamHandler {
       // YES, set active
       active = true
       
-      _delegate.showInObjectsTable("START   Waterfall  \(_id.hex) stream")
+      _delegate.showInObjectsTable("START   Waterfall      \(_id.hex) stream")
     }
   }
   

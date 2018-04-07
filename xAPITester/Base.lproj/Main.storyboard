@@ -665,7 +665,6 @@
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
                                 <connections>
-                                    <action selector="updateEnablePinging:" target="XfG-lQ-9wD" id="b4f-7h-XRc"/>
                                     <binding destination="TYT-Zn-7lZ" name="value" keyPath="values.enablePinging" id="CBR-4a-iFs"/>
                                 </connections>
                             </button>
@@ -819,6 +818,7 @@
                                             </popUpButtonCell>
                                             <connections>
                                                 <action selector="updateFilterBy:" target="XfG-lQ-9wD" id="Lkv-Oy-fwf"/>
+                                                <binding destination="TYT-Zn-7lZ" name="selectedTag" keyPath="values.filterByTag" id="qds-dF-iGZ"/>
                                             </connections>
                                         </popUpButton>
                                         <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OrY-mV-UHX">
@@ -833,6 +833,7 @@
                                             </textFieldCell>
                                             <connections>
                                                 <action selector="updateFilter:" target="XfG-lQ-9wD" id="PZo-7U-qBn"/>
+                                                <binding destination="TYT-Zn-7lZ" name="value" keyPath="values.filter" id="TIh-eq-JgB"/>
                                             </connections>
                                         </textField>
                                     </subviews>
@@ -895,6 +896,7 @@
                                             </popUpButtonCell>
                                             <connections>
                                                 <action selector="updateFilterObjectsBy:" target="XfG-lQ-9wD" id="TXZ-ig-QRE"/>
+                                                <binding destination="TYT-Zn-7lZ" name="selectedTag" keyPath="values.filterObjectsByTag" id="v8s-cB-db3"/>
                                             </connections>
                                         </popUpButton>
                                         <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Zbz-AW-42F">
@@ -909,6 +911,7 @@
                                             </textFieldCell>
                                             <connections>
                                                 <action selector="updateFilterObjects:" target="XfG-lQ-9wD" id="bJw-91-9xq"/>
+                                                <binding destination="TYT-Zn-7lZ" name="value" keyPath="values.filterObjects" id="Tdk-L4-DCt"/>
                                             </connections>
                                         </textField>
                                     </subviews>
@@ -989,21 +992,16 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="_clearAtConnect" destination="Kcc-Rj-HgG" id="t2M-St-Gj2"/>
                         <outlet property="_clearOnSend" destination="HRF-dK-6Pm" id="6B4-XZ-PIo"/>
                         <outlet property="_command" destination="Ubx-d9-73G" id="rST-Cf-4l2"/>
                         <outlet property="_connectButton" destination="9Kf-4Y-9Yo" id="vSh-vp-za4"/>
-                        <outlet property="_enablePinging" destination="E0z-XX-aCd" id="JEy-5Y-4DP"/>
                         <outlet property="_filter" destination="OrY-mV-UHX" id="maR-Dg-qF1"/>
                         <outlet property="_filterBy" destination="ar8-fN-ujq" id="oOd-Pj-5xo"/>
                         <outlet property="_filterObjects" destination="Zbz-AW-42F" id="HgY-bC-bUI"/>
                         <outlet property="_filterObjectsBy" destination="sSa-8o-g9y" id="iQs-Af-QZs"/>
                         <outlet property="_localRemote" destination="BOe-dA-oHf" id="1gi-bo-wKP"/>
                         <outlet property="_sendButton" destination="fOZ-ci-O28" id="Glu-dN-9c4"/>
-                        <outlet property="_showAllReplies" destination="Vxw-Of-l9v" id="Ygm-RM-XWq"/>
-                        <outlet property="_showPings" destination="Cz4-kd-MXb" id="SeY-Xt-WtA"/>
                         <outlet property="_streamId" destination="W2s-00-PIK" id="fKY-Ug-mC9"/>
-                        <outlet property="_useLowBw" destination="wSK-Bk-Ps3" id="7tI-J3-Ahc"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

@@ -47,7 +47,7 @@ public final class AudioHandler         : NSObject, AudioStreamHandler {
       // YES, set active
       active = true
       
-      _delegate.showInObjectsTable("START   Audio \(_id.hex) stream")
+      _delegate.showInObjectsTable("START   Audio          \(_id.hex) stream")
     }
   }
   

@@ -74,18 +74,18 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
 
   internal var _filteredTextArray              : [String] {                  // filtered version of textArray
     get {
-      switch FilterTag(rawValue: _parent!._filterBy.selectedTag())! {
+      switch FilterTag(rawValue: Defaults[.filterByTag]) ?? .none {
       case .none:
         return textArray
         
       case .prefix:
-        return textArray.filter { $0.hasPrefix(_parent!._filter.stringValue) }
+        return textArray.filter { $0.hasPrefix(Defaults[.filter]) }
         
       case .contains:
-        return textArray.filter { $0.contains(_parent!._filter.stringValue) }
+        return textArray.filter { $0.contains(Defaults[.filter]) }
         
       case .exclude:
-        return textArray.filter { !$0.contains(_parent!._filter.stringValue) }
+        return textArray.filter { !$0.contains(Defaults[.filter]) }
         
       case .streamId:
         return textArray.filter { $0.hasPrefix("S" + _parent!.myHandle) }
@@ -93,18 +93,18 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     }}
   internal var _filteredObjectsArray           : [String] {                  // filtered version of objectsArray
     get {
-      switch FilterObjectsTag(rawValue: _parent!._filterObjectsBy.selectedTag())! {
+      switch FilterObjectsTag(rawValue: Defaults[.filterObjectsByTag]) ?? .none {
       case .none:
         return objectsArray
         
       case .prefix:
-        return objectsArray.filter { $0.hasPrefix(_parent!._filterObjects.stringValue) }
+        return objectsArray.filter { $0.hasPrefix(Defaults[.filterObjects]) }
         
       case .contains:
-        return objectsArray.filter { $0.contains(_parent!._filterObjects.stringValue) }
+        return objectsArray.filter { $0.contains(Defaults[.filterObjects]) }
 
       case .exclude:
-        return objectsArray.filter { !$0.contains(_parent!._filterObjects.stringValue) }
+        return objectsArray.filter { !$0.contains(Defaults[.filterObjects]) }
       }
     }}
 
@@ -625,36 +625,36 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     switch obj {
     case is Amplifier:
-      text += "Amplifier, \((obj as! Amplifier).id)"
+      text += "Amplifier      \((obj as! Amplifier).id)"
     
     case is AudioStream:
       let audio = obj as! AudioStream
-      text += "AudioStream, \(audio.id.hex)"
+      text += "AudioStream    \(audio.id.hex)"
       audioHandlers[audio.id] = AudioHandler(id: audio.id, delegate: self)
       _api.radio!.audioStreams[audio.id]!.delegate = audioHandlers[audio.id]!
 
     case is IqStream:
       let iq = obj as! IqStream
-      text += "IqStream, \(iq.id.hex)"
+      text += "IqStream       \(iq.id.hex)"
       iqHandlers[iq.id] = IqHandler(id: iq.id, delegate: self)
       _api.radio!.iqStreams[iq.id]!.delegate = iqHandlers[iq.id]!
     
     case is Memory:
-      text += "Memory, \((obj as! Memory).id)"
+      text += "Memory         \((obj as! Memory).id)"
     
     case is Meter:
       let meter = obj as! Meter
-      text += "Meter, \(meter.id), name = \(meter.name), desc = \(meter.description), low = \(meter.low), high = \(meter.high), fps = \(meter.fps)"
+      text += "Meter          \(meter.id), name = \(meter.name) desc = \(meter.description) low = \(meter.low) high = \(meter.high) fps = \(meter.fps)"
     
     case is MicAudioStream:
-      text += "MicAudioStream, \((obj as! MicAudioStream).id)"
+      text += "MicAudioStream \((obj as! MicAudioStream).id)"
     
     case is Opus:
-      text += "Opus, \((obj as! Opus).id)"
+      text += "Opus           \((obj as! Opus).id)"
     
     case is Panadapter:
       let panadapter = obj as! Panadapter
-      text += "Panadapter, \(panadapter.id.hex), center = \(panadapter.center.hzToMhz()), bandwidth = \(panadapter.bandwidth.hzToMhz())"
+      text += "Panadapter     \(panadapter.id.hex) center = \(panadapter.center.hzToMhz()) bandwidth = \(panadapter.bandwidth.hzToMhz())"
       panadapterHandlers[panadapter.id] = PanadapterHandler(id: panadapter.id, delegate: self)
       _api.radio!.panadapters[panadapter.id]!.delegate = panadapterHandlers[panadapter.id]!
 
@@ -663,29 +663,29 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     case is Radio:
       let radio = Api.sharedInstance.activeRadio
-      text += "Radio, name = \(radio?.nickname ?? ""), model = \(radio?.model ?? "")"
+      text += "Radio          name = \(radio?.nickname ?? "") model = \(radio?.model ?? "")"
     
     case is xLib6000.Slice:
       let slice = obj as! xLib6000.Slice
-      text += "Slice, \(slice.id), frequency = \(slice.frequency.hzToMhz())"
+      text += "Slice          \(slice.id) frequency = \(slice.frequency.hzToMhz())"
     
     case is Tnf:
-      text += "Tnf, \((obj as! Tnf).id)"
+      text += "Tnf            \((obj as! Tnf).id)"
     
     case is TxAudioStream:
-      text += "TxAudioStream, \((obj as! TxAudioStream).id)"
+      text += "TxAudioStream  \((obj as! TxAudioStream).id)"
     
     case is UsbCable:
-      text += "UsbCable, \((obj as! UsbCable).id)"
+      text += "UsbCable       \((obj as! UsbCable).id)"
     
     case is Waterfall:
       let waterfall = obj as! Waterfall
-      text += "Waterfall, \(waterfall.id.hex)"
+      text += "Waterfall      \(waterfall.id.hex)"
       waterfallHandlers[waterfall.id] = WaterfallHandler(id: waterfall.id, delegate: self)
       _api.radio!.waterfalls[waterfall.id]!.delegate = waterfallHandlers[waterfall.id]!
     
     case is Xvtr:
-      text += "Xvtr, \((obj as! Xvtr).id)"
+      text += "Xvtr           \((obj as! Xvtr).id)"
     
     default:
       text += "Unknown object"
@@ -700,67 +700,67 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     switch obj {
     case is Amplifier:
-      text += "Amplifier, \((obj as! Amplifier).id)"
-    
+      text += "Amplifier      \((obj as! Amplifier).id)"
+
     case is AudioStream:
       let audio = obj as! AudioStream
       _api.radio!.audioStreams[audio.id]!.delegate = nil
       audioHandlers[audio.id] = nil
-      text += "AudioStream, \(audio.id.hex)"
+      text += "AudioStream    \(audio.id.hex)"
     
     case is IqStream:
       let iq = obj as! IqStream
       _api.radio!.iqStreams[iq.id]!.delegate = nil
       iqHandlers[iq.id] = nil
-      text += "IqStream, \(iq.id.hex)"
+      text += "IqStream       \(iq.id.hex)"
     
     case is Memory:
-      text += "Memory, \((obj as! Memory).id)"
+      text += "Memory         \((obj as! Memory).id)"
     
     case is Meter:
       let meter = obj as! Meter
-      text += "Meter, \(meter.id), name = \(meter.name), desc = \(meter.description), low = \(meter.low), high = \(meter.high), fps = \(meter.fps)"
+      text += "Meter          \(meter.id) name = \(meter.name) desc = \(meter.description) low = \(meter.low) high = \(meter.high) fps = \(meter.fps)"
     
     case is MicAudioStream:
-      text += "MicAudioStream, \((obj as! MicAudioStream).id)"
+      text += "MicAudioStream \((obj as! MicAudioStream).id)"
     
     case is Opus:
-      text += "Opus, \((obj as! Opus).id)"
+      text += "Opus           \((obj as! Opus).id)"
     
     case is Panadapter:
       let panadapter = obj as! Panadapter
       _api.radio!.panadapters[panadapter.id]!.delegate = nil
       panadapterHandlers[panadapter.id] = nil
-      text += "Panadapter, \(panadapter.id.hex), center = \(panadapter.center.hzToMhz()), bandwidth = \(panadapter.bandwidth.hzToMhz())"
+      text += "Panadapter     \(panadapter.id.hex) center = \(panadapter.center.hzToMhz()) bandwidth = \(panadapter.bandwidth.hzToMhz())"
       
     case is Profile:
       text += "Profile"
     
     case is Radio:
       let radio = Api.sharedInstance.activeRadio
-      text += "Radio, name = \(radio?.nickname ?? ""), model = \(radio?.model ?? "")"
+      text += "Radio          name = \(radio?.nickname ?? "") model = \(radio?.model ?? "")"
     
     case is xLib6000.Slice:
       let slice = obj as! xLib6000.Slice
-      text += "Slice, \(slice.id), frequency = \(slice.frequency.hzToMhz())"
+      text += "Slice          \(slice.id) frequency = \(slice.frequency.hzToMhz())"
     
     case is Tnf:
-      text += "Tnf, \((obj as! Tnf).id)"
+      text += "Tnf \((obj as! Tnf).id)"
     
     case is TxAudioStream:
-      text += "TxAudioStream, \((obj as! TxAudioStream).id)"
+      text += "TxAudioStream  \((obj as! TxAudioStream).id)"
     
     case is UsbCable:
-      text += "UsbCable, \((obj as! UsbCable).id)"
+      text += "UsbCable       \((obj as! UsbCable).id)"
     
     case is Waterfall:
       let waterfall = obj as! Waterfall
       _api.radio!.waterfalls[waterfall.id]!.delegate = nil
       waterfallHandlers[waterfall.id] = nil
-      text += "Waterfall, \(waterfall.id.hex)"
+      text += "Waterfall      \(waterfall.id.hex)"
       
     case is Xvtr:
-      text += "Xvtr, \((obj as! Xvtr).id)"
+      text += "Xvtr           \((obj as! Xvtr).id)"
     
     default:
       text += "Unknown object"
