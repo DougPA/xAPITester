@@ -56,15 +56,14 @@ public final class ViewController             : NSViewController, RadioPickerDel
   
   private var _api                            = Api.sharedInstance          // Api to the Radio
   
-  @IBOutlet weak internal var _filter         : NSTextField!
-  @IBOutlet weak internal var _filterObjects  : NSTextField!
+//  @IBOutlet weak internal var _filter         : NSTextField!
+//  @IBOutlet weak internal var _filterObjects  : NSTextField!
   @IBOutlet weak internal var _command        : NSTextField!
   @IBOutlet weak internal var _connectButton  : NSButton!
   @IBOutlet weak internal var _sendButton     : NSButton!
   @IBOutlet weak internal var _filterBy       : NSPopUpButton!
   @IBOutlet weak internal var _filterObjectsBy: NSPopUpButton!
   @IBOutlet weak internal var _streamId       : NSTextField!
-  @IBOutlet weak internal var _clearOnSend    : NSButton!
   @IBOutlet weak internal var _localRemote    : NSTextField!
   
   // ----------------------------------------------------------------------------
@@ -214,7 +213,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func updateFilterBy(_ sender: NSPopUpButton) {
     
     // clear the Filter string field
-    _filter.stringValue = ""
     Defaults[.filter] = ""
     
     // force a redraw
@@ -236,7 +234,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func updateFilterObjectsBy(_ sender: NSPopUpButton) {
     
     // clear the Filter string field
-    _filterObjects.stringValue = ""
     Defaults[.filterObjects] = ""
     
     // force a redraw

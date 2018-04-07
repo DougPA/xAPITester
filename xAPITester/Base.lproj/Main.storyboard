@@ -832,7 +832,7 @@
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                             <connections>
-                                                <action selector="updateFilter:" target="XfG-lQ-9wD" id="PZo-7U-qBn"/>
+                                                <action selector="updateFilter:" target="XfG-lQ-9wD" id="L76-Mn-MSX"/>
                                                 <binding destination="TYT-Zn-7lZ" name="value" keyPath="values.filter" id="TIh-eq-JgB"/>
                                             </connections>
                                         </textField>
@@ -910,7 +910,7 @@
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                             <connections>
-                                                <action selector="updateFilterObjects:" target="XfG-lQ-9wD" id="bJw-91-9xq"/>
+                                                <action selector="updateFilterObjects:" target="XfG-lQ-9wD" id="Ubd-0w-Wwg"/>
                                                 <binding destination="TYT-Zn-7lZ" name="value" keyPath="values.filterObjects" id="Tdk-L4-DCt"/>
                                             </connections>
                                         </textField>
@@ -992,12 +992,9 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="_clearOnSend" destination="HRF-dK-6Pm" id="6B4-XZ-PIo"/>
                         <outlet property="_command" destination="Ubx-d9-73G" id="rST-Cf-4l2"/>
                         <outlet property="_connectButton" destination="9Kf-4Y-9Yo" id="vSh-vp-za4"/>
-                        <outlet property="_filter" destination="OrY-mV-UHX" id="maR-Dg-qF1"/>
                         <outlet property="_filterBy" destination="ar8-fN-ujq" id="oOd-Pj-5xo"/>
-                        <outlet property="_filterObjects" destination="Zbz-AW-42F" id="HgY-bC-bUI"/>
                         <outlet property="_filterObjectsBy" destination="sSa-8o-g9y" id="iQs-Af-QZs"/>
                         <outlet property="_localRemote" destination="BOe-dA-oHf" id="1gi-bo-wKP"/>
                         <outlet property="_sendButton" destination="fOZ-ci-O28" id="Glu-dN-9c4"/>
