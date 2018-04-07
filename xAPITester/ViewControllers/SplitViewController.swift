@@ -44,33 +44,37 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   @IBOutlet internal var _tableView           : NSTableView!
   @IBOutlet internal var _objectsTableView    : NSTableView!
 
+  public var myHandle: String {
+    get { return _objectQ.sync { _myHandle } }
+    set { _objectQ.sync(flags: .barrier) { _myHandle = newValue } } }
+  
   internal var objectsArray: [String] {
-    get { return _parent!._objectQ.sync { _objectsArray } }
-    set { _parent!._objectQ.sync(flags: .barrier) { _objectsArray = newValue } } }
+    get { return _objectQ.sync { _objectsArray } }
+    set { _objectQ.sync(flags: .barrier) { _objectsArray = newValue } } }
   
   internal var textArray: [String] {
-    get { return _parent!._objectQ.sync { _textArray } }
-    set { _parent!._objectQ.sync(flags: .barrier) { _textArray = newValue } } }
+    get { return _objectQ.sync { _textArray } }
+    set { _objectQ.sync(flags: .barrier) { _textArray = newValue } } }
   
   internal var audioHandlers: [DaxStreamId: AudioHandler] {
-    get { return _parent!._objectQ.sync { _audioHandlers } }
-    set { _parent!._objectQ.sync(flags: .barrier) { _audioHandlers = newValue } } }
+    get { return _objectQ.sync { _audioHandlers } }
+    set { _objectQ.sync(flags: .barrier) { _audioHandlers = newValue } } }
   
   internal var iqHandlers: [DaxStreamId: IqHandler] {
-    get { return _parent!._objectQ.sync { _iqHandlers } }
-    set { _parent!._objectQ.sync(flags: .barrier) { _iqHandlers = newValue } } }
+    get { return _objectQ.sync { _iqHandlers } }
+    set { _objectQ.sync(flags: .barrier) { _iqHandlers = newValue } } }
   
   internal var panadapterHandlers: [PanadapterId: PanadapterHandler] {
-    get { return _parent!._objectQ.sync { _panadapterHandlers } }
-    set { _parent!._objectQ.sync(flags: .barrier) { _panadapterHandlers = newValue } } }
+    get { return _objectQ.sync { _panadapterHandlers } }
+    set { _objectQ.sync(flags: .barrier) { _panadapterHandlers = newValue } } }
   
   internal var waterfallHandlers: [WaterfallId: WaterfallHandler] {
-    get { return _parent!._objectQ.sync { _waterfallHandlers } }
-    set { _parent!._objectQ.sync(flags: .barrier) { _waterfallHandlers = newValue } } }
+    get { return _objectQ.sync { _waterfallHandlers } }
+    set { _objectQ.sync(flags: .barrier) { _waterfallHandlers = newValue } } }
   
   internal var replyHandlers: [SequenceId: ReplyTuple] {
-    get { return _parent!._objectQ.sync { _replyHandlers } }
-    set { _parent!._objectQ.sync(flags: .barrier) { _replyHandlers = newValue } } }
+    get { return _objectQ.sync { _replyHandlers } }
+    set { _objectQ.sync(flags: .barrier) { _replyHandlers = newValue } } }
 
   internal var _filteredTextArray              : [String] {                  // filtered version of textArray
     get {
@@ -88,7 +92,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         return textArray.filter { !$0.contains(Defaults[.filter]) }
         
       case .streamId:
-        return textArray.filter { $0.hasPrefix("S" + _parent!.myHandle) }
+        return textArray.filter { $0.hasPrefix("S" + myHandle) }
       }
     }}
   internal var _filteredObjectsArray           : [String] {                  // filtered version of objectsArray
@@ -113,9 +117,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   
   private var _api                            = Api.sharedInstance          // Api to the Radio
   internal weak var _parent                   : ViewController?
-  
+  internal let _objectQ                       = DispatchQueue(label: kClientName + ".objectQ", attributes: [.concurrent])
+
   private var _font                           : NSFont!                     // font for table entries
 
+  private var _myHandle                       = ""
   private var _replyHandlers                  = [SequenceId: ReplyTuple]()  // Dictionary of pending replies
   private var _audioHandlers                  = [DaxStreamId: AudioHandler]()
   private var _iqHandlers                     = [DaxStreamId: IqHandler]()
@@ -124,7 +130,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   private var _textArray                      = [String]()                  // backing storage for the table
   private var _objectsArray                   = [String]()                  // backing storage for the objects table
   
-  private let kAutosaveName                   = NSSplitView.AutosaveName(rawValue: "xAPITesterSplitView")
+  private let kAutosaveName                   = NSSplitView.AutosaveName(rawValue: kClientName + "SplitView")
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
@@ -231,21 +237,13 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   ///
   /// - Parameter text:       a text String
   ///
-  private func showInTable(_ text: String, addTimestamp: Bool = true) {
+  private func showInTable(_ text: String) {
     
-      // add the Text to the Array (with or without a timestamp)
-      if _parent!._timestampsInUse && addTimestamp {
-        let timeInterval = Date().timeIntervalSince(self._parent!._startTimestamp!)
-        
-        let timestamp = String( format: "%0.3f", timeInterval)
-        textArray.append( timestamp + " " + text )
-        
-      } else {
-        
-        textArray.append( text )
-      }
-      
-      reloadTable()
+    // add the Timestamp to the Text
+    let timeInterval = Date().timeIntervalSince(self._parent!._startTimestamp!)
+    textArray.append( String( format: "%8.3f", timeInterval) + " " + text )
+    
+    reloadTable()
   }
   /// Add text to the Objects table
   ///
@@ -253,17 +251,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   ///
   func showInObjectsTable(_ text: String, addTimestamp: Bool = true) {
     
-    // add the Text to the Array (with or without a timestamp)
-    if _parent!._timestampsInUse && addTimestamp {
-      let timeInterval = Date().timeIntervalSince(self._parent!._startTimestamp!)
-      
-      let timestamp = String( format: "%0.3f", timeInterval)
-      objectsArray.append( timestamp + " " + text )
-      
-    } else {
-      
-      objectsArray.append( text )
-    }
+    // add the Timestamp to the Text
+    let timeInterval = Date().timeIntervalSince(self._parent!._startTimestamp!)
+    objectsArray.append( String( format: "%8.3f", timeInterval) + " " + text )
     
     reloadObjectsTable()
   }
@@ -360,7 +350,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     case "H":   // Handle type
       // convert to drop leading zero (if any)
       let numericHandle = Int( String(suffix), radix: 16 )
-      _parent!.myHandle = String(format: "%X", numericHandle!)
+      myHandle = String(format: "%X", numericHandle!)
+      
+      DispatchQueue.main.async { [unowned self] in
+        self._parent!._streamId.stringValue = self.myHandle
+      }
       
       showInTable(text)
       
@@ -430,7 +424,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   public func msg(_ msg: String, level: MessageLevel, function: StaticString, file: StaticString, line: Int ) -> Void {
     
     // Show API log messages
-    showInTable("----- \(msg) -----", addTimestamp: false)
+    showInTable("----- \(msg) -----")
   }
 
   // ----------------------------------------------------------------------------
@@ -475,14 +469,14 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       // validate the index
       if _filteredTextArray.count - 1 >= row {
         
-        // Replies & Commands, get the text
+        // Replies & Commands, get the text including Timestamp
         let rowText = _filteredTextArray[row]
-        var msgText = rowText
         
-        if _parent!._timestampsInUse { msgText = msgText.components(separatedBy: " ")[1] }
+        // get the text without the Timestamp
+        let msgText = String(rowText.dropFirst(9))
         
         // determine the type of text, assign a background color
-        if rowText.hasPrefix("-----") {                                         // application messages
+        if msgText.hasPrefix("-----") {                                         // application messages
           
           // application messages from this app
           view.textField!.backgroundColor = Defaults[.messageColor]
@@ -504,7 +498,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
           // messages not directed to a specific client
           view.textField!.backgroundColor = Defaults[.neutralColor]
           
-        } else if msgText.hasPrefix("s" + _parent!.myHandle) || msgText.hasPrefix("S" + _parent!.myHandle) {
+        } else if msgText.hasPrefix("s" + myHandle) || msgText.hasPrefix("S" + myHandle) {
           
           // status sent to myHandle
           view.textField!.backgroundColor = Defaults[.myHandleColor]
@@ -518,7 +512,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         view.textField!.font = _font
         
         // set the text
-        view.textField!.stringValue = rowText
+        view.textField!.stringValue = Defaults[.showTimestamps] ? rowText : msgText
       }
     
     }
@@ -527,8 +521,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       // validate the index
       if _filteredObjectsArray.count - 1 >= row {
         
-        // Objects, get the text
-        let msgText = _filteredObjectsArray[row]
+        // Objects, get the text including Timestamp
+        let rowText = _filteredObjectsArray[row]
+        
+        // get the text without the Timestamp
+        let msgText = String(rowText.dropFirst(9))
 
         // determine the type of text, assign a background color
         if msgText.hasPrefix("ADDED   Radio") || msgText.hasPrefix("REMOVED Radio") {
@@ -555,10 +552,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         view.textField!.font = _font
         
         // set the text
-        view.textField!.stringValue = msgText
+        view.textField!.stringValue = Defaults[.showTimestamps] ? rowText : msgText
       }
     }
-    
     return view
   }
   

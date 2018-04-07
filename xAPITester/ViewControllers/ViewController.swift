@@ -69,10 +69,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
   // ----------------------------------------------------------------------------
   // MARK: - Private properties - Setters / Getters with synchronization
   
-  public var myHandle: String {
-    get { return _objectQ.sync { _myHandle } }
-    set { _objectQ.sync(flags: .barrier) { _myHandle = newValue } } }
-  
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
@@ -82,17 +78,11 @@ public final class ViewController             : NSViewController, RadioPickerDel
 
   private var _radioPickerTabViewController   : NSTabViewController?
   
-  internal var _timestampsInUse                = false
   internal var _startTimestamp                 : Date?
   
   private var _splitViewViewController        : SplitViewController?
 
-  // backing storage
-  private var _myHandle                       = "" {
-    didSet { DispatchQueue.main.async { self._streamId.stringValue = self._myHandle } } }
-  
   // constants
-  internal let _objectQ                        = DispatchQueue(label: kClientName + ".objectQ", attributes: [.concurrent])
   
   private let _dateFormatter                  = DateFormatter()
   
@@ -237,6 +227,12 @@ public final class ViewController             : NSViewController, RadioPickerDel
     Defaults[.filterObjects] = ""
     
     // force a redraw
+    _splitViewViewController?.reloadObjectsTable()
+  }
+  @IBAction func showTimestamps(_ sender: NSButton) {
+    
+    // force a redraw
+    _splitViewViewController?.reloadTable()
     _splitViewViewController?.reloadObjectsTable()
   }
   /// The Filter text field changed
@@ -574,7 +570,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     // attempt to connect to it
     if _api.connect(selectedRadio, clientName: kClientName, isGui: Defaults[.isGui]) {
       
-      _timestampsInUse = Defaults[.showTimestamps]
       _startTimestamp = Date()
       
       self._connectButton.title = self.kDisconnect
