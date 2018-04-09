@@ -575,6 +575,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
       _startTimestamp = Date()
       
       self._connectButton.title = self.kDisconnect.rawValue
+      self._connectButton.identifier = self.kDisconnect
       self._sendButton.isEnabled = true
 
       setTitle()
@@ -593,6 +594,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     
     _sendButton.isEnabled = false
     _connectButton.title = kConnect.rawValue
+    _connectButton.identifier = kConnect
     _localRemote.stringValue = ""
     
     _splitViewViewController!.panadapterHandlers.removeAll()
