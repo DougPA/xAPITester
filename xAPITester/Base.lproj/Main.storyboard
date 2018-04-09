@@ -678,7 +678,7 @@
                                     <binding destination="TYT-Zn-7lZ" name="value" keyPath="values.showPings" id="HVL-tN-DfG"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9Kf-4Y-9Yo">
+                            <button identifier="Connect" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9Kf-4Y-9Yo">
                                 <rect key="frame" x="14" y="549" width="102" height="32"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="90" id="YkD-8Y-ykc"/>
@@ -767,7 +767,7 @@
                             </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="BOe-dA-oHf">
                                 <rect key="frame" x="20" y="451" width="90" height="19"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="LOCAL" drawsBackground="YES" id="g1W-Gd-ehP">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Local" drawsBackground="YES" id="g1W-Gd-ehP">
                                     <font key="font" metaFont="systemBold" size="16"/>
                                     <color key="textColor" name="systemRedColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -783,7 +783,7 @@
                                 </connections>
                             </containerView>
                             <box autoresizesSubviews="NO" borderType="line" title="Commands &amp; Replies" translatesAutoresizingMaskIntoConstraints="NO" id="vy7-gC-qmd">
-                                <rect key="frame" x="598" y="432" width="443" height="60"/>
+                                <rect key="frame" x="580" y="432" width="443" height="60"/>
                                 <view key="contentView" id="3ws-kk-th5">
                                     <rect key="frame" x="1" y="1" width="441" height="44"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -853,7 +853,7 @@
                                     <constraint firstAttribute="width" constant="437" id="p8e-tF-XJu"/>
                                 </constraints>
                             </box>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Lbr-rh-aaK">
+                            <button identifier="Send" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Lbr-rh-aaK">
                                 <rect key="frame" x="14" y="495" width="102" height="32"/>
                                 <buttonCell key="cell" type="push" title="Send" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="bVJ-DM-gM9">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -970,7 +970,6 @@
                             <constraint firstItem="fOZ-ci-O28" firstAttribute="leading" secondItem="BOe-dA-oHf" secondAttribute="leading" id="VkQ-iu-9dv"/>
                             <constraint firstItem="9Kf-4Y-9Yo" firstAttribute="leading" secondItem="fOZ-ci-O28" secondAttribute="leading" id="YHK-HU-Ffu"/>
                             <constraint firstItem="VnJ-hd-KP6" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="VAE-vh-pAl" secondAttribute="trailing" constant="252" id="YPJ-r7-jGa"/>
-                            <constraint firstAttribute="trailing" secondItem="vy7-gC-qmd" secondAttribute="trailing" constant="2" id="ZKu-A3-yvd"/>
                             <constraint firstItem="9Kf-4Y-9Yo" firstAttribute="trailing" secondItem="fOZ-ci-O28" secondAttribute="trailing" id="Zg0-UZ-ZSE"/>
                             <constraint firstItem="fOZ-ci-O28" firstAttribute="baseline" secondItem="Ubx-d9-73G" secondAttribute="baseline" id="aJt-hc-Dd2"/>
                             <constraint firstItem="9Kf-4Y-9Yo" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="bC2-6S-45R"/>
@@ -980,6 +979,7 @@
                             <constraint firstAttribute="trailing" secondItem="HRF-dK-6Pm" secondAttribute="trailing" constant="20" symbolic="YES" id="fB3-vq-YJE"/>
                             <constraint firstItem="Cz4-kd-MXb" firstAttribute="baseline" secondItem="wSK-Bk-Ps3" secondAttribute="baseline" id="jPa-dl-4PX"/>
                             <constraint firstItem="vy7-gC-qmd" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="105" id="m3H-ih-Fpc"/>
+                            <constraint firstAttribute="trailing" secondItem="vy7-gC-qmd" secondAttribute="trailing" constant="20" symbolic="YES" id="nTa-FQ-R05"/>
                             <constraint firstItem="HRF-dK-6Pm" firstAttribute="leading" secondItem="Ubx-d9-73G" secondAttribute="trailing" constant="8" symbolic="YES" id="o3Y-NG-xke"/>
                             <constraint firstItem="c72-AN-7lv" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="133" id="quK-ZV-NiW"/>
                             <constraint firstItem="E0z-XX-aCd" firstAttribute="baseline" secondItem="Vxw-Of-l9v" secondAttribute="baseline" id="s4u-6g-KgP"/>
@@ -1354,7 +1354,7 @@ Gw
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="20" headerView="eu0-h9-8cd" viewBased="YES" id="GRg-ba-JSS">
-                                            <rect key="frame" x="0.0" y="0.0" width="566" height="130"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="566" height="134"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>

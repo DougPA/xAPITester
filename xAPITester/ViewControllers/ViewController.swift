@@ -87,17 +87,20 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private let _dateFormatter                  = DateFormatter()
   
   private let kAutosaveName                   = NSWindow.FrameAutosaveName("xAPITesterWindow")
-  private let kSend                           = "Send"
-  private let kConnect                        = "Connect"
-  private let kDisconnect                     = "Disconnect"
-  private let kLocal                          = "LOCAL"
-  private let kRemote                         = "REMOTE"
+  private let kConnect                        = NSUserInterfaceItemIdentifier( "Connect")
+  private let kDisconnect                     = NSUserInterfaceItemIdentifier( "Disconnect")
+  private let kLocal                          = "Local"
+  private let kRemote                         = "SmartLink"
   private let kLocalTab                       = 0
   private let kRemoteTab                      = 1
 
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
-  
+
+  public func NSLocalizedString(_ key: String) -> String {
+    return Foundation.NSLocalizedString(key, comment: "")
+  }
+
   public override func viewDidLoad() {
     super.viewDidLoad()
     
@@ -110,7 +113,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _command.delegate = self
     
     _sendButton.isEnabled = false
-    _sendButton.title = kSend
     
     // setup & register Defaults
     setupDefaults()
@@ -173,7 +175,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _api.disconnect()
     
     _sendButton.isEnabled = false
-    _connectButton.title = kConnect
+    _connectButton.title = kConnect.rawValue
     _localRemote.stringValue = ""
     
     NSApp.terminate(self)
@@ -251,7 +253,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func connect(_ sender: NSButton) {
     
     // Connect or Disconnect?
-    switch sender.title {
+    switch sender.identifier {
       
     case kConnect:
       
@@ -572,7 +574,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
       
       _startTimestamp = Date()
       
-      self._connectButton.title = self.kDisconnect
+      self._connectButton.title = self.kDisconnect.rawValue
       self._sendButton.isEnabled = true
 
       setTitle()
@@ -590,7 +592,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _api.disconnect()
     
     _sendButton.isEnabled = false
-    _connectButton.title = kConnect
+    _connectButton.title = kConnect.rawValue
     _localRemote.stringValue = ""
     
     _splitViewViewController!.panadapterHandlers.removeAll()

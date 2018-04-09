@@ -13,7 +13,7 @@ import xLib6000
 // MARK: - PanadapterHandler Class implementation
 // ------------------------------------------------------------------------------
 
-public final class PanadapterHandler         : NSObject, PanadapterStreamHandler {
+public final class PanadapterHandler        : NSObject, PanadapterStreamHandler {
   
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
@@ -41,36 +41,14 @@ public final class PanadapterHandler         : NSObject, PanadapterStreamHandler
   // MARK: - Public methods
   
   public func panadapterStreamHandler(_ dataFrame: PanadapterFrame) {
-
+    let panadapterStartMessage = "START   Panadapter     \(_id.hex) stream"
+    
     // data received, is it the first?
     if !active {
       // YES, set active
       active = true
       
-      _delegate.showInObjectsTable("START   Panadapter     \(_id.hex) stream")
+      _delegate.showInObjectsTable(panadapterStartMessage)
     }
   }
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Private methods
-  
-  /// Start the timer
-  ///
-//  private func startTimer() {
-//    
-//    // create the timer's dispatch source
-//    _timer = DispatchSource.makeTimerSource(flags: [.strict], queue: _timerQ)
-//    
-//    // Set timer for 1 second with 100 millisecond leeway
-//    _timer.schedule(deadline: DispatchTime.now(), repeating: .seconds(1), leeway: .milliseconds(100))
-//    
-//    // set the expiration handler
-//    _timer.setEventHandler { [ unowned self ] in
-//      
-//      // Timer fired, stop the Timer
-//      self._timer?.cancel()
-//      
-//      self._delegate?.showInObjectsTable("TIMEOUT Panadapter \(self._id.hex) stream")
-//    }
-//  }
 }

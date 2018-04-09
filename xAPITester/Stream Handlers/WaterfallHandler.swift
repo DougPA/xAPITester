@@ -13,7 +13,7 @@ import xLib6000
 // MARK: - WaterfallHandler Class implementation
 // ------------------------------------------------------------------------------
 
-public final class WaterfallHandler         : NSObject, WaterfallStreamHandler {
+public final class WaterfallHandler        : NSObject, WaterfallStreamHandler {
   
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
@@ -50,27 +50,4 @@ public final class WaterfallHandler         : NSObject, WaterfallStreamHandler {
       _delegate.showInObjectsTable("START   Waterfall      \(_id.hex) stream")
     }
   }
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Private methods
-  
-  /// Start the timer
-  ///
-//  private func startTimer() {
-//    
-//    // create the timer's dispatch source
-//    _timer = DispatchSource.makeTimerSource(flags: [.strict], queue: _timerQ)
-//    
-//    // Set timer for 1 second with 100 millisecond leeway
-//    _timer.schedule(deadline: DispatchTime.now(), repeating: .seconds(1), leeway: .milliseconds(100))
-//    
-//    // set the expiration handler
-//    _timer.setEventHandler { [ unowned self ] in
-//      
-//      // Timer fired, stop the Timer
-//      self._timer?.cancel()
-//      
-//      self._delegate?.showInObjectsTable("TIMEOUT Panadapter \(self._id.hex) stream")
-//    }
-//  }
 }

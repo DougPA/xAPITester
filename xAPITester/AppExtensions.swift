@@ -58,6 +58,14 @@ extension DefaultsKeys {
 }
 
 // ----------------------------------------------------------------------------
+// MARK: - String
+
+//extension String {
+//
+//  static let Local = NSLocalizedString("Local")
+//}
+
+// ----------------------------------------------------------------------------
 // MARK: - Date
 
 public extension Date {
