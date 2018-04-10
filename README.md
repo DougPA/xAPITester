@@ -1,5 +1,5 @@
 # xAPITester
-## Tcp API Explorer for the FlexRadio (TM) 6000 series software defined radios.
+## API Explorer for the FlexRadio (TM) 6000 series software defined radios.
 
 ### Built on:
 *  macOS 10.13.4 (Deployment Target of macOS 10.10)
