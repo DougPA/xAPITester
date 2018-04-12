@@ -40,7 +40,7 @@ public final class IqHandler                : NSObject, IqStreamHandler {
   // ----------------------------------------------------------------------------
   // MARK: - Public methods
   
-  public func iqStreamHandler(_ dataFrame: IqStreamFrame) {
+  public func streamHandler(_ frame: IqStreamFrame) {
 
     // data received, is it the first?
     if !active {

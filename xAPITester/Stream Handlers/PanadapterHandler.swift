@@ -40,7 +40,7 @@ public final class PanadapterHandler        : NSObject, PanadapterStreamHandler 
   // ----------------------------------------------------------------------------
   // MARK: - Public methods
   
-  public func panadapterStreamHandler(_ dataFrame: PanadapterFrame) {
+  public func streamHandler(_ frame: PanadapterFrame) {
     let panadapterStartMessage = "START   Panadapter     \(_id.hex) stream"
     
     // data received, is it the first?

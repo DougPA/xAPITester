@@ -1,5 +1,16 @@
 xAPITester Change Log
 
+v5.0.5
+
+Updated embedded xLib6000 to v1.0.14
+Audio, Iq, Panadapter & Waterfall StreamHandlers Changed from ...StreamHandler(_ frame:) to streamHandler(_ frame:)
+SplitViewController - removed ", addTimestamp: Bool = true" from showInObjectsTable(_:)
+SplitViewController - changed Api Delegate method streamHandler(_:) to vitaParser(_:)
+
+v5.0.4
+
+ViewController.swift - in openRadio(...) & closeRadio() added _connectButton.identifier = ...
+
 v5.0.1
 
 Removed CommonLibraryCode

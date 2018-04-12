@@ -40,7 +40,7 @@ public final class AudioHandler             : NSObject, AudioStreamHandler {
   // ----------------------------------------------------------------------------
   // MARK: - Public methods
   
-  public func audioStreamHandler(_ dataFrame: AudioStreamFrame) {
+  public func streamHandler(_ frame: AudioStreamFrame) {
 
     // data received, is it the first?
     if !active {

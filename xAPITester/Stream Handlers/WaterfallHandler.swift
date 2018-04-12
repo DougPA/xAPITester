@@ -40,7 +40,7 @@ public final class WaterfallHandler        : NSObject, WaterfallStreamHandler {
   // ----------------------------------------------------------------------------
   // MARK: - Public methods
   
-  public func waterfallStreamHandler(_ dataFrame: WaterfallFrame) {
+  public func streamHandler(_ frame: WaterfallFrame) {
 
     // data received, is it the first?
     if !active {

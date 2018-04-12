@@ -409,7 +409,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   ///
   /// - Parameter vita: a Vita packet
   ///
-  public func streamHandler(_ vitaPacket: Vita) {
+  public func vitaParser(_ vitaPacket: Vita) {
     
     // unused in xAPITester
     
