@@ -2,6 +2,11 @@ xAPITester Change Log
 
 v5.0.7
 
+Corrected issue with missing files in CommonClientCode folder
+Removed CommonCode folder
+
+v5.0.7
+
 Updated embedded xLib6000 to v1.0.16
 
 v5.0.5

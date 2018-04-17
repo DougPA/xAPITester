@@ -22,21 +22,21 @@
 		9185B05A20790E86004D4C40 /* WaterfallHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B05920790E86004D4C40 /* WaterfallHandler.swift */; };
 		9185B05E20791318004D4C40 /* AudioHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B05B20791318004D4C40 /* AudioHandler.swift */; };
 		9185B05F20791318004D4C40 /* IqHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B05C20791318004D4C40 /* IqHandler.swift */; };
+		9185B0B920867E3B004D4C40 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B0AB20867E3B004D4C40 /* Keychain.swift */; };
+		9185B0BA20867E3B004D4C40 /* JWTDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B0AD20867E3B004D4C40 /* JWTDecode.swift */; };
+		9185B0BB20867E3B004D4C40 /* JWT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B0AE20867E3B004D4C40 /* JWT.swift */; };
+		9185B0BC20867E3B004D4C40 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B0AF20867E3B004D4C40 /* Errors.swift */; };
+		9185B0BD20867E3B004D4C40 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B0B120867E3B004D4C40 /* DictionaryExtensions.swift */; };
+		9185B0BE20867E3B004D4C40 /* DataExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B0B220867E3B004D4C40 /* DataExtensions.swift */; };
+		9185B0BF20867E3B004D4C40 /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B0B320867E3B004D4C40 /* StringExtensions.swift */; };
+		9185B0C020867E3B004D4C40 /* URLSessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B0B420867E3B004D4C40 /* URLSessionExtensions.swift */; };
+		9185B0C120867E3B004D4C40 /* Auth0ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B0B620867E3B004D4C40 /* Auth0ViewController.swift */; };
+		9185B0C220867E3B004D4C40 /* WANRadioPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B0B720867E3B004D4C40 /* WANRadioPickerViewController.swift */; };
+		9185B0C320867E3B004D4C40 /* LANRadioPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B0B820867E3B004D4C40 /* LANRadioPickerViewController.swift */; };
 		91A2D8DD2069481000676728 /* ChangeLog.txt in Resources */ = {isa = PBXBuildFile; fileRef = 91A2D8DC2069481000676728 /* ChangeLog.txt */; };
-		91A6541D206AB784003D02D2 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A65402206AB784003D02D2 /* Keychain.swift */; };
-		91A6541E206AB784003D02D2 /* JWTDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A65404206AB784003D02D2 /* JWTDecode.swift */; };
-		91A6541F206AB784003D02D2 /* JWT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A65405206AB784003D02D2 /* JWT.swift */; };
-		91A65420206AB784003D02D2 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A65406206AB784003D02D2 /* Errors.swift */; };
-		91A65421206AB784003D02D2 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A65408206AB784003D02D2 /* DictionaryExtensions.swift */; };
-		91A65422206AB784003D02D2 /* DataExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A65409206AB784003D02D2 /* DataExtensions.swift */; };
-		91A65423206AB784003D02D2 /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A6540A206AB784003D02D2 /* StringExtensions.swift */; };
-		91A65424206AB784003D02D2 /* URLSessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A6540B206AB784003D02D2 /* URLSessionExtensions.swift */; };
 		91B4C08E206D477200897398 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91B4C08D206D477200897398 /* SplitViewController.swift */; };
 		91FDF1C4206BD6FE00C75CE7 /* xLib6000.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91FDF1C3206BD6FE00C75CE7 /* xLib6000.framework */; };
 		91FDF1C5206BD6FE00C75CE7 /* xLib6000.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91FDF1C3206BD6FE00C75CE7 /* xLib6000.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		91FDF1C9206BED5400C75CE7 /* LANRadioPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FDF1C6206BED5400C75CE7 /* LANRadioPickerViewController.swift */; };
-		91FDF1CA206BED5400C75CE7 /* Auth0ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FDF1C7206BED5400C75CE7 /* Auth0ViewController.swift */; };
-		91FDF1CB206BED5400C75CE7 /* WANRadioPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FDF1C8206BED5400C75CE7 /* WANRadioPickerViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -71,20 +71,20 @@
 		9185B05920790E86004D4C40 /* WaterfallHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WaterfallHandler.swift; sourceTree = "<group>"; };
 		9185B05B20791318004D4C40 /* AudioHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioHandler.swift; sourceTree = "<group>"; };
 		9185B05C20791318004D4C40 /* IqHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IqHandler.swift; sourceTree = "<group>"; };
+		9185B0AB20867E3B004D4C40 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
+		9185B0AD20867E3B004D4C40 /* JWTDecode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JWTDecode.swift; sourceTree = "<group>"; };
+		9185B0AE20867E3B004D4C40 /* JWT.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JWT.swift; sourceTree = "<group>"; };
+		9185B0AF20867E3B004D4C40 /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
+		9185B0B120867E3B004D4C40 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
+		9185B0B220867E3B004D4C40 /* DataExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataExtensions.swift; sourceTree = "<group>"; };
+		9185B0B320867E3B004D4C40 /* StringExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
+		9185B0B420867E3B004D4C40 /* URLSessionExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSessionExtensions.swift; sourceTree = "<group>"; };
+		9185B0B620867E3B004D4C40 /* Auth0ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Auth0ViewController.swift; sourceTree = "<group>"; };
+		9185B0B720867E3B004D4C40 /* WANRadioPickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WANRadioPickerViewController.swift; sourceTree = "<group>"; };
+		9185B0B820867E3B004D4C40 /* LANRadioPickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LANRadioPickerViewController.swift; sourceTree = "<group>"; };
 		91A2D8DC2069481000676728 /* ChangeLog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ChangeLog.txt; sourceTree = "<group>"; };
-		91A65402206AB784003D02D2 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
-		91A65404206AB784003D02D2 /* JWTDecode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JWTDecode.swift; sourceTree = "<group>"; };
-		91A65405206AB784003D02D2 /* JWT.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JWT.swift; sourceTree = "<group>"; };
-		91A65406206AB784003D02D2 /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
-		91A65408206AB784003D02D2 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
-		91A65409206AB784003D02D2 /* DataExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataExtensions.swift; sourceTree = "<group>"; };
-		91A6540A206AB784003D02D2 /* StringExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
-		91A6540B206AB784003D02D2 /* URLSessionExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSessionExtensions.swift; sourceTree = "<group>"; };
 		91B4C08D206D477200897398 /* SplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
 		91FDF1C3206BD6FE00C75CE7 /* xLib6000.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = xLib6000.framework; sourceTree = "<group>"; };
-		91FDF1C6206BED5400C75CE7 /* LANRadioPickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LANRadioPickerViewController.swift; sourceTree = "<group>"; };
-		91FDF1C7206BED5400C75CE7 /* Auth0ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Auth0ViewController.swift; sourceTree = "<group>"; };
-		91FDF1C8206BED5400C75CE7 /* WANRadioPickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WANRadioPickerViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,7 +108,6 @@
 				9102C1F12066C03700F4B655 /* README.md */,
 				9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */,
 				9102C1AD2066BE0700F4B655 /* xAPITester */,
-				91A65400206AB784003D02D2 /* CommonClientCode */,
 				9102C1AC2066BE0700F4B655 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -132,6 +131,7 @@
 				9102C1C52066C03700F4B655 /* Main.storyboard */,
 				9102C1C72066C03700F4B655 /* ViewControllers */,
 				9185B056207905F9004D4C40 /* Stream Handlers */,
+				9185B0A920867E3B004D4C40 /* CommonClientCode */,
 				9102C1BF2066C03700F4B655 /* Documentation */,
 			);
 			path = xAPITester;
@@ -166,53 +166,52 @@
 			path = "Stream Handlers";
 			sourceTree = "<group>";
 		};
-		91A65400206AB784003D02D2 /* CommonClientCode */ = {
+		9185B0A920867E3B004D4C40 /* CommonClientCode */ = {
 			isa = PBXGroup;
 			children = (
-				91A65407206AB784003D02D2 /* Extensions */,
-				91A65401206AB784003D02D2 /* Misc */,
-				91A6540C206AB784003D02D2 /* RadioPicker */,
+				9185B0AA20867E3B004D4C40 /* Misc */,
+				9185B0B020867E3B004D4C40 /* Extensions */,
+				9185B0B520867E3B004D4C40 /* RadioPicker */,
 			);
-			name = CommonClientCode;
-			path = ../CommonClientCode;
+			path = CommonClientCode;
 			sourceTree = "<group>";
 		};
-		91A65401206AB784003D02D2 /* Misc */ = {
+		9185B0AA20867E3B004D4C40 /* Misc */ = {
 			isa = PBXGroup;
 			children = (
-				91A65402206AB784003D02D2 /* Keychain.swift */,
-				91A65403206AB784003D02D2 /* JWTDecode */,
+				9185B0AB20867E3B004D4C40 /* Keychain.swift */,
+				9185B0AC20867E3B004D4C40 /* JWTDecode */,
 			);
 			path = Misc;
 			sourceTree = "<group>";
 		};
-		91A65403206AB784003D02D2 /* JWTDecode */ = {
+		9185B0AC20867E3B004D4C40 /* JWTDecode */ = {
 			isa = PBXGroup;
 			children = (
-				91A65406206AB784003D02D2 /* Errors.swift */,
-				91A65405206AB784003D02D2 /* JWT.swift */,
-				91A65404206AB784003D02D2 /* JWTDecode.swift */,
+				9185B0AD20867E3B004D4C40 /* JWTDecode.swift */,
+				9185B0AE20867E3B004D4C40 /* JWT.swift */,
+				9185B0AF20867E3B004D4C40 /* Errors.swift */,
 			);
 			path = JWTDecode;
 			sourceTree = "<group>";
 		};
-		91A65407206AB784003D02D2 /* Extensions */ = {
+		9185B0B020867E3B004D4C40 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				91A65409206AB784003D02D2 /* DataExtensions.swift */,
-				91A65408206AB784003D02D2 /* DictionaryExtensions.swift */,
-				91A6540A206AB784003D02D2 /* StringExtensions.swift */,
-				91A6540B206AB784003D02D2 /* URLSessionExtensions.swift */,
+				9185B0B120867E3B004D4C40 /* DictionaryExtensions.swift */,
+				9185B0B220867E3B004D4C40 /* DataExtensions.swift */,
+				9185B0B320867E3B004D4C40 /* StringExtensions.swift */,
+				9185B0B420867E3B004D4C40 /* URLSessionExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		91A6540C206AB784003D02D2 /* RadioPicker */ = {
+		9185B0B520867E3B004D4C40 /* RadioPicker */ = {
 			isa = PBXGroup;
 			children = (
-				91FDF1C7206BED5400C75CE7 /* Auth0ViewController.swift */,
-				91FDF1C6206BED5400C75CE7 /* LANRadioPickerViewController.swift */,
-				91FDF1C8206BED5400C75CE7 /* WANRadioPickerViewController.swift */,
+				9185B0B620867E3B004D4C40 /* Auth0ViewController.swift */,
+				9185B0B720867E3B004D4C40 /* WANRadioPickerViewController.swift */,
+				9185B0B820867E3B004D4C40 /* LANRadioPickerViewController.swift */,
 			);
 			path = RadioPicker;
 			sourceTree = "<group>";
@@ -310,26 +309,26 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				91A65421206AB784003D02D2 /* DictionaryExtensions.swift in Sources */,
-				91A6541F206AB784003D02D2 /* JWT.swift in Sources */,
-				91FDF1C9206BED5400C75CE7 /* LANRadioPickerViewController.swift in Sources */,
 				9185B05F20791318004D4C40 /* IqHandler.swift in Sources */,
+				9185B0BD20867E3B004D4C40 /* DictionaryExtensions.swift in Sources */,
+				9185B0C020867E3B004D4C40 /* URLSessionExtensions.swift in Sources */,
 				9102C1FA2066C03700F4B655 /* AppExtensions.swift in Sources */,
-				91A6541E206AB784003D02D2 /* JWTDecode.swift in Sources */,
-				91FDF1CB206BED5400C75CE7 /* WANRadioPickerViewController.swift in Sources */,
+				9185B0C220867E3B004D4C40 /* WANRadioPickerViewController.swift in Sources */,
 				9185B058207905F9004D4C40 /* PanadapterHandler.swift in Sources */,
+				9185B0C120867E3B004D4C40 /* Auth0ViewController.swift in Sources */,
 				9102C1F92066C03700F4B655 /* AppDelegate.swift in Sources */,
-				91A65424206AB784003D02D2 /* URLSessionExtensions.swift in Sources */,
-				91A6541D206AB784003D02D2 /* Keychain.swift in Sources */,
 				9102C1F72066C03700F4B655 /* ViewController.swift in Sources */,
-				91A65422206AB784003D02D2 /* DataExtensions.swift in Sources */,
+				9185B0BB20867E3B004D4C40 /* JWT.swift in Sources */,
 				9185B05A20790E86004D4C40 /* WaterfallHandler.swift in Sources */,
+				9185B0BF20867E3B004D4C40 /* StringExtensions.swift in Sources */,
+				9185B0BE20867E3B004D4C40 /* DataExtensions.swift in Sources */,
+				9185B0BC20867E3B004D4C40 /* Errors.swift in Sources */,
 				9102C1F82066C03700F4B655 /* HelpViewController.swift in Sources */,
-				91A65420206AB784003D02D2 /* Errors.swift in Sources */,
-				91A65423206AB784003D02D2 /* StringExtensions.swift in Sources */,
-				91FDF1CA206BED5400C75CE7 /* Auth0ViewController.swift in Sources */,
 				91B4C08E206D477200897398 /* SplitViewController.swift in Sources */,
+				9185B0C320867E3B004D4C40 /* LANRadioPickerViewController.swift in Sources */,
 				9185B05E20791318004D4C40 /* AudioHandler.swift in Sources */,
+				9185B0B920867E3B004D4C40 /* Keychain.swift in Sources */,
+				9185B0BA20867E3B004D4C40 /* JWTDecode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
