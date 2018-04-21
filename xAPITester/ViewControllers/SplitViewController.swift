@@ -646,7 +646,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
       case is Meter:
         let meter = obj as! Meter
-        text += "Meter          \(meter.id), name = \(meter.name) desc = \(meter.description) low = \(meter.low) high = \(meter.high) fps = \(meter.fps)"
+        text += "Meter (\(meter.source[0..<3]))    \(("00" + meter.id).suffix(3)), name = \(meter.name) desc = \(meter.desc) low = \(meter.low) high = \(meter.high) fps = \(meter.fps)"
         
       case is MicAudioStream:
         text += "MicAudioStream \((obj as! MicAudioStream).id)"
@@ -669,10 +669,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
       case is xLib6000.Slice:
         let slice = obj as! xLib6000.Slice
-        text += "Slice          \(slice.id) frequency = \(slice.frequency.hzToMhz())"
+        text += "Slice          \(slice.id) locked = \(slice.locked), frequency = \(slice.frequency.hzToMhz()), filterLow = \(slice.filterLow), filterHigh = \(slice.filterHigh)"
         
       case is Tnf:
-        text += "Tnf            \((obj as! Tnf).id)"
+        let tnf = obj as! Tnf
+        text += "Tnf            \(tnf.id), width = \(tnf.width), depth = \(tnf.depth), permanent = \(tnf.permanent)"
         
       case is TxAudioStream:
         text += "TxAudioStream  \((obj as! TxAudioStream).id)"
@@ -722,8 +723,8 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
       case is Meter:
         let meter = obj as! Meter
-        text += "Meter          \(meter.id) name = \(meter.name) desc = \(meter.description) low = \(meter.low) high = \(meter.high) fps = \(meter.fps)"
-        
+        text += "Meter (\(meter.source[0..<3]))    \(("00" + meter.id).suffix(3)), name = \(meter.name) desc = \(meter.desc) low = \(meter.low) high = \(meter.high) fps = \(meter.fps)"
+
       case is MicAudioStream:
         text += "MicAudioStream \((obj as! MicAudioStream).id)"
         
@@ -745,11 +746,12 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
       case is xLib6000.Slice:
         let slice = obj as! xLib6000.Slice
-        text += "Slice          \(slice.id) frequency = \(slice.frequency.hzToMhz())"
-        
+        text += "Slice          \(slice.id) locked = \(slice.locked), frequency = \(slice.frequency.hzToMhz()), filterLow = \(slice.filterLow), filterHigh = \(slice.filterHigh)"
+
       case is Tnf:
-        text += "Tnf \((obj as! Tnf).id)"
-        
+        let tnf = obj as! Tnf
+        text += "Tnf            \(tnf.id), width = \(tnf.width), depth = \(tnf.depth), permanent = \(tnf.permanent)"
+
       case is TxAudioStream:
         text += "TxAudioStream  \((obj as! TxAudioStream).id)"
         
