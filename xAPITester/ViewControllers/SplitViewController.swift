@@ -646,8 +646,10 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
       case is Meter:
         let meter = obj as! Meter
-        text += "Meter (\(meter.source[0..<3]))    \(("00" + meter.id).suffix(3)), name = \(meter.name) desc = \(meter.desc) low = \(meter.low) high = \(meter.high) fps = \(meter.fps)"
-        
+        let source = meter.source[0..<3]
+        let label = (source == "slc" ? "slice  = " : "number = ")
+        text += "Meter (\(source))    \(label)\(meter.number), id = \(("00" + meter.id).suffix(3)), name = \(meter.name) desc = \(meter.desc) low = \(meter.low) high = \(meter.high) fps = \(meter.fps)"
+
       case is MicAudioStream:
         text += "MicAudioStream \((obj as! MicAudioStream).id)"
         
@@ -723,7 +725,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
       case is Meter:
         let meter = obj as! Meter
-        text += "Meter (\(meter.source[0..<3]))    \(("00" + meter.id).suffix(3)), name = \(meter.name) desc = \(meter.desc) low = \(meter.low) high = \(meter.high) fps = \(meter.fps)"
+        let source = meter.source[0..<3]
+        let label = (source == "slc" ? "slice  = " : "number = ")
+        text += "Meter (\(source))    \(label)\(meter.number), id = \(("00" + meter.id).suffix(3)), name = \(meter.name) desc = \(meter.desc) low = \(meter.low) high = \(meter.high) fps = \(meter.fps)"
 
       case is MicAudioStream:
         text += "MicAudioStream \((obj as! MicAudioStream).id)"
