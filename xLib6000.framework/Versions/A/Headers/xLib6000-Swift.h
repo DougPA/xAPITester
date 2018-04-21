@@ -396,6 +396,29 @@ SWIFT_CLASS("_TtC8xLib60006Memory")
 @end
 
 
+SWIFT_CLASS("_TtC8xLib60005Meter")
+@interface Meter : NSObject
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_DEPRECATED_MSG("-init is unavailable");
+@end
+
+
+
+
+@interface Meter (SWIFT_EXTENSION(xLib6000))
+@property (nonatomic, copy) NSString * _Nonnull desc;
+@property (nonatomic) NSInteger fps;
+@property (nonatomic) float high;
+@property (nonatomic) float low;
+@property (nonatomic, copy) NSString * _Nonnull name;
+@property (nonatomic, copy) NSString * _Nonnull number;
+@property (nonatomic) float peak;
+@property (nonatomic, copy) NSString * _Nonnull source;
+@property (nonatomic, copy) NSString * _Nonnull units;
+@property (nonatomic) float value;
+@end
+
+
 SWIFT_CLASS("_TtC8xLib600014MicAudioStream")
 @interface MicAudioStream : NSObject
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
