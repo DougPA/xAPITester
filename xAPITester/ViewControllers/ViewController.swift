@@ -94,6 +94,12 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private let kLocalTab                       = 0
   private let kRemoteTab                      = 1
 
+  private let kxLib6000Identifier             = "net.k3tzr.xLib6000"          // Bundle identifier for xLib6000
+  private let kVersionKey                     = "CFBundleShortVersionString"  // CF constants
+  private let kBuildKey                       = "CFBundleVersion"
+  private var _apiVersion                     = ""
+  private var _apiBuild                       = ""
+  
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
 
@@ -104,6 +110,11 @@ public final class ViewController             : NSViewController, RadioPickerDel
   public override func viewDidLoad() {
     super.viewDidLoad()
     
+    // get the version info from xLib6000
+    let frameworkBundle = Bundle(identifier: kxLib6000Identifier)
+    _apiVersion = (frameworkBundle?.object(forInfoDictionaryKey: kVersionKey) ?? "0") as! String
+    _apiBuild = (frameworkBundle?.object(forInfoDictionaryKey: kBuildKey) ?? "0") as! String
+
     _filterBy.selectItem(withTag: Defaults[.filterByTag])
     _filterObjectsBy.selectItem(withTag: Defaults[.filterObjectsByTag])
 
@@ -615,7 +626,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   /// Set the Window's title
   ///
   func setTitle() {
-    let title = (_api.activeRadio == nil ? "" : " - Connected to \(_api.activeRadio!.nickname ?? "") @ \(_api.activeRadio!.ipAddress)")
+    let title = (_api.activeRadio == nil ? "" : " - Connected to \(_api.activeRadio!.nickname ?? "") @ \(_api.activeRadio!.ipAddress), xLib6000 v\(_apiVersion).\(_apiBuild)")
     DispatchQueue.main.async {
       self.view.window?.title = "\(kClientName)\(title)"
     }

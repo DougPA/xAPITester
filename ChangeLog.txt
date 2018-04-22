@@ -1,5 +1,9 @@
 xAPITester Change Log
 
+v5.0.11
+
+Added xLib6000 version display to title bar
+
 v5.0.10
 
 Changes to Slice, Meter and Tnf Object table entries
