@@ -171,9 +171,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     // update the font
     _font = NSFont(name: Defaults[.fontName], size: CGFloat(Defaults[.fontSize] ))!
     _tableView.rowHeight = _font.capHeight * 1.7
-    
+    _objectsTableView.rowHeight = _font.capHeight * 1.7
+
     // force a redraw
     reloadTable()
+    reloadObjectsTable()
   }
   /// 1st Responder to the Format->Font->Smaller menu (or Command-)
   ///
@@ -191,9 +193,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     // update the font
     _font = NSFont(name: Defaults[.fontName], size: CGFloat(Defaults[.fontSize] ))!
     _tableView.rowHeight = _font.capHeight * 1.7
-    
+    _objectsTableView.rowHeight = _font.capHeight * 1.7
+
     // force a redraw
     reloadTable()
+    reloadObjectsTable()
   }
   
   // ----------------------------------------------------------------------------

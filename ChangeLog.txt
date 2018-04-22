@@ -3,6 +3,7 @@ xAPITester Change Log
 v5.0.11
 
 Added xLib6000 version display to title bar
+Corrected Command+/- to change fonts on both tables
 
 v5.0.10
 
