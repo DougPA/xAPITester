@@ -9,7 +9,6 @@ v5.0.9
 Updated xLib6000 - Meter "description" now "desc"
 added value to Meter output in Objects table
 
-
 v5.0.8
 
 Copied latest xLib6000 (v1.0.16) to project, previous copy was not v1.0.16
