@@ -1,5 +1,11 @@
 xAPITester Change Log
 
+v5.0.12
+
+SplitViewController.swift - commented out replyHandler code
+SplitViewController.swift - multiple changes to what is displayed in the objects table
+ViewController.swift - corrected action of the C;ear button (clear both tables)
+
 v5.0.11
 
 Added xLib6000 version display to title bar

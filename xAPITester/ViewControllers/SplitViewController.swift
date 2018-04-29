@@ -291,11 +291,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       let command = replyTuple.command
       
       // is there a ReplyHandler for this command?
-      if let handler = replyTuple.replyTo {
-        
-        // YES, pass it to the ReplyHandler
-        handler(command, components[0], components[1], (components.count == 3) ? components[2] : "")
-      }
+//      if let handler = replyTuple.replyTo {
+//
+//        // YES, pass it to the ReplyHandler
+//        handler(command, components[0], components[1], (components.count == 3) ? components[2] : "")
+//      }
       // Show all replies?
       if Defaults[.showAllReplies] {
         
@@ -652,7 +652,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         let meter = obj as! Meter
         let source = meter.source[0..<3]
         let label = (source == "slc" ? "slice  = " : "number = ")
-        text += "Meter (\(source))    \(label)\(meter.number), id = \(("00" + meter.id).suffix(3)), name = \(meter.name) desc = \(meter.desc) low = \(meter.low) high = \(meter.high) fps = \(meter.fps)"
+        text += "Meter (\(source))    \(label)\(meter.number)  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)"
 
       case is MicAudioStream:
         text += "MicAudioStream \((obj as! MicAudioStream).id)"
@@ -662,7 +662,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
       case is Panadapter:
         let panadapter = obj as! Panadapter
-        text += "Panadapter     \(panadapter.id.hex) center = \(panadapter.center.hzToMhz()) bandwidth = \(panadapter.bandwidth.hzToMhz())"
+        text += "Panadapter     \(panadapter.id.hex)  center = \(panadapter.center.hzToMhz())  bandwidth = \(panadapter.bandwidth.hzToMhz())"
         panadapterHandlers[panadapter.id] = PanadapterHandler(id: panadapter.id, delegate: self)
         _api.radio!.panadapters[panadapter.id]!.delegate = panadapterHandlers[panadapter.id]!
         
@@ -671,15 +671,15 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
       case is Radio:
         let radio = Api.sharedInstance.activeRadio
-        text += "Radio          name = \(radio?.nickname ?? "") model = \(radio?.model ?? "")"
+        text += "Radio          name = \(radio?.nickname ?? "")  model = \(radio?.model ?? "")"
         
       case is xLib6000.Slice:
         let slice = obj as! xLib6000.Slice
-        text += "Slice          \(slice.id) locked = \(slice.locked), frequency = \(slice.frequency.hzToMhz()), filterLow = \(slice.filterLow), filterHigh = \(slice.filterHigh)"
+        text += "Slice          \(slice.id)  locked = \(slice.locked)  frequency = \(slice.frequency.hzToMhz())  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)"
         
       case is Tnf:
         let tnf = obj as! Tnf
-        text += "Tnf            \(tnf.id), width = \(tnf.width), depth = \(tnf.depth), permanent = \(tnf.permanent)"
+        text += "Tnf            \(tnf.id)  width = \(tnf.width)  depth = \(tnf.depth)  permanent = \(tnf.permanent)"
         
       case is TxAudioStream:
         text += "TxAudioStream  \((obj as! TxAudioStream).id)"
@@ -731,7 +731,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         let meter = obj as! Meter
         let source = meter.source[0..<3]
         let label = (source == "slc" ? "slice  = " : "number = ")
-        text += "Meter (\(source))    \(label)\(meter.number), id = \(("00" + meter.id).suffix(3)), name = \(meter.name) desc = \(meter.desc) low = \(meter.low) high = \(meter.high) fps = \(meter.fps)"
+        text += "Meter (\(source))    \(label)\(meter.number)  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)"
 
       case is MicAudioStream:
         text += "MicAudioStream \((obj as! MicAudioStream).id)"
@@ -743,22 +743,22 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         let panadapter = obj as! Panadapter
         _api.radio!.panadapters[panadapter.id]!.delegate = nil
         panadapterHandlers[panadapter.id] = nil
-        text += "Panadapter     \(panadapter.id.hex) center = \(panadapter.center.hzToMhz()) bandwidth = \(panadapter.bandwidth.hzToMhz())"
+        text += "Panadapter     \(panadapter.id.hex)  center = \(panadapter.center.hzToMhz())  bandwidth = \(panadapter.bandwidth.hzToMhz())"
         
       case is Profile:
         text += "Profile"
         
       case is Radio:
         let radio = Api.sharedInstance.activeRadio
-        text += "Radio          name = \(radio?.nickname ?? "") model = \(radio?.model ?? "")"
+        text += "Radio          name = \(radio?.nickname ?? "")  model = \(radio?.model ?? "")"
         
       case is xLib6000.Slice:
         let slice = obj as! xLib6000.Slice
-        text += "Slice          \(slice.id) locked = \(slice.locked), frequency = \(slice.frequency.hzToMhz()), filterLow = \(slice.filterLow), filterHigh = \(slice.filterHigh)"
+        text += "Slice          \(slice.id)  locked = \(slice.locked)  frequency = \(slice.frequency.hzToMhz())  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)"
 
       case is Tnf:
         let tnf = obj as! Tnf
-        text += "Tnf            \(tnf.id), width = \(tnf.width), depth = \(tnf.depth), permanent = \(tnf.permanent)"
+        text += "Tnf            \(tnf.id)  width = \(tnf.width)  depth = \(tnf.depth)  permanent = \(tnf.permanent)"
 
       case is TxAudioStream:
         text += "TxAudioStream  \((obj as! TxAudioStream).id)"

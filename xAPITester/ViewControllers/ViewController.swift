@@ -359,9 +359,11 @@ public final class ViewController             : NSViewController, RadioPickerDel
     
     // clear all previous commands & replies
     _splitViewViewController?.textArray.removeAll()
-    
-    // force a redraw
     _splitViewViewController?.reloadTable()
+
+    // clear all previous objects
+    _splitViewViewController?.objectsArray.removeAll()
+    _splitViewViewController?.reloadObjectsTable()
   }
   /// Respond to the Save button
   ///
