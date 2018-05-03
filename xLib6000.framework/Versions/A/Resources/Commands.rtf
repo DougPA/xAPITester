@@ -358,26 +358,10 @@ as\
   Api.Command.clientProgram.rawValue + "low_bw_connect", replyTo: callback)\
   Api.Command.clientProgram.rawValue + "start_persistence off", replyTo: callback)\
   Transmit.kCwCmd + "key immediate" + " \\(state.asNumber())", replyTo: callback)\
-  Radio.kGpsCmd + "install", replyTo: callback)\
-  Radio.kGpsCmd + "uninstall", replyTo: callback)\
-  Radio.kStreamRemoveCmd + "\\(id.hex)", replyTo: callback)\
   return Radio.kLicenseCmd + "refresh", replyTo: callback)\
-  Api.Command.meterList.rawValue, replyTo: callback == nil ? defaultReplyHandler : callback)\
-  Radio.kStreamRemoveCmd + "\\(id.hex)", replyTo: callback)\
-  Api.Command.micList.rawValue, replyTo: callback == nil ? defaultReplyHandler : callback)\
-  Radio.kStreamRemoveCmd + "0x\\(id)", replyTo: callback)\
-  Panadapter.kCmd + "create x=\\(dimensions.width) y=\\(dimensions.height)", replyTo: callback == nil ? defaultReplyHandler : callback)\
-  cmd, replyTo: callback == nil ? defaultReplyHandler : callback)\
-  Panadapter.kRemoveCmd + "\\(id.hex)", replyTo: callback)\
-  xLib6000.Slice.kCmd + "m " + "\\(frequency.hzToMhz())" + " pan=\\(id.hex)", replyTo: callback)\
   Radio.kCmd + RadioToken.staticNetParams.rawValue + " reset", replyTo: callback)\
   Opus.kCmd + Opus.Token.remoteRxOn.rawValue + " \\(value.asNumber())", replyTo: callback)\
   Radio.kCmd + RadioToken.staticNetParams.rawValue + " reset", replyTo: callback)\
-  xLib6000.Slice.kCreateCmd + "\\(frequency.hzToMhz()) \\(antenna) \\(mode)", replyTo: callback) \}\
-  xLib6000.Slice.kCreateCmd + "pan" + "=\\(panadapter.id.hex) \\(frequency == 0 ? "" : "freq" + "=\\(frequency.hzToMhz())")", replyTo: callback) \}\
-  xLib6000.Slice.kRemoveCmd + " \\(id)", replyTo: callback)\
-  xLib6000.Slice.kCmd + "get_error" + " \\(id)", replyTo: callback == nil ? defaultReplyHandler : callback)\
-  xLib6000.Slice.kCmd + "list", replyTo: callback == nil ? defaultReplyHandler : callback)\
   Radio.kXmitCmd + " \\(value.asNumber())", replyTo: callback)\
   Radio.kStreamRemoveCmd + "\\(id.hex)", replyTo: callback)\
   Radio.kUptimeCmd, replyTo: callback == nil ? defaultReplyHandler : callback)\
@@ -478,8 +462,7 @@ as\
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 \cf0 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
-\cf0   	"filt " + "0x\\(id)" + "filter_lo" + " \\(filterLow)"\
-  	"filt " + "0x\\(id)" + "filter_hi" + " \\(filterHigh)"\
+\cf0   	"filt " + "0x\\(id)" + " \\(filterLow)" + " \\(filterHigh)"\
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 \cf0 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
