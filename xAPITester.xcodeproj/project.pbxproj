@@ -18,6 +18,7 @@
 		9102C21C2066C27A00F4B655 /* SwiftyUserDefaults.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */; };
 		9102C21D2066C27A00F4B655 /* SwiftyUserDefaults.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		913F7EB52066C8BB00F35E9B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 913F7EB42066C8BB00F35E9B /* Assets.xcassets */; };
+		913F972B209B62E2007A5273 /* MicAudioHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 913F972A209B62E2007A5273 /* MicAudioHandler.swift */; };
 		9185B058207905F9004D4C40 /* PanadapterHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B057207905F9004D4C40 /* PanadapterHandler.swift */; };
 		9185B05A20790E86004D4C40 /* WaterfallHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B05920790E86004D4C40 /* WaterfallHandler.swift */; };
 		9185B05E20791318004D4C40 /* AudioHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B05B20791318004D4C40 /* AudioHandler.swift */; };
@@ -67,6 +68,7 @@
 		9102C2182066C10300F4B655 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SwiftyUserDefaults.framework; sourceTree = "<group>"; };
 		913F7EB42066C8BB00F35E9B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		913F972A209B62E2007A5273 /* MicAudioHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MicAudioHandler.swift; sourceTree = "<group>"; };
 		9185B057207905F9004D4C40 /* PanadapterHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanadapterHandler.swift; sourceTree = "<group>"; };
 		9185B05920790E86004D4C40 /* WaterfallHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WaterfallHandler.swift; sourceTree = "<group>"; };
 		9185B05B20791318004D4C40 /* AudioHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioHandler.swift; sourceTree = "<group>"; };
@@ -160,6 +162,7 @@
 			children = (
 				9185B05B20791318004D4C40 /* AudioHandler.swift */,
 				9185B05C20791318004D4C40 /* IqHandler.swift */,
+				913F972A209B62E2007A5273 /* MicAudioHandler.swift */,
 				9185B057207905F9004D4C40 /* PanadapterHandler.swift */,
 				9185B05920790E86004D4C40 /* WaterfallHandler.swift */,
 			);
@@ -303,6 +306,7 @@
 				9102C1F72066C03700F4B655 /* ViewController.swift in Sources */,
 				9185B0BB20867E3B004D4C40 /* JWT.swift in Sources */,
 				9185B05A20790E86004D4C40 /* WaterfallHandler.swift in Sources */,
+				913F972B209B62E2007A5273 /* MicAudioHandler.swift in Sources */,
 				9185B0BF20867E3B004D4C40 /* StringExtensions.swift in Sources */,
 				9185B0BE20867E3B004D4C40 /* DataExtensions.swift in Sources */,
 				9185B0BC20867E3B004D4C40 /* Errors.swift in Sources */,

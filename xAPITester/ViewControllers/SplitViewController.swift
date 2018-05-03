@@ -64,6 +64,10 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     get { return _objectQ.sync { _iqHandlers } }
     set { _objectQ.sync(flags: .barrier) { _iqHandlers = newValue } } }
   
+  internal var micAudioHandlers: [DaxStreamId: MicAudioHandler] {
+    get { return _objectQ.sync { _micAudioHandlers } }
+    set { _objectQ.sync(flags: .barrier) { _micAudioHandlers = newValue } } }
+  
   internal var panadapterHandlers: [PanadapterId: PanadapterHandler] {
     get { return _objectQ.sync { _panadapterHandlers } }
     set { _objectQ.sync(flags: .barrier) { _panadapterHandlers = newValue } } }
@@ -125,6 +129,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   private var _replyHandlers                  = [SequenceId: ReplyTuple]()  // Dictionary of pending replies
   private var _audioHandlers                  = [DaxStreamId: AudioHandler]()
   private var _iqHandlers                     = [DaxStreamId: IqHandler]()
+  private var _micAudioHandlers               = [DaxStreamId: MicAudioHandler]()
   private var _panadapterHandlers             = [PanadapterId: PanadapterHandler]()
   private var _waterfallHandlers              = [WaterfallId: WaterfallHandler]()
   private var _textArray                      = [String]()                  // backing storage for the table
@@ -316,8 +321,8 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
       } else if components[1] != "0" || (components.count > 2 && components[2] != "") {
         
-        // NOT SHOW ALL, only show non-zero replies with no additional information
-        showInTable("R\(commandSuffix)")
+        // NOT SHOW ALL, only show non-zero replies with additional information
+        showInTable("R\(commandSuffix) ( \(flexErrorString(errorCode: components[1])) )")
       }
       // Remove the object from the notification list
       replyHandlers[components[0]] = nil
@@ -635,13 +640,13 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
       case is AudioStream:
         let audio = obj as! AudioStream
-        text += "AudioStream    \(audio.id.hex)"
+        text += "DaxAudio       \(audio.id.hex)"
         audioHandlers[audio.id] = AudioHandler(id: audio.id, delegate: self)
         _api.radio!.audioStreams[audio.id]!.delegate = audioHandlers[audio.id]!
         
       case is IqStream:
         let iq = obj as! IqStream
-        text += "IqStream       \(iq.id.hex)"
+        text += "DaxIq          \(iq.id.hex)"
         iqHandlers[iq.id] = IqHandler(id: iq.id, delegate: self)
         _api.radio!.iqStreams[iq.id]!.delegate = iqHandlers[iq.id]!
         
@@ -652,11 +657,14 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         let meter = obj as! Meter
         let source = meter.source[0..<3]
         let label = (source == "slc" ? "slice  = " : "number = ")
-        text += "Meter (\(source))    \(label)\(meter.number)  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)"
+        text += "Meter (\(source))    \(label)\(meter.number)  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)"
 
       case is MicAudioStream:
-        text += "MicAudioStream \((obj as! MicAudioStream).id)"
-        
+        let micAudio = obj as! MicAudioStream
+        text += "DaxMicAudio    \(micAudio.id.hex)"
+        micAudioHandlers[micAudio.id] = MicAudioHandler(id: micAudio.id, delegate: self)
+        _api.radio!.micAudioStreams[micAudio.id]!.delegate = micAudioHandlers[micAudio.id]!
+
       case is Opus:
         text += "Opus           \((obj as! Opus).id)"
         
@@ -682,8 +690,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         text += "Tnf            \(tnf.id)  width = \(tnf.width)  depth = \(tnf.depth)  permanent = \(tnf.permanent)"
         
       case is TxAudioStream:
-        text += "TxAudioStream  \((obj as! TxAudioStream).id)"
-        
+        let txAudio = obj as! TxAudioStream
+        text += "DaxTxAudio     \(txAudio.id.hex)"
+
       case is UsbCable:
         text += "UsbCable       \((obj as! UsbCable).id)"
         
@@ -716,13 +725,13 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         let audio = obj as! AudioStream
         _api.radio!.audioStreams[audio.id]!.delegate = nil
         audioHandlers[audio.id] = nil
-        text += "AudioStream    \(audio.id.hex)"
+        text += "DaxAudio       \(audio.id.hex)"
         
       case is IqStream:
         let iq = obj as! IqStream
         _api.radio!.iqStreams[iq.id]!.delegate = nil
         iqHandlers[iq.id] = nil
-        text += "IqStream       \(iq.id.hex)"
+        text += "DaxIq          \(iq.id.hex)"
         
       case is Memory:
         text += "Memory         \((obj as! Memory).id)"
@@ -731,10 +740,13 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         let meter = obj as! Meter
         let source = meter.source[0..<3]
         let label = (source == "slc" ? "slice  = " : "number = ")
-        text += "Meter (\(source))    \(label)\(meter.number)  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)"
+        text += "Meter (\(source))    \(label)\(meter.number)  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)"
 
       case is MicAudioStream:
-        text += "MicAudioStream \((obj as! MicAudioStream).id)"
+        let micAudio = obj as! MicAudioStream
+        _api.radio!.micAudioStreams[micAudio.id]!.delegate = nil
+        micAudioHandlers[micAudio.id] = nil
+        text += "DaxMicAudio    \(micAudio.id.hex)"
         
       case is Opus:
         text += "Opus           \((obj as! Opus).id)"
@@ -761,7 +773,8 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         text += "Tnf            \(tnf.id)  width = \(tnf.width)  depth = \(tnf.depth)  permanent = \(tnf.permanent)"
 
       case is TxAudioStream:
-        text += "TxAudioStream  \((obj as! TxAudioStream).id)"
+        let txAudio = obj as! TxAudioStream
+        text += "DaxTxAudio     \(txAudio.id.hex)"
         
       case is UsbCable:
         text += "UsbCable       \((obj as! UsbCable).id)"
@@ -778,6 +791,10 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       default:
         text += "Unknown object"
       }
+    
+    } else {
+      
+      text += "No object, notification = \(note)"
     }
     showInObjectsTable(text)
   }

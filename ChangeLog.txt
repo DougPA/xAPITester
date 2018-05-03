@@ -1,5 +1,12 @@
 xAPITester Change Log
 
+v5.0.13
+
+SplitViewController.swift - added "units" to meter display in objects table
+MicAudioHandler.swift - added
+SplitViewController.swift - added ability to display actual error text on non-zero replies
+SplitViewController.swift - corrected handling of streams (Audio, Iq, MicAudio)
+
 v5.0.12
 
 SplitViewController.swift - commented out replyHandler code

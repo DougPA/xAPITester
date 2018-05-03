@@ -582,6 +582,10 @@ public final class ViewController             : NSViewController, RadioPickerDel
       _api.isWan = false
       _api.wanConnectionHandle = ""
     }
+
+    // if not a GUI connection, allow the Tester to see all stream objects
+    _api.testerModeEnabled = !Defaults[.isGui]
+
     // attempt to connect to it
     if _api.connect(selectedRadio, clientName: kClientName, isGui: Defaults[.isGui]) {
       

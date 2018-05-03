@@ -1,5 +1,5 @@
 //
-//  PanadapterHandler.swift
+//  MicAudioHandler.swift
 //  xAPITester
 //
 //  Created by Douglas Adams on 4/5/18.
@@ -10,10 +10,10 @@ import Foundation
 import xLib6000
 
 // ------------------------------------------------------------------------------
-// MARK: - PanadapterHandler Class implementation
+// MARK: - MicAudioHandler Class implementation
 // ------------------------------------------------------------------------------
 
-public final class PanadapterHandler        : NSObject, PanadapterStreamHandler {
+public final class MicAudioHandler             : NSObject, MicAudioStreamHandler {
   
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
@@ -40,15 +40,14 @@ public final class PanadapterHandler        : NSObject, PanadapterStreamHandler 
   // ----------------------------------------------------------------------------
   // MARK: - Public methods
   
-  public func streamHandler(_ frame: PanadapterFrame) {
-    let panadapterStartMessage = "STARTED Panadapter     \(_id.hex) stream"
-    
+  public func streamHandler(_ frame: MicAudioStreamFrame) {
+
     // data received, is it the first?
     if !active {
       // YES, set active
       active = true
       
-      _delegate.showInObjectsTable(panadapterStartMessage)
+      _delegate.showInObjectsTable("STARTED DaxMicAudio    \(_id.hex) stream")
     }
   }
 }

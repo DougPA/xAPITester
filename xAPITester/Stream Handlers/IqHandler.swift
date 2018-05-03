@@ -47,7 +47,7 @@ public final class IqHandler                : NSObject, IqStreamHandler {
       // YES, set active
       active = true
       
-      _delegate.showInObjectsTable("START   IQ             \(_id.hex) stream")
+      _delegate.showInObjectsTable("STARTED DaxIq          \(_id.hex) stream")
     }
   }
 }
