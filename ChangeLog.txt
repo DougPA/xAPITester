@@ -1,5 +1,10 @@
 xAPITester Change Log
 
+v5.0.14
+
+Defaults.plist - reduced minimum font size to 8
+Main.storyboard - increased Commands & Replies table width to 8000
+
 v5.0.13
 
 SplitViewController.swift - added "units" to meter display in objects table
