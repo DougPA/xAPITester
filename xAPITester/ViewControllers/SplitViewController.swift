@@ -322,7 +322,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       } else if components[1] != "0" || (components.count > 2 && components[2] != "") {
         
         // NOT SHOW ALL, only show non-zero replies with additional information
-        showInTable("R\(commandSuffix) ( \(flexErrorString(errorCode: components[1])) )")
+        showInTable("R\(commandSuffix)")
       }
       // Remove the object from the notification list
       replyHandlers[components[0]] = nil
@@ -614,6 +614,8 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .sliceHasBeenAdded, object: nil)
     NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .sliceWillBeRemoved, object: nil)
     
+    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .sliceMeterHasBeenAdded, object: nil)
+
     NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .tnfHasBeenAdded, object: nil)
     NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .tnfWillBeRemoved, object: nil)
     
