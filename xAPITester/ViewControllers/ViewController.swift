@@ -56,8 +56,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
   
   private var _api                            = Api.sharedInstance          // Api to the Radio
   
-//  @IBOutlet weak internal var _filter         : NSTextField!
-//  @IBOutlet weak internal var _filterObjects  : NSTextField!
   @IBOutlet weak internal var _command        : NSTextField!
   @IBOutlet weak internal var _connectButton  : NSButton!
   @IBOutlet weak internal var _sendButton     : NSButton!
@@ -81,6 +79,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   internal var _startTimestamp                 : Date?
   
   private var _splitViewViewController        : SplitViewController?
+  private var _appFolderUrl                   : URL!
 
   // constants
   
@@ -97,8 +96,12 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private let kxLib6000Identifier             = "net.k3tzr.xLib6000"          // Bundle identifier for xLib6000
   private let kVersionKey                     = "CFBundleShortVersionString"  // CF constants
   private let kBuildKey                       = "CFBundleVersion"
+  private let kMacroPrefix                    : Character = ">"
+  private let kPauseBetweenMacroCommands      : UInt32 = 30_000               // 30 milliseconds
   private var _apiVersion                     = ""
   private var _apiBuild                       = ""
+  
+  private var kSaveFolder                     = "net.k3tzr.xAPITester"
   
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
@@ -131,6 +134,21 @@ public final class ViewController             : NSViewController, RadioPickerDel
     // color the text field to match the kMyHandleColor
     _streamId.backgroundColor = Defaults[.myHandleColor]
     
+    let fileManager = FileManager.default
+    let urls = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask )
+    _appFolderUrl = urls.first!.appendingPathComponent( Bundle.main.bundleIdentifier! )
+    
+    // does the folder exist?
+    if !fileManager.fileExists( atPath: _appFolderUrl.path ) {
+      
+      // NO, create it
+      do {
+        try fileManager.createDirectory( at: _appFolderUrl, withIntermediateDirectories: false, attributes: nil)
+      } catch let error as NSError {
+        fatalError("Error creating App Support folder: \(error.localizedDescription)")
+      }
+    }
+
     // is the default Radio available?
     if let defaultRadio = defaultRadioFound() {
       
@@ -176,85 +194,18 @@ public final class ViewController             : NSViewController, RadioPickerDel
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
-  /// Respond to the Close menu item
+  /// Respond to the Clear button (in the Commands & Replies box)
   ///
   /// - Parameter sender:     the button
   ///
-  @IBAction func terminate(_ sender: AnyObject) {
+  @IBAction func clear(_ sender: NSButton) {
     
-    // disconnect the active radio
-    _api.disconnect()
-    
-    _sendButton.isEnabled = false
-    _connectButton.title = kConnect.rawValue
-    _localRemote.stringValue = ""
-    
-    NSApp.terminate(self)
-  }
-  @IBAction func openRadioPicker(_ sender: AnyObject) {
-    
-    // get an instance of the RadioPicker
-    _radioPickerTabViewController = storyboard!.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "RadioPicker")) as? NSTabViewController
-    
-    // make this View Controller the delegate of the RadioPickers
-    _radioPickerTabViewController!.tabViewItems[kLocalTab].viewController!.representedObject = self
-    _radioPickerTabViewController!.tabViewItems[kRemoteTab].viewController!.representedObject = self
-
-    // select the last-used tab
-    _radioPickerTabViewController!.selectedTabViewItemIndex = ( Defaults[.showRemoteTabView] == false ? kLocalTab : kRemoteTab )
-
-    DispatchQueue.main.async {
-      
-      // show the RadioPicker sheet
-      self.presentViewControllerAsSheet(self._radioPickerTabViewController!)
-    }
-  }
-  /// The FilterBy PopUp changed
-  ///
-  /// - Parameter sender:     the popup
-  ///
-  @IBAction func updateFilterBy(_ sender: NSPopUpButton) {
-    
-    // clear the Filter string field
-    Defaults[.filter] = ""
-    
-    // force a redraw
+    // clear all previous commands & replies
+    _splitViewViewController?.textArray.removeAll()
     _splitViewViewController?.reloadTable()
-  }
-  /// The Filter text field changed
-  ///
-  /// - Parameter sender:     the text field
-  ///
-  @IBAction func updateFilter(_ sender: NSTextField) {
     
-    // force a redraw
-    _splitViewViewController?.reloadTable()
-  }
-  /// The FilterBy PopUp changed
-  ///
-  /// - Parameter sender:     the popup
-  ///
-  @IBAction func updateFilterObjectsBy(_ sender: NSPopUpButton) {
-    
-    // clear the Filter string field
-    Defaults[.filterObjects] = ""
-    
-    // force a redraw
-    _splitViewViewController?.reloadObjectsTable()
-  }
-  @IBAction func showTimestamps(_ sender: NSButton) {
-    
-    // force a redraw
-    _splitViewViewController?.reloadTable()
-    _splitViewViewController?.reloadObjectsTable()
-  }
-  /// The Filter text field changed
-  ///
-  /// - Parameter sender:     the text field
-  ///
-  @IBAction func updateFilterObjects(_ sender: NSTextField) {
-    
-    // force a redraw
+    // clear all previous objects
+    _splitViewViewController?.objectsArray.removeAll()
     _splitViewViewController?.reloadObjectsTable()
   }
   /// Respond to the Connect button
@@ -280,30 +231,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
       break
     }
   }
-  /// Respond to the Send button
-  ///
-  /// - Parameter sender:     the button
-  ///
-  @IBAction func send(_ sender: NSButton) {
-    
-    // get the command
-    let cmd = _command.stringValue
-    
-    // if the field isn't blank
-    if cmd != "" {
-      
-      // send the command via TCP
-      let _ = _api.send(cmd)
-      
-      if cmd != _previousCommand { _commandsArray.append(cmd) }
-      
-      _previousCommand = cmd
-      _commandsIndex = _commandsArray.count - 1
-      
-      // optionally clear the Command field
-      if Defaults[.clearOnSend] { _command.stringValue = "" }
-    }
-  }
   /// The Connect as Gui checkbox changed
   ///
   /// - Parameter sender:     the checkbox
@@ -312,7 +239,60 @@ public final class ViewController             : NSViewController, RadioPickerDel
     
     Defaults[.isGui] = (sender.state == NSControl.StateValue.on)
   }
-  /// Respond to the Load button
+  /// Respond to the Copy button (in the Commands & Replies box)
+  ///
+  /// - Parameter sender:     any Object
+  ///
+  @IBAction func copyToClipboard(_ sender: Any){
+    var textToCopy = ""
+    
+    // if no rows selected, select all
+    if _splitViewViewController!._tableView.numberOfSelectedRows == 0 { _splitViewViewController!._tableView.selectAll(self) }
+    
+    // get the indexes of the selected rows
+    let indexSet = _splitViewViewController!._tableView.selectedRowIndexes
+    
+    for (_, rowIndex) in indexSet.enumerated() {
+      
+      var text = _splitViewViewController!._filteredTextArray[rowIndex]
+
+      // remove the prefixes (Timestamps & Connection Handle)
+      text = text.components(separatedBy: "|")[1]
+      
+      // accumulate the text lines
+      textToCopy += text + "\n"
+    }
+    // eliminate the last newline
+    textToCopy = String(textToCopy.dropLast())
+    
+    let pasteBoard = NSPasteboard.general
+    pasteBoard.clearContents()
+    pasteBoard.setString(textToCopy, forType:NSPasteboard.PasteboardType.string)
+  }
+  /// Respond to the Copy to Cmd button (in the Commands & Replies box)
+  ///
+  /// - Parameter sender:     any object
+  ///
+  @IBAction func copyToCmd(_ sender: Any) {
+    var textToCopy = ""
+    
+    // get the indexes of the selected rows
+    let indexSet = _splitViewViewController!._tableView.selectedRowIndexes
+    
+    for (_, rowIndex) in indexSet.enumerated() {
+      
+      textToCopy = _splitViewViewController!._filteredTextArray[rowIndex]
+      
+      // remove the prefixes (Timestamps & Connection Handle)
+      textToCopy = textToCopy.components(separatedBy: "|")[1]
+      
+      // stop after the first line
+      break
+    }
+    // paste the text into the command line
+    _command.stringValue = textToCopy
+  }
+  /// Respond to the Load button (in the Commands & Replies box)
   ///
   /// - Parameter sender:     the button
   ///
@@ -320,9 +300,10 @@ public final class ViewController             : NSViewController, RadioPickerDel
     
     let openPanel = NSOpenPanel()
     openPanel.allowedFileTypes = ["txt"]
-    
+    openPanel.directoryURL = _appFolderUrl
+
     // open an Open Dialog
-    openPanel.beginSheetModal(for: self.view.window!, completionHandler: { (result: NSApplication.ModalResponse) -> Void in
+    openPanel.beginSheetModal(for: self.view.window!) { [unowned self] (result: NSApplication.ModalResponse) in
       var fileString = ""
       
       // if the user selects Open
@@ -349,23 +330,80 @@ public final class ViewController             : NSViewController, RadioPickerDel
           self._splitViewViewController?.msg("Error reading file", level: .error, function: #function, file: #file, line: #line)
         }
       }
-    })
+    }
   }
-  /// Respond to the Clear button
+  /// Respond to the Load button (in the Macros box)
   ///
   /// - Parameter sender:     the button
   ///
-  @IBAction func clear(_ sender: NSButton) {
+  @IBAction func loadMacro(_ sender: NSButton) {
     
-    // clear all previous commands & replies
-    _splitViewViewController?.textArray.removeAll()
-    _splitViewViewController?.reloadTable()
-
-    // clear all previous objects
-    _splitViewViewController?.objectsArray.removeAll()
-    _splitViewViewController?.reloadObjectsTable()
+    let openPanel = NSOpenPanel()
+    openPanel.allowedFileTypes = ["macro"]
+    openPanel.nameFieldStringValue = "macro_1"
+    openPanel.directoryURL = _appFolderUrl
+    
+    // open an Open Dialog
+    openPanel.beginSheetModal(for: self.view.window!) { [unowned self] (result: NSApplication.ModalResponse) in
+      var fileString = ""
+      
+      // if the user selects Open
+      if result == NSApplication.ModalResponse.OK {
+        let url = openPanel.url!
+        
+        do {
+          
+          // try to read the file url
+          try fileString = String(contentsOf: url)
+          
+          // separate into lines
+          self._commandsArray = fileString.components(separatedBy: "\n")
+          
+          // eliminate the last one (it's blank)
+          self._commandsArray.removeLast()
+          
+          // show the first command (if any)
+          if self._commandsArray.count > 0 { self._command.stringValue = self._commandsArray[0] }
+          
+        } catch {
+          
+          // something bad happened!
+          self._splitViewViewController?.msg("Error reading file", level: .error, function: #function, file: #file, line: #line)
+        }
+      }
+    }
   }
-  /// Respond to the Save button
+  /// Open the Radio Picker sheet
+  ///
+  /// - Parameter sender:     the sender
+  ///
+  @IBAction func openRadioPicker(_ sender: AnyObject) {
+    
+    // get an instance of the RadioPicker
+    _radioPickerTabViewController = storyboard!.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "RadioPicker")) as? NSTabViewController
+    
+    // make this View Controller the delegate of the RadioPickers
+    _radioPickerTabViewController!.tabViewItems[kLocalTab].viewController!.representedObject = self
+    _radioPickerTabViewController!.tabViewItems[kRemoteTab].viewController!.representedObject = self
+
+    // select the last-used tab
+    _radioPickerTabViewController!.selectedTabViewItemIndex = ( Defaults[.showRemoteTabView] == false ? kLocalTab : kRemoteTab )
+
+    DispatchQueue.main.async {
+      
+      // show the RadioPicker sheet
+      self.presentViewControllerAsSheet(self._radioPickerTabViewController!)
+    }
+  }
+  /// Respond to the Run button (in the Macros box)
+  ///
+  /// - Parameter sender:     the button
+  ///
+  @IBAction func runMacro(_ sender: NSButton) {
+
+    loadAndRunMacro("")
+  }
+  /// Respond to the Save button (in the Commands & Replies box)
   ///
   /// - Parameter sender:     the button
   ///
@@ -374,9 +412,10 @@ public final class ViewController             : NSViewController, RadioPickerDel
     let savePanel = NSSavePanel()
     savePanel.allowedFileTypes = ["txt"]
     savePanel.nameFieldStringValue = "xAPITester"
+    savePanel.directoryURL = _appFolderUrl
     
     // open a Save Dialog
-    savePanel.beginSheetModal(for: self.view.window!, completionHandler: { (result: NSApplication.ModalResponse) -> Void in
+    savePanel.beginSheetModal(for: self.view.window!) { [unowned self] (result: NSApplication.ModalResponse) in
       
       // if the user pressed Save
       if result == NSApplication.ModalResponse.OK {
@@ -388,68 +427,139 @@ public final class ViewController             : NSViewController, RadioPickerDel
           
           fileString += row + "\n"
         }
-        do {
-          // write the string to the file url
-          try fileString.write(to: savePanel.url!, atomically: true, encoding: String.Encoding.utf8)
-          
-        } catch let error as NSError {
-          
-          // something bad happened!
-          self._api.log.msg("Error writing to file : \(error.localizedDescription)", level: .error, function: #function, file: #file, line: #line)
-          
-        } catch {
-          
-          // something bad happened!
-          self._api.log.msg("Error writing Log", level: .error, function: #function, file: #file, line: #line)
-        }
+        // write it to the File
+        self.writeToFile(savePanel.url!, text: fileString)
       }
-    })
-  }
-  /// Copy text from the table view to the Command field
-  ///
-  /// - Parameter sender:     any object
-  ///
-  @IBAction func copyToCmd(_ sender: Any) {
-    var cmd = ""
-    
-    // get the indexes of the selected rows
-    let indexSet = _splitViewViewController!._tableView.selectedRowIndexes
-    
-    for (_, rowIndex) in indexSet.enumerated() {
-      
-      cmd = _splitViewViewController!._filteredTextArray[rowIndex]
-      break
     }
-    
-    let cmdParts = cmd.components(separatedBy: "|")
-    cmd = cmdParts.count == 2 ? cmdParts[1] : cmdParts[0]
-    
-    _command.stringValue = cmd
   }
-  /// Copy text from the table view to the clipboard
+  /// Respond to the Save button (in the Macros box)
   ///
-  /// - Parameter sender:     any Object
+  /// - Parameter sender:     the button
   ///
-  @IBAction func copyToClipboard(_ sender: Any){
-    var textToCopy = ""
+  @IBAction func saveMacro(_ sender: NSButton) {
+
+    let savePanel = NSSavePanel()
+    savePanel.allowedFileTypes = ["macro"]
+    savePanel.nameFieldStringValue = "macro_1"
+    savePanel.directoryURL = _appFolderUrl
     
-    // if no rows selected, select all
-    if _splitViewViewController!._tableView.numberOfSelectedRows == 0 { _splitViewViewController!._tableView.selectAll(self) }
-    
-    // get the indexes of the selected rows
-    let indexSet = _splitViewViewController!._tableView.selectedRowIndexes
-    
-    for (_, rowIndex) in indexSet.enumerated() {
+    // open a Save Dialog
+    savePanel.beginSheetModal(for: self.view.window!) { [unowned self] (result: NSApplication.ModalResponse) in
       
-      let text = _splitViewViewController!._filteredTextArray[rowIndex]
-      textToCopy += text + "\n"
+      // if the user pressed Save
+      if result == NSApplication.ModalResponse.OK {
+        
+        var fileString = ""
+        
+        // build a string of all the commands & replies
+        for command in self._commandsArray {
+          
+          fileString += command + "\n"
+        }
+        // write it to the File
+        self.writeToFile(savePanel.url!, text: fileString)
+      }
     }
-    // eliminate the last newline
-    textToCopy = String(textToCopy.dropLast())
+
+  }
+  /// Respond to the Send button
+  ///
+  /// - Parameter sender:     the button
+  ///
+  @IBAction func send(_ sender: NSButton) {
     
-    let pasteBoard = NSPasteboard.general
-    pasteBoard.clearContents()
-    pasteBoard.setString(textToCopy, forType:NSPasteboard.PasteboardType.string)
+    // get the command
+    let cmd = _command.stringValue
+    
+    // if the field isn't blank
+    if cmd != "" {
+      
+      if cmd.first! == kMacroPrefix {
+        
+        // the command is a macro file name
+        loadAndRunMacro(String(cmd.dropFirst()), choose: false)
+        
+      } else {
+        
+        // send the command via TCP
+        let _ = _api.send(cmd)
+        
+        if cmd != _previousCommand { _commandsArray.append(cmd) }
+        
+        _previousCommand = cmd
+        _commandsIndex = _commandsArray.count - 1
+        
+        // optionally clear the Command field
+        if Defaults[.clearOnSend] { _command.stringValue = "" }
+      }
+    }
+  }
+  /// Respond to the Show Timestamps checkbox
+  ///
+  /// - Parameter sender:   the button
+  ///
+  @IBAction func showTimestamps(_ sender: NSButton) {
+    
+    // force a redraw
+    _splitViewViewController?.reloadTable()
+    _splitViewViewController?.reloadObjectsTable()
+  }
+  /// Respond to the Close menu item
+  ///
+  /// - Parameter sender:     the button
+  ///
+  @IBAction func terminate(_ sender: AnyObject) {
+    
+    // disconnect the active radio
+    _api.disconnect()
+    
+    _sendButton.isEnabled = false
+    _connectButton.title = kConnect.rawValue
+    _localRemote.stringValue = ""
+    
+    NSApp.terminate(self)
+  }
+  /// The Filter text field changed (in the Commands & Replies box)
+  ///
+  /// - Parameter sender:     the text field
+  ///
+  @IBAction func updateFilter(_ sender: NSTextField) {
+    
+    // force a redraw
+    _splitViewViewController?.reloadTable()
+  }
+  /// The FilterBy PopUp changed (in the Commands & Replies box)
+  ///
+  /// - Parameter sender:     the popup
+  ///
+  @IBAction func updateFilterBy(_ sender: NSPopUpButton) {
+    
+    // clear the Filter string field
+    Defaults[.filter] = ""
+    
+    // force a redraw
+    _splitViewViewController?.reloadTable()
+  }
+  /// The Filter text field changed (in the Objects box)
+  ///
+  /// - Parameter sender:     the text field
+  ///
+  @IBAction func updateFilterObjects(_ sender: NSTextField) {
+    
+    // force a redraw
+    _splitViewViewController?.reloadObjectsTable()
+  }
+  /// The FilterBy PopUp changed (in the Objects box)
+  ///
+  /// - Parameter sender:     the popup
+  ///
+  @IBAction func updateFilterObjectsBy(_ sender: NSPopUpButton) {
+    
+    // clear the Filter string field
+    Defaults[.filterObjects] = ""
+    
+    // force a redraw
+    _splitViewViewController?.reloadObjectsTable()
   }
   
   // ----------------------------------------------------------------------------
@@ -533,6 +643,28 @@ public final class ViewController             : NSViewController, RadioPickerDel
     } catch {
       
       _api.log.msg("Error writing Log", level: .error, function: #function, file: #file, line: #line)
+    }
+  }
+  /// Write Text to a File url
+  ///
+  /// - Parameters:
+  ///   - url:            a File Url
+  ///   - text:           the Text
+  ///
+  private func writeToFile(_ url: URL, text: String) {
+    do {
+      // write the string to the file url
+      try text.write(to: url, atomically: true, encoding: String.Encoding.utf8)
+      
+    } catch let error as NSError {
+      
+      // something bad happened!
+      self._api.log.msg("Error writing to file : \(error.localizedDescription)", level: .error, function: #function, file: #file, line: #line)
+      
+    } catch {
+      
+      // something bad happened!
+      self._api.log.msg("Error writing Log", level: .error, function: #function, file: #file, line: #line)
     }
   }
 
@@ -709,6 +841,69 @@ public final class ViewController             : NSViewController, RadioPickerDel
     }
     _commandsIndex = index != -1 ? index! : _commandsArray.count - 1
     return index
+  }
+  /// Load and runn a macro file
+  ///
+  /// - Parameters:
+  ///   - name:               the File name
+  ///   - choose:             allow the user to pick a file
+  ///
+  private func loadAndRunMacro(_ name: String, choose: Bool = true) {
+    
+    // nested function to process the selected URL
+    func processUrl(_ url: URL) {
+      var commandsArray = [String]()
+      var fileString = ""
+
+      do {
+        // try to read the file url
+        try fileString = String(contentsOf: url)
+        
+        // separate into lines
+        commandsArray = fileString.components(separatedBy: "\n")
+        
+        // eliminate the last one (it's blank)
+        commandsArray.removeLast()
+        
+        // run each command
+        for command in commandsArray {
+          
+          // send the command
+          self._api.send(command)
+          
+          // pause between commands
+          usleep(self.kPauseBetweenMacroCommands)
+        }
+        
+      } catch {
+        
+        // something bad happened!
+        self._splitViewViewController?.msg("Error reading file", level: .error, function: #function, file: #file, line: #line)
+      }
+    }
+
+    // pick a file?
+    if choose {
+      
+      // YES, open a dialog
+      let openPanel = NSOpenPanel()
+      openPanel.canChooseFiles = choose
+      openPanel.representedFilename = name
+      openPanel.allowedFileTypes = ["macro"]
+      openPanel.directoryURL = _appFolderUrl
+      
+      // open an Open Dialog
+      openPanel.beginSheetModal(for: self.view.window!) { (result: NSApplication.ModalResponse) in
+        
+        // if the user selects Open
+        if result == NSApplication.ModalResponse.OK { processUrl(openPanel.url!) }
+      }
+    
+    } else {
+      
+      // NO, process the passed name
+      processUrl(_appFolderUrl.appendingPathComponent(name + ".macro"))
+    }
   }
 }
 
