@@ -3,7 +3,7 @@ xAPITester Change Log
 v5.0.15
 
 Main.storyboard - reworked the UI
-ViewController - added the ability to save / load / run macros (collections of commands)
+ViewController.swift - added the ability to save / load / run macros (collections of commands)
 
 
 v5.0.14
