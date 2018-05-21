@@ -13,7 +13,7 @@ import xLib6000
 // MARK: - MicAudioHandler Class implementation
 // ------------------------------------------------------------------------------
 
-public final class MicAudioHandler             : NSObject, MicAudioStreamHandler {
+public final class MicAudioHandler             : NSObject, StreamHandler {
   
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
@@ -40,7 +40,10 @@ public final class MicAudioHandler             : NSObject, MicAudioStreamHandler
   // ----------------------------------------------------------------------------
   // MARK: - Public methods
   
-  public func streamHandler(_ frame: MicAudioStreamFrame) {
+  public func streamHandler<T>(_ streamFrame: T) {
+    
+    guard let _ = streamFrame as? MicAudioStreamFrame else { return }
+    
 
     // data received, is it the first?
     if !active {

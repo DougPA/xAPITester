@@ -13,7 +13,7 @@ import xLib6000
 // MARK: - PanadapterHandler Class implementation
 // ------------------------------------------------------------------------------
 
-public final class PanadapterHandler        : NSObject, PanadapterStreamHandler {
+public final class PanadapterHandler        : NSObject, StreamHandler {
   
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
@@ -40,7 +40,10 @@ public final class PanadapterHandler        : NSObject, PanadapterStreamHandler 
   // ----------------------------------------------------------------------------
   // MARK: - Public methods
   
-  public func streamHandler(_ frame: PanadapterFrame) {
+  public func streamHandler<T>(_ streamFrame: T) {
+    
+    guard let _ = streamFrame as? PanadapterFrame else { return }
+    
     let panadapterStartMessage = "STARTED Panadapter     \(_id.hex) stream"
     
     // data received, is it the first?

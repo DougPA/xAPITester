@@ -13,7 +13,7 @@ import xLib6000
 // MARK: - IqHandler Class implementation
 // ------------------------------------------------------------------------------
 
-public final class IqHandler                : NSObject, IqStreamHandler {
+public final class IqHandler                : NSObject, StreamHandler {
   
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
@@ -40,7 +40,10 @@ public final class IqHandler                : NSObject, IqStreamHandler {
   // ----------------------------------------------------------------------------
   // MARK: - Public methods
   
-  public func streamHandler(_ frame: IqStreamFrame) {
+  public func streamHandler<T>(_ streamFrame: T) {
+    
+    guard let _ = streamFrame as? IqStreamFrame else { return }
+    
 
     // data received, is it the first?
     if !active {

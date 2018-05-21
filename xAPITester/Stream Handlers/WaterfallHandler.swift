@@ -13,7 +13,7 @@ import xLib6000
 // MARK: - WaterfallHandler Class implementation
 // ------------------------------------------------------------------------------
 
-public final class WaterfallHandler        : NSObject, WaterfallStreamHandler {
+public final class WaterfallHandler        : NSObject, StreamHandler {
   
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
@@ -40,8 +40,10 @@ public final class WaterfallHandler        : NSObject, WaterfallStreamHandler {
   // ----------------------------------------------------------------------------
   // MARK: - Public methods
   
-  public func streamHandler(_ frame: WaterfallFrame) {
-
+  public func streamHandler<T>(_ streamFrame: T) {
+    
+    guard let _ = streamFrame as? WaterfallFrame else { return }
+    
     // data received, is it the first?
     if !active {
       // YES, set active
