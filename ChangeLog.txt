@@ -1,10 +1,14 @@
 xAPITester Change Log
 
+v5.0.16
+
+ViewController.swift - added code to evaluate conditional macros
+ViewController.swift - added code to evaluate replaceable parameters in macros
+
 v5.0.15
 
 Main.storyboard - reworked the UI
 ViewController.swift - added the ability to save / load / run macros (collections of commands)
-
 
 v5.0.14
 

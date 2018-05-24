@@ -106,9 +106,9 @@
 			isa = PBXGroup;
 			children = (
 				91FDF1C3206BD6FE00C75CE7 /* xLib6000.framework */,
+				9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */,
 				91A2D8DC2069481000676728 /* ChangeLog.txt */,
 				9102C1F12066C03700F4B655 /* README.md */,
-				9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */,
 				9102C1AD2066BE0700F4B655 /* xAPITester */,
 				9102C1AC2066BE0700F4B655 /* Products */,
 			);
