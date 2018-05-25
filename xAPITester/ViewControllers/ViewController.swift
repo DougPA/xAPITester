@@ -1017,7 +1017,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
       case "daxiq_none":
         result = ((object as! Panadapter).daxIqChannel == 0)
         
-      case "daxiq_1","daxiq_2","daxiq_3","daxiq_4","daxiq_5","daxiq_6","daxiq_7" :
+      case "daxiq_1","daxiq_2","daxiq_3","daxiq_4" :
         result = ((object as! Panadapter).daxIqChannel == Int(components[1].dropFirst(6)))
         
       case "locked_off" :
@@ -1078,7 +1078,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     // put the evaluated components together in a command line
     return evaluatedComponents.joined(separator:" ")
   }
-  
   /// Extract the replaceable parameters
   ///
   /// - Parameter string:           a command string (with / without replaceable params
@@ -1109,7 +1108,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     }
     return expandedExpr
   }
-  
   /// Find the specified object
   ///
   /// - Parameter id:               object ID
@@ -1158,30 +1156,52 @@ public final class ViewController             : NSViewController, RadioPickerDel
   /// - Returns:                      a String representation of the param value
   ///
   private func findValue(of object: AnyObject, param: String.SubSequence) -> String? {
+    let operators = CharacterSet(charactersIn: "+-")
+    var p = param
+    var value = 0
+    var op  = ""
+    
+    // is there an arithmetic operation?
+    let components = param.components(separatedBy: operators)
+    if components.count == 2 {
+      // get the operator
+      let indexOfOperator = param.index(param.startIndex, offsetBy: components[0].count)
+      op = String(param[indexOfOperator])
+
+      // get the value
+      value = Int(components[1], radix: 10) ?? 0
+      if op == "-" { value = -value }
+      
+      // get the param portion
+      p = param[..<indexOfOperator]
+    }
     
     // identify the object / param and return its value
     
     if let slice = object as? xLib6000.Slice {              // Slice params
       
-      switch param.lowercased() {
+      switch p.lowercased() {
       case "id":
         return slice.id
         
       case "freq":
-        return (slice.frequency + 10_000).hzToMhz()
+        return (slice.frequency + value).hzToMhz()
         
       default:
-        self._splitViewViewController?.msg("Macro error: slice param - \(param)", level: .error, function: #function, file: #file, line: #line)
+        self._splitViewViewController?.msg("Macro error: slice param - \(p)", level: .error, function: #function, file: #file, line: #line)
         return nil
       }
     } else if let panadapter = object as? Panadapter {      // Panadapter params
 
-      switch param.lowercased() {
+      switch p.lowercased() {
       case "id":
         return panadapter.id.hex
         
+      case "bw":
+        return String(panadapter.bandwidth)
+        
       default:
-        self._splitViewViewController?.msg("Macro error: panadapter param - \(param)", level: .error, function: #function, file: #file, line: #line)
+        self._splitViewViewController?.msg("Macro error: panadapter param - \(p)", level: .error, function: #function, file: #file, line: #line)
         return nil
       }
     }
