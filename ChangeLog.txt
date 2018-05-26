@@ -4,6 +4,7 @@ v5.0.16
 
 ViewController.swift - added code to evaluate conditional macros
 ViewController.swift - added code to evaluate replaceable parameters in macros
+SplitViewController.swift - additional information in slice & tnf hasBeenAdded() & willBeRemoved() methods
 
 v5.0.15
 

@@ -685,11 +685,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
       case is xLib6000.Slice:
         let slice = obj as! xLib6000.Slice
-        text += "Slice          \(slice.id)  locked = \(slice.locked)  frequency = \(slice.frequency.hzToMhz())  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)"
+        text += "Slice          \(slice.id)  pan = \(slice.panadapterId.hex)  frequency = \(slice.frequency.hzToMhz())  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)"
         
       case is Tnf:
         let tnf = obj as! Tnf
-        text += "Tnf            \(tnf.id)  width = \(tnf.width)  depth = \(tnf.depth)  permanent = \(tnf.permanent)"
+        text += "Tnf            \(tnf.id)  frequency = \(tnf.frequency)  width = \(tnf.width)  depth = \(tnf.depth)  permanent = \(tnf.permanent)"
         
       case is TxAudioStream:
         let txAudio = obj as! TxAudioStream
@@ -768,11 +768,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
       case is xLib6000.Slice:
         let slice = obj as! xLib6000.Slice
-        text += "Slice          \(slice.id)  locked = \(slice.locked)  frequency = \(slice.frequency.hzToMhz())  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)"
+        text += "Slice          \(slice.id)  pan = \(slice.panadapterId.hex)  frequency = \(slice.frequency.hzToMhz())  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)"
 
       case is Tnf:
         let tnf = obj as! Tnf
-        text += "Tnf            \(tnf.id)  width = \(tnf.width)  depth = \(tnf.depth)  permanent = \(tnf.permanent)"
+        text += "Tnf            \(tnf.id)  frequency = \(tnf.frequency)  width = \(tnf.width)  depth = \(tnf.depth)  permanent = \(tnf.permanent)"
 
       case is TxAudioStream:
         let txAudio = obj as! TxAudioStream

@@ -76,13 +76,15 @@ public final class ViewController             : NSViewController, RadioPickerDel
 
   private var _radioPickerTabViewController   : NSTabViewController?
   
-  internal var _startTimestamp                 : Date?
+  internal var _startTimestamp                : Date?
   
   private var _splitViewViewController        : SplitViewController?
   private var _appFolderUrl                   : URL!
-
-  // constants
+  private var _macros                         : Macros!
+  private var _apiVersion                     = ""
+  private var _apiBuild                       = ""
   
+  // constants
   private let _dateFormatter                  = DateFormatter()
   
   private let kAutosaveName                   = NSWindow.FrameAutosaveName("xAPITesterWindow")
@@ -96,12 +98,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private let kxLib6000Identifier             = "net.k3tzr.xLib6000"          // Bundle identifier for xLib6000
   private let kVersionKey                     = "CFBundleShortVersionString"  // CF constants
   private let kBuildKey                       = "CFBundleVersion"
-  private let kMacroPrefix                    : Character = ">"
-  private let kConditionPrefix                : Character = "<"
-  private let kPauseBetweenMacroCommands      : UInt32 = 30_000               // 30 milliseconds
-  private var _apiVersion                     = ""
-  private var _apiBuild                       = ""
-  
+
   private var kSaveFolder                     = "net.k3tzr.xAPITester"
   
   // ----------------------------------------------------------------------------
@@ -190,6 +187,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
       _splitViewViewController?.view.translatesAutoresizingMaskIntoConstraints = false
       _api.testerDelegate = _splitViewViewController
       
+      _macros = Macros(logHandler: _splitViewViewController!)
     }
   }
   // ----------------------------------------------------------------------------
@@ -402,7 +400,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   ///
   @IBAction func runMacro(_ sender: NSButton) {
 
-    runMacro("")
+    _macros.runMacro("", window: view.window!, appFolderUrl: _appFolderUrl)
   }
   /// Respond to the Save button (in the Commands & Replies box)
   ///
@@ -475,21 +473,21 @@ public final class ViewController             : NSViewController, RadioPickerDel
     // if the field isn't blank
     if cmd != "" {
       
-      if cmd.first! == kMacroPrefix {
+      if cmd.first! == Macros.kMacroPrefix {
         
         // the command is a macro file name
-        runMacro(String(cmd.dropFirst()), choose: false)
-        
-      } else if cmd.first! == kConditionPrefix {
+        _macros.runMacro(String(cmd.dropFirst()), window: view.window!, appFolderUrl: _appFolderUrl, choose: false)
+
+      } else if cmd.first! == Macros.kConditionPrefix {
       
         // parse the condition
-        let evaluatedCommand = parse(cmd)
+        let evaluatedCommand = _macros.parse(cmd)
         
         // was the condition was satisfied?
         if evaluatedCommand.active {
           
           // YES, send the command
-          let _ = _api.send( evaluateValues(command: evaluatedCommand.cmd) )
+          let _ = _api.send( _macros.evaluateValues(command: evaluatedCommand.cmd) )
         
         } else {
           
@@ -500,7 +498,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
       } else {
         
         // send the command via TCP
-        let _ = _api.send( evaluateValues(command: cmd) )
+        let _ = _api.send( _macros.evaluateValues(command: cmd) )
         
         if cmd != _previousCommand { _commandsArray.append(cmd) }
         
@@ -859,353 +857,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     }
     _commandsIndex = index != -1 ? index! : _commandsArray.count - 1
     return index
-  }
-  /// Run a macro file
-  ///
-  /// - Parameters:
-  ///   - name:               the File name
-  ///   - choose:             allow the user to pick a file
-  ///
-  private func runMacro(_ name: String, choose: Bool = true) {
-    
-    // nested function to process the selected URL
-    func processUrl(_ url: URL) {
-      var commandsArray = [String]()
-      var fileString = ""
-
-      do {
-        // try to read the file url
-        try fileString = String(contentsOf: url)
-        
-        // separate into lines
-        commandsArray = fileString.components(separatedBy: "\n")
-        
-        // eliminate the last one (it's blank)
-        commandsArray.removeLast()
-        
-        // run each command
-        for command in commandsArray {
-          
-          let evaluatedCommand = parse(command)
-          if evaluatedCommand.active {
-            
-            // send the command
-            self._api.send(evaluatedCommand.cmd)
-            
-            // pause between commands
-            usleep(self.kPauseBetweenMacroCommands)
-          }
-        }
-      } catch {
-        
-        // something bad happened!
-        self._splitViewViewController?.msg("Error reading file", level: .error, function: #function, file: #file, line: #line)
-      }
-    }
-
-    // pick a file?
-    if choose {
-      
-      // YES, open a dialog
-      let openPanel = NSOpenPanel()
-      openPanel.canChooseFiles = choose
-      openPanel.representedFilename = name
-      openPanel.allowedFileTypes = ["macro"]
-      openPanel.directoryURL = _appFolderUrl
-      
-      // open an Open Dialog
-      openPanel.beginSheetModal(for: self.view.window!) { (result: NSApplication.ModalResponse) in
-        
-        // if the user selects Open
-        if result == NSApplication.ModalResponse.OK { processUrl(openPanel.url!) }
-      }
-    
-    } else {
-      
-      // NO, process the passed name
-      processUrl(_appFolderUrl.appendingPathComponent(name + ".macro"))
-    }
-  }
-  /// Parse a macro command line
-  ///
-  /// - Parameter command:            the command line
-  /// - Returns:                      a tuple containing the evaluated command & whether to send it
-  ///
-  private func parse(_ command: String) -> (cmd: String, active: Bool, condition: String) {
-
-    // format:    <Identifier Param>commandString
-    //
-    // where:     Identifier = Sn or Pn     for Slice n   or   Panadapter n
-    //            Parameter = a parameter names, e.g. AM, RIT_ON, etc
-
-    var cmd           = command
-    var state         = true
-    var condition     = ""
-    
-    // is it a conditional command?
-    if command.hasPrefix("<") {
-      
-      // YES, drop the "<"
-      let remainder = String(command.dropFirst())
-      
-      // separate the pieces
-      let scanner = Scanner(string: remainder)
-      var expr1: NSString?
-      var expr2: NSString?
-      scanner.scanUpTo(">", into: &expr1)
-      scanner.scanLocation += 1
-      scanner.scanUpTo("", into: &expr2)
-      
-      // were the parts found?
-      if let expr1 = expr1, let expr2 = expr2 {
-        
-        condition = expr1 as String
-        state = evaluateCondition(condition)
-        cmd = expr2 as String
-      }
-    }
-    return (cmd, state, condition)
-  }
-  /// Evaluate the command's condition prefix
-  ///
-  /// - Parameter condition:      the condition prefix
-  /// - Returns:                  whether the condition was satisfied
-  ///
-  private func evaluateCondition(_ condition: String) -> Bool {
-    var result          = false
-    
-    // separate the components of the condition
-    let components = condition.split(separator: " ")
-    
-    // should only be two
-    guard components.count == 2 else {
-      self._splitViewViewController?.msg("Malformed macro condition - \(condition)", level: .error, function: #function, file: #file, line: #line)
-      return false
-    }
-    // obtain a reference to the object
-    if let object = findObject(id: components) {
-      
-      // test the specified condition
-      switch components[1].lowercased() {
-      case "am", "sam", "cw", "usb", "lsb", "digu", "digl", "fm", "nfm","dfm", "rtty" :
-        result = ((object as! xLib6000.Slice).mode == components[1].uppercased())
-        
-      case "off", "slow", "medium", "fast" :
-        result = ((object as! xLib6000.Slice).agcMode == components[1].uppercased())
-        
-        //    case "bw_band":
-        //      break
-        //
-        //    case "bw_back":
-        //      break
-        //
-        //    case "bw_segment":
-        //      break
-        
-      case "anf_off" :
-        result = ((object as! xLib6000.Slice).anfEnabled == false)
-        
-      case "anf_on" :
-        result = ((object as! xLib6000.Slice).anfEnabled == true)
-        
-      case "dax_none":
-        result = ((object as! xLib6000.Slice).daxChannel == 0)
-        
-      case "dax_1","dax_2","dax_3","dax_4","dax_5","dax_6","dax_7" :
-        result = ((object as! xLib6000.Slice).daxChannel == Int(components[1].dropFirst(4)))
-        
-      case "daxiq_none":
-        result = ((object as! Panadapter).daxIqChannel == 0)
-        
-      case "daxiq_1","daxiq_2","daxiq_3","daxiq_4" :
-        result = ((object as! Panadapter).daxIqChannel == Int(components[1].dropFirst(6)))
-        
-      case "locked_off" :
-        result = ((object as! xLib6000.Slice).locked == false)
-        
-      case "locked_on" :
-        result = ((object as! xLib6000.Slice).locked == true)
-        
-      case "loopA_off" :
-        result = ((object as! xLib6000.Slice).loopAEnabled == false)
-        
-      case "loopA_on" :
-        result = ((object as! xLib6000.Slice).loopAEnabled == true)
-        
-      case "loopB_off" :
-        result = ((object as! xLib6000.Slice).loopBEnabled == false)
-        
-      case "loopB_on" :
-        result = ((object as! xLib6000.Slice).loopBEnabled == true)
-        
-      case "rit_off" :
-        result = ((object as! xLib6000.Slice).ritEnabled == false)
-        
-      case "rit_on" :
-        result = ((object as! xLib6000.Slice).ritEnabled == true)
-        
-      case "tx_off" :
-        result = ((object as! xLib6000.Slice).txEnabled == false)
-        
-      case "tx_on" :
-        result = ((object as! xLib6000.Slice).txEnabled == true)
-        
-      case "xit_off" :
-        result = ((object as! xLib6000.Slice).xitEnabled == false)
-        
-      case "xit_on" :
-        result = ((object as! xLib6000.Slice).xitEnabled == true)
-        
-      default:
-        self._splitViewViewController?.msg("Unknown macro action - \(components[1])", level: .error, function: #function, file: #file, line: #line)
-      }
-    }
-    return result
-  }
-  /// Evaluate the replaceable Values in a command
-  ///
-  /// - Parameter command:          the command string before evaluation
-  /// - Returns:                    the command string after evaluation
-  ///
-  private func evaluateValues(command: String) -> String {
-
-    // separate all components of the command
-    let components = command.components(separatedBy: " ")
-    
-    // evaluate each component
-    let evaluatedComponents = components.map { (cmd) -> String in return extractExpression(cmd) }
-    
-    // put the evaluated components together in a command line
-    return evaluatedComponents.joined(separator:" ")
-  }
-  /// Extract the replaceable parameters
-  ///
-  /// - Parameter string:           a command string (with / without replaceable params
-  /// - Returns:                    the command string with parameters replaced
-  ///
-  private func extractExpression(_ string: String) -> String {
-    var expandedExpr = string
-    
-    // does the string contain a replaceable parameter?
-    if string.contains("<") && string.contains(">") {
-      
-      // YES, isolate it
-      let i = string.index(of: "<")!
-      let j = string.index(of: ">")!
-      let expr = String(string[string.index(after: i)..<j])
-      
-      // separate the "object" from the "modifier"
-      let components = expr.split(separator: ".")
-      
-      // obtain a reference to the object
-      if let object = findObject(id: components) {
-        
-        // expand the param
-        if let value = findValue(of: object, param: components[1]) {
-          expandedExpr = String(string[..<i]) + value + String(string[string.index(after: j)...])
-        }
-      }
-    }
-    return expandedExpr
-  }
-  /// Find the specified object
-  ///
-  /// - Parameter id:               object ID
-  /// - Returns:                    a refrence to the object
-  ///
-  private func findObject(id: [String.SubSequence]) -> AnyObject? {
-    let kPanadapterBase = UInt32(0x40000000)
-
-    let object = id[0].dropLast()
-    let number = id[0].dropFirst()
-
-    // obtain a reference to the object
-    switch object {
-    case "S":                       // Slice
-      switch number {
-      case "A":
-        return Slice.findActive()
-        
-      case "0","1","2","3","4","5","6","7":
-        return _api.radio!.slices[String(number)]
-        
-      default:
-        self._splitViewViewController?.msg("Macro error: slice - \(number)", level: .error, function: #function, file: #file, line: #line)
-        return nil
-      }
-    case "P":                       // Panadapter
-      switch number {
-      case "0","1","2","3","4","5","6","7":
-        return _api.radio!.panadapters[kPanadapterBase + UInt32(number)!]
-        
-      default:
-        self._splitViewViewController?.msg("Macro error: panadapter - \(number)", level: .error, function: #function, file: #file, line: #line)
-        return nil
-      }
-      
-    default:
-      self._splitViewViewController?.msg("Macro error: object - \(object)", level: .error, function: #function, file: #file, line: #line)
-      return nil
-    }
-  }
-  /// Find the value of a parameter
-  ///
-  /// - Parameters:
-  ///   - object:                     an object reference
-  ///   - param:                      a parameter id
-  /// - Returns:                      a String representation of the param value
-  ///
-  private func findValue(of object: AnyObject, param: String.SubSequence) -> String? {
-    let operators = CharacterSet(charactersIn: "+-")
-    var p = param
-    var value = 0
-    var op  = ""
-    
-    // is there an arithmetic operation?
-    let components = param.components(separatedBy: operators)
-    if components.count == 2 {
-      // get the operator
-      let indexOfOperator = param.index(param.startIndex, offsetBy: components[0].count)
-      op = String(param[indexOfOperator])
-
-      // get the value
-      value = Int(components[1], radix: 10) ?? 0
-      if op == "-" { value = -value }
-      
-      // get the param portion
-      p = param[..<indexOfOperator]
-    }
-    
-    // identify the object / param and return its value
-    
-    if let slice = object as? xLib6000.Slice {              // Slice params
-      
-      switch p.lowercased() {
-      case "id":
-        return slice.id
-        
-      case "freq":
-        return (slice.frequency + value).hzToMhz()
-        
-      default:
-        self._splitViewViewController?.msg("Macro error: slice param - \(p)", level: .error, function: #function, file: #file, line: #line)
-        return nil
-      }
-    } else if let panadapter = object as? Panadapter {      // Panadapter params
-
-      switch p.lowercased() {
-      case "id":
-        return panadapter.id.hex
-        
-      case "bw":
-        return String(panadapter.bandwidth)
-        
-      default:
-        self._splitViewViewController?.msg("Macro error: panadapter param - \(p)", level: .error, function: #function, file: #file, line: #line)
-        return nil
-      }
-    }
-    return nil
   }
 }
 
