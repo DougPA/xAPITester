@@ -594,7 +594,12 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
           for (_, waterfall) in self._api.radio!.waterfalls where panadapter.id == waterfall.panadapterId {
             self.showInObjectsTable("      Waterfall      \(waterfall.id.hex) stream")
           }
-          
+
+          // IQ Streams for this Panadapter
+          for (_, iqStream) in self._api.radio!.iqStreams where panadapter.id == iqStream.pan {
+            self.showInObjectsTable("      DaxIq          \(iqStream.id.hex) stream")
+          }
+
           // Slices for this Panadapter
           for (_, slice) in self._api.radio!.slices where panadapter.id == slice.panadapterId {
             self.showInObjectsTable("      Slice          \(slice.id)  pan = \(slice.panadapterId.hex)  frequency = \(slice.frequency.hzToMhz())  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)")
@@ -609,10 +614,6 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
               self.showInObjectsTable("           Meter  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
             }
 
-          }
-          // IQ Streams for this Panadapter
-          for (_, iqStream) in self._api.radio!.iqStreams where panadapter.id == iqStream.pan {
-            self.showInObjectsTable("      DaxIq          \(iqStream.id.hex) stream")
           }
         }
         // Tnfs
@@ -640,7 +641,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
           let source = meter.source[0..<3]
           self.showInObjectsTable("Meter (\(source))    number = \(("00" + meter.number).suffix(3))  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
         }
-        // Mic Audio Streams
+        // Mic Audio Stream
         for (_, micAudioStream) in self._api.radio!.micAudioStreams {
           self.showInObjectsTable("DaxMicAudio    \(micAudioStream.id.hex) stream")
         }
@@ -648,7 +649,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         for (_, opusStream) in self._api.radio!.opusStreams {
           self.showInObjectsTable("Opus           \(opusStream.id) stream")
         }
-        // TX Audio Streams
+        // TX Audio Stream
         for (_, txAudioStream) in self._api.radio!.txAudioStreams {
           self.showInObjectsTable("DaxTxAudio     \(txAudioStream.id.hex) stream")
         }
