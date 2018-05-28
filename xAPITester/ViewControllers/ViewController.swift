@@ -65,19 +65,17 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBOutlet weak internal var _localRemote    : NSTextField!
   
   // ----------------------------------------------------------------------------
-  // MARK: - Private properties - Setters / Getters with synchronization
+  // MARK: - Internal properties
   
+  internal var _startTimestamp                : Date?
+
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
   private var _previousCommand                = ""                          // last command issued
   private var _commandsIndex                  = 0
   private var _commandsArray                  = [String]()                  // commands history
-
   private var _radioPickerTabViewController   : NSTabViewController?
-  
-  internal var _startTimestamp                : Date?
-  
   private var _splitViewViewController        : SplitViewController?
   private var _appFolderUrl                   : URL!
   private var _macros                         : Macros!
@@ -86,7 +84,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
   
   // constants
   private let _dateFormatter                  = DateFormatter()
-  
   private let kAutosaveName                   = NSWindow.FrameAutosaveName("xAPITesterWindow")
   private let kConnect                        = NSUserInterfaceItemIdentifier( "Connect")
   private let kDisconnect                     = NSUserInterfaceItemIdentifier( "Disconnect")
@@ -94,12 +91,10 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private let kRemote                         = "SmartLink"
   private let kLocalTab                       = 0
   private let kRemoteTab                      = 1
-
   private let kxLib6000Identifier             = "net.k3tzr.xLib6000"          // Bundle identifier for xLib6000
   private let kVersionKey                     = "CFBundleShortVersionString"  // CF constants
   private let kBuildKey                       = "CFBundleVersion"
-
-  private var kSaveFolder                     = "net.k3tzr.xAPITester"
+  private let kDelayForAvailableRadios        : UInt32 = 1
   
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
@@ -107,7 +102,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   public func NSLocalizedString(_ key: String) -> String {
     return Foundation.NSLocalizedString(key, comment: "")
   }
-
+  
   public override func viewDidLoad() {
     super.viewDidLoad()
     
@@ -146,23 +141,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
         fatalError("Error creating App Support folder: \(error.localizedDescription)")
       }
     }
-
-    // is the default Radio available?
-    if let defaultRadio = defaultRadioFound() {
-      
-      // YES, open the default radio (local only)
-      if !openRadio(defaultRadio) {
-        _splitViewViewController?.msg("Error opening default radio, \(defaultRadio.name ?? "")", level: .warning, function: #function, file: #file, line: #line)
-        
-        // open the Radio Picker
-        openRadioPicker( self)
-      }
-      
-    } else {
-      
-      // NO, open the Radio Picker
-      openRadioPicker( self)
-    }
+    // open the Default Radio (if any), otherwise open the Picker
+    checkForDefaultRadio()
   }
   override public func viewWillAppear() {
     
@@ -218,8 +198,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
       
     case kConnect:
       
-      // open the picker
-      openRadioPicker(self)
+      // open the Default Radio (if any), otherwise open the Picker
+      checkForDefaultRadio()
       
     case kDisconnect:
       
@@ -605,35 +585,51 @@ public final class ViewController             : NSViewController, RadioPickerDel
     //        Defaults[.neutralColor] = neutralColor
     //        Defaults[.otherHandleColor] = otherHandleColor
   }
-  /// Check if there is a Default Radio (local only)
+  
+  /// Determine if the Default radio (if any) is present
   ///
-  /// - Returns:        a RadioParameters struct or nil
-  ///
-  private func defaultRadioFound() -> RadioParameters? {
-    var defaultRadioParameters: RadioParameters?
+  fileprivate func checkForDefaultRadio() {
+    var found = false
     
-    // see if there is a valid default Radio
-    let defaultRadio = RadioParameters( Defaults[.defaultsDictionary] )
-    if defaultRadio.ipAddress != "" && defaultRadio.port != 0 {
+    // get the default Radio
+    let defaultRadioParameters = RadioParameters( Defaults[.defaultsDictionary] )
+    
+    // is it valid?
+    if defaultRadioParameters.ipAddress != "" && defaultRadioParameters.port != 0 {
       
-      // allow time to hear the UDP broadcasts
-      usleep(1500)
+      // YES, allow time to hear the UDP broadcasts
+      sleep(kDelayForAvailableRadios)
       
       // has the default Radio been found?
-      for (_, foundRadio) in _api.availableRadios.enumerated() where foundRadio == defaultRadio {
+      for (_, foundRadioParameters) in _api.availableRadios.enumerated() where foundRadioParameters == defaultRadioParameters {
         
         // YES, Save it in case something changed
-        Defaults[.defaultsDictionary] = foundRadio.dictFromParams()
+        found = true
+        Defaults[.defaultsDictionary] = foundRadioParameters.dictFromParams()
         
-        //        // select it in the TableView
-        //        self._radioTableView.selectRowIndexes(IndexSet(integer: i), byExtendingSelection: true)
-        
-        _api.log.msg("\(foundRadio.nickname ?? "") @ \(foundRadio.ipAddress)", level: .info, function: #function, file: #file, line: #line)
-        
-        defaultRadioParameters = foundRadio
+        // log it
+        _api.log.msg("\(foundRadioParameters.nickname ?? "") @ \(foundRadioParameters.ipAddress)", level: .info, function: #function, file: #file, line: #line)
       }
+      if found {
+        
+        // can the default radio be opened?
+        if !openRadio(defaultRadioParameters) {
+          _splitViewViewController?.msg("Error opening default radio, \(defaultRadioParameters.name ?? "")", level: .warning, function: #function, file: #file, line: #line)
+          
+          // NO, open the Radio Picker
+          openRadioPicker( self)
+        }
+        
+      } else {
+        
+        // NOT FOUND, open the Radio Picker
+        openRadioPicker( self)
+      }
+    
+    } else {
+      // NOT VALID, open the Radio Picker
+      openRadioPicker(self)
     }
-    return defaultRadioParameters
   }
   /// Write the Log to the App Support folder
   ///

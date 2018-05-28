@@ -629,7 +629,7 @@
                                 </connections>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="wSK-Bk-Ps3">
-                                <rect key="frame" x="563" y="535" width="99" height="18"/>
+                                <rect key="frame" x="527" y="535" width="99" height="18"/>
                                 <buttonCell key="cell" type="check" title="Use Low BW" bezelStyle="regularSquare" imagePosition="right" inset="2" id="i23-aM-87g">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -639,7 +639,7 @@
                                 </connections>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="Vxw-Of-l9v">
-                                <rect key="frame" x="532" y="558" width="130" height="18"/>
+                                <rect key="frame" x="496" y="558" width="130" height="18"/>
                                 <buttonCell key="cell" type="check" title="Show ALL Replies" bezelStyle="regularSquare" imagePosition="right" inset="2" id="Gcl-xw-6d1">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -649,7 +649,7 @@
                                 </connections>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="Kcc-Rj-HgG">
-                                <rect key="frame" x="687" y="535" width="124" height="18"/>
+                                <rect key="frame" x="651" y="535" width="124" height="18"/>
                                 <buttonCell key="cell" type="check" title="Clear at Connect" bezelStyle="regularSquare" imagePosition="right" inset="2" id="1HD-4C-Y8X">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -659,7 +659,7 @@
                                 </connections>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="E0z-XX-aCd">
-                                <rect key="frame" x="369" y="558" width="112" height="18"/>
+                                <rect key="frame" x="333" y="558" width="112" height="18"/>
                                 <buttonCell key="cell" type="check" title="Enable pinging" bezelStyle="regularSquare" imagePosition="right" state="on" inset="2" id="D9N-yh-t1C">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -669,7 +669,7 @@
                                 </connections>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="Cz4-kd-MXb">
-                                <rect key="frame" x="389" y="535" width="92" height="18"/>
+                                <rect key="frame" x="353" y="535" width="92" height="18"/>
                                 <buttonCell key="cell" type="check" title="Show pings" bezelStyle="regularSquare" imagePosition="right" inset="2" id="fgO-KS-ARi">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -692,8 +692,8 @@
                                 </connections>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="ivv-Oe-yQT">
-                                <rect key="frame" x="168" y="558" width="153" height="18"/>
-                                <buttonCell key="cell" type="check" title="Initial Connect as GUI" bezelStyle="regularSquare" imagePosition="right" inset="2" id="jJd-jD-yNi">
+                                <rect key="frame" x="168" y="558" width="117" height="18"/>
+                                <buttonCell key="cell" type="check" title="Connect as GUI" bezelStyle="regularSquare" imagePosition="right" inset="2" id="jJd-jD-yNi">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
@@ -702,11 +702,11 @@
                                 </connections>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="YfR-Si-vPn">
-                                <rect key="frame" x="183" y="535" width="138" height="18"/>
+                                <rect key="frame" x="147" y="535" width="138" height="18"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="134" id="Zne-YF-v6n"/>
                                 </constraints>
-                                <buttonCell key="cell" type="check" title="Show timestamps" bezelStyle="regularSquare" imagePosition="right" inset="2" id="deX-6X-1be">
+                                <buttonCell key="cell" type="check" title="Show timestamps" bezelStyle="regularSquare" imagePosition="right" alignment="right" inset="2" id="deX-6X-1be">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
