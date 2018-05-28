@@ -762,9 +762,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _connectButton.identifier = kConnect
     _localRemote.stringValue = ""
     
-    _splitViewViewController!.panadapterHandlers.removeAll()
-    _splitViewViewController!.waterfallHandlers.removeAll()
-
     setTitle()
   }
   /// Clear the reply table
