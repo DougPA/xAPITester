@@ -4,6 +4,7 @@ v5.1.2
 
 AudioHandler, IqHandler, MicAudioHandler, PanadapterHandler & WaterfallHandler.swift - removed
 SplitViewController.swift - refactored redraw(), renamed to refreshObjects()
+ViewController.swift - refactored checkForDefaultRadio()
 
 v5.1.1
 
