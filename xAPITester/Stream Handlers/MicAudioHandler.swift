@@ -29,14 +29,13 @@ public final class MicAudioHandler             : NSObject, StreamHandler {
   // ----------------------------------------------------------------------------
   // MARK: - Initialization
   
-
   init(id: UInt32, delegate: SplitViewController) {
     _id = id
 
     _delegate = delegate
     super.init()
   }
-  
+
   // ----------------------------------------------------------------------------
   // MARK: - Public methods
   
@@ -44,13 +43,10 @@ public final class MicAudioHandler             : NSObject, StreamHandler {
     
     guard let _ = streamFrame as? MicAudioStreamFrame else { return }
     
-
     // data received, is it the first?
     if !active {
       // YES, set active
       active = true
-      
-      _delegate.showInObjectsTable("STARTED DaxMicAudio    \(_id.hex) stream")
     }
   }
 }

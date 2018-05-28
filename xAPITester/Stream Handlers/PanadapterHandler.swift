@@ -29,7 +29,6 @@ public final class PanadapterHandler        : NSObject, StreamHandler {
   // ----------------------------------------------------------------------------
   // MARK: - Initialization
   
-
   init(id: UInt32, delegate: SplitViewController) {
     _id = id
 
@@ -44,14 +43,10 @@ public final class PanadapterHandler        : NSObject, StreamHandler {
     
     guard let _ = streamFrame as? PanadapterFrame else { return }
     
-    let panadapterStartMessage = "STARTED Panadapter     \(_id.hex) stream"
-    
     // data received, is it the first?
     if !active {
       // YES, set active
       active = true
-      
-      _delegate.showInObjectsTable(panadapterStartMessage)
     }
   }
 }

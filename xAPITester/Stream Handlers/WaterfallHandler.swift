@@ -29,7 +29,6 @@ public final class WaterfallHandler        : NSObject, StreamHandler {
   // ----------------------------------------------------------------------------
   // MARK: - Initialization
   
-
   init(id: UInt32, delegate: SplitViewController) {
     _id = id
 
@@ -48,8 +47,6 @@ public final class WaterfallHandler        : NSObject, StreamHandler {
     if !active {
       // YES, set active
       active = true
-      
-      _delegate.showInObjectsTable("STARTED Waterfall      \(_id.hex) stream")
     }
   }
 }

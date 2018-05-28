@@ -28,7 +28,6 @@ public final class AudioHandler             : NSObject, StreamHandler {
   
   // ----------------------------------------------------------------------------
   // MARK: - Initialization
-  
 
   init(id: UInt32, delegate: SplitViewController) {
     _id = id
@@ -36,7 +35,7 @@ public final class AudioHandler             : NSObject, StreamHandler {
     _delegate = delegate
     super.init()
   }
-  
+
   // ----------------------------------------------------------------------------
   // MARK: - Public methods
   
@@ -48,8 +47,6 @@ public final class AudioHandler             : NSObject, StreamHandler {
     if !active {
       // YES, set active
       active = true
-      
-      _delegate.showInObjectsTable("STARTED DaxAudio       \(_id.hex) stream")
     }
   }
 }

@@ -28,7 +28,6 @@ public final class IqHandler                : NSObject, StreamHandler {
   
   // ----------------------------------------------------------------------------
   // MARK: - Initialization
-  
 
   init(id: UInt32, delegate: SplitViewController) {
     _id = id
@@ -36,7 +35,7 @@ public final class IqHandler                : NSObject, StreamHandler {
     _delegate = delegate
     super.init()
   }
-  
+
   // ----------------------------------------------------------------------------
   // MARK: - Public methods
   
@@ -44,13 +43,10 @@ public final class IqHandler                : NSObject, StreamHandler {
     
     guard let _ = streamFrame as? IqStreamFrame else { return }
     
-
     // data received, is it the first?
     if !active {
       // YES, set active
       active = true
-      
-      _delegate.showInObjectsTable("STARTED DaxIq          \(_id.hex) stream")
     }
   }
 }

@@ -16,10 +16,11 @@ import SwiftyUserDefaults
 
 class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelegate, NSTableViewDataSource,  LogHandler {
   
-  static let kAddedColor                      = NSColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 0.2)
-  static let kRemovedColor                    = NSColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 0.2)
   static let kOtherColor                      = NSColor(red: 1.0, green: 1.0, blue: 0.0, alpha: 0.2)
   static let kRadioColor                      = NSColor(red: 1.0, green: 0.0, blue: 1.0, alpha: 0.2)
+  static let kStartedColor                    = NSColor(red: 0.0, green: 1.0, blue: 1.0, alpha: 0.2)
+  static let kSubordinateColor                = NSColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 0.2)
+  static let kStreamColor                     = NSColor(red: 0.0, green: 0.0, blue: 1.0, alpha: 0.1)
   
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
@@ -87,7 +88,8 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         return textArray
         
       case .prefix:
-        return textArray.filter { $0.hasPrefix(Defaults[.filter]) }
+        Swift.print(textArray)
+        return textArray.filter { $0.contains("|" + Defaults[.filter]) }
         
       case .contains:
         return textArray.filter { $0.contains(Defaults[.filter]) }
@@ -96,7 +98,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         return textArray.filter { !$0.contains(Defaults[.filter]) }
         
       case .streamId:
-        return textArray.filter { $0.hasPrefix("S" + myHandle) }
+        return textArray.filter { $0.dropFirst(9).hasPrefix("S" + myHandle) }
       }
     }}
   internal var _filteredObjectsArray           : [String] {                  // filtered version of objectsArray
@@ -106,7 +108,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         return objectsArray
         
       case .prefix:
-        return objectsArray.filter { $0.hasPrefix(Defaults[.filterObjects]) }
+        return objectsArray.filter { $0.dropFirst(9).hasPrefix(Defaults[.filterObjects]) }
         
       case .contains:
         return objectsArray.filter { $0.contains(Defaults[.filterObjects]) }
@@ -134,8 +136,12 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   private var _waterfallHandlers              = [WaterfallId: WaterfallHandler]()
   private var _textArray                      = [String]()                  // backing storage for the table
   private var _objectsArray                   = [String]()                  // backing storage for the objects table
-  
+
+  private var _timeoutTimer                   : DispatchSourceTimer!          // timer fired every "checkInterval"
+  private var _timerQ                         = DispatchQueue(label: "xAPITester" + ".timerQ")
+
   private let kAutosaveName                   = NSSplitView.AutosaveName(rawValue: kClientName + "SplitView")
+  private let checkInterval                   : TimeInterval = 1.0
   
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
@@ -155,6 +161,28 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     _tableView.rowHeight = _font.capHeight * 1.7
     
     addNotifications()
+
+
+
+
+    // create the timer's dispatch source
+    _timeoutTimer = DispatchSource.makeTimerSource(flags: [.strict], queue: _timerQ)
+    
+    // Set timer with 100 millisecond leeway
+    _timeoutTimer.schedule(deadline: DispatchTime.now(), repeating: checkInterval, leeway: .milliseconds(100))      // Every second +/- 10%
+    
+    // set the event handler
+    _timeoutTimer.setEventHandler { [ unowned self] in
+      
+      self.redraw()
+    }
+    // start the timer
+    _timeoutTimer.resume()
+  }
+
+  deinit {
+    
+    _timeoutTimer?.cancel()
   }
   
   // ----------------------------------------------------------------------------
@@ -177,7 +205,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     _font = NSFont(name: Defaults[.fontName], size: CGFloat(Defaults[.fontSize] ))!
     _tableView.rowHeight = _font.capHeight * 1.7
     _objectsTableView.rowHeight = _font.capHeight * 1.7
-
+    
     // force a redraw
     reloadTable()
     reloadObjectsTable()
@@ -199,7 +227,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     _font = NSFont(name: Defaults[.fontName], size: CGFloat(Defaults[.fontSize] ))!
     _tableView.rowHeight = _font.capHeight * 1.7
     _objectsTableView.rowHeight = _font.capHeight * 1.7
-
+    
     // force a redraw
     reloadTable()
     reloadObjectsTable()
@@ -232,10 +260,10 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       self._objectsTableView?.reloadData()
       
       // make sure the last row is visible
-      if self._objectsTableView?.numberOfRows ?? 0 > 0 {
-        
-        self._objectsTableView?.scrollRowToVisible(self._objectsTableView!.numberOfRows - 1)
-      }
+//      if self._objectsTableView?.numberOfRows ?? 0 > 0 {
+//        
+//        self._objectsTableView?.scrollRowToVisible(self._objectsTableView!.numberOfRows - 1)
+//      }
     }
   }
   
@@ -265,7 +293,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     // guard that a session has been started
     guard let startTimestamp = self._parent!._startTimestamp else { return }
-
+    
     // add the Timestamp to the Text
     let timeInterval = Date().timeIntervalSince(startTimestamp)
     objectsArray.append( String( format: "%8.3f", timeInterval) + " " + text )
@@ -296,11 +324,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       let command = replyTuple.command
       
       // is there a ReplyHandler for this command?
-//      if let handler = replyTuple.replyTo {
-//
-//        // YES, pass it to the ReplyHandler
-//        handler(command, components[0], components[1], (components.count == 3) ? components[2] : "")
-//      }
+      //      if let handler = replyTuple.replyTo {
+      //
+      //        // YES, pass it to the ReplyHandler
+      //        handler(command, components[0], components[1], (components.count == 3) ? components[2] : "")
+      //      }
       // Show all replies?
       if Defaults[.showAllReplies] {
         
@@ -543,20 +571,24 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         let msgText = String(rowText.dropFirst(9))
         
         // determine the type of text, assign a background color
-        if msgText.hasPrefix("ADDED   Radio") || msgText.hasPrefix("REMOVED Radio") {
+        if msgText.hasPrefix("Radio") {
           
           // ADDED or REMOVED Radio messages
           view.textField!.backgroundColor = SplitViewController.kRadioColor
           
-        } else if msgText.hasPrefix("ADDED") {
+        } else if msgText.hasPrefix("STARTED") {
           
-          // ADDED messages
-          view.textField!.backgroundColor = SplitViewController.kAddedColor
+          // Subordinate messages
+          view.textField!.backgroundColor = SplitViewController.kStartedColor
+        } else if msgText.hasPrefix("    ") {
           
-        } else if msgText.hasPrefix("REMOVED") {
+          // Subordinate messages
+          view.textField!.backgroundColor = SplitViewController.kSubordinateColor
           
-          // REMOVED messages
-          view.textField!.backgroundColor = SplitViewController.kRemovedColor
+        } else if msgText.contains("stream") {
+          
+          // Subordinate messages
+          view.textField!.backgroundColor = SplitViewController.kStreamColor
           
         } else {
           
@@ -567,7 +599,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         view.textField!.font = _font
         
         // set the text
-        view.textField!.stringValue = Defaults[.showTimestamps] ? rowText : msgText
+        view.textField!.stringValue = msgText
       }
     }
     return view
@@ -581,223 +613,211 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   ///
   private func addNotifications() {
     
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .amplifierHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .amplifierWillBeRemoved, object: nil)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .amplifierHasBeenAdded, object: nil)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .amplifierWillBeRemoved, object: nil)
     
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .audioStreamHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .audioStreamWillBeRemoved, object: nil)
+    NC.makeObserver(self, with: #selector(streamAdded(_:)), of: .audioStreamHasBeenAdded, object: nil)
+    NC.makeObserver(self, with: #selector(streamRemoved(_:)), of: .audioStreamWillBeRemoved, object: nil)
     
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .iqStreamHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .iqStreamWillBeRemoved, object: nil)
+    NC.makeObserver(self, with: #selector(streamAdded(_:)), of: .iqStreamHasBeenAdded, object: nil)
+    NC.makeObserver(self, with: #selector(streamRemoved(_:)), of: .iqStreamWillBeRemoved, object: nil)
     
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .memoryHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .memoryWillBeRemoved, object: nil)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .memoryHasBeenAdded, object: nil)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .memoryWillBeRemoved, object: nil)
     
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .meterHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .meterWillBeRemoved, object: nil)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .meterHasBeenAdded, object: nil)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .meterWillBeRemoved, object: nil)
     
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .micAudioStreamHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .micAudioStreamWillBeRemoved, object: nil)
+    NC.makeObserver(self, with: #selector(streamAdded(_:)), of: .micAudioStreamHasBeenAdded, object: nil)
+    NC.makeObserver(self, with: #selector(streamRemoved(_:)), of: .micAudioStreamWillBeRemoved, object: nil)
     
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .opusHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .opusWillBeRemoved, object: nil)
+    NC.makeObserver(self, with: #selector(streamAdded(_:)), of: .opusHasBeenAdded, object: nil)
+    NC.makeObserver(self, with: #selector(streamRemoved(_:)), of: .opusWillBeRemoved, object: nil)
     
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .panadapterHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .panadapterWillBeRemoved, object: nil)
+    NC.makeObserver(self, with: #selector(streamAdded(_:)), of: .panadapterHasBeenAdded, object: nil)
+    NC.makeObserver(self, with: #selector(streamRemoved(_:)), of: .panadapterWillBeRemoved, object: nil)
     
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .profileHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .profileWillBeRemoved, object: nil)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .profileHasBeenAdded, object: nil)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .profileWillBeRemoved, object: nil)
+//
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .radioHasBeenAdded, object: nil)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .radioWillBeRemoved, object: nil)
+//
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .sliceHasBeenAdded, object: nil)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .sliceWillBeRemoved, object: nil)
+//
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .sliceMeterHasBeenAdded, object: nil)
+//
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .tnfHasBeenAdded, object: nil)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .tnfWillBeRemoved, object: nil)
     
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .radioHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .radioWillBeRemoved, object: nil)
+    NC.makeObserver(self, with: #selector(streamAdded(_:)), of: .txAudioStreamHasBeenAdded, object: nil)
+    NC.makeObserver(self, with: #selector(streamRemoved(_:)), of: .txAudioStreamWillBeRemoved, object: nil)
     
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .sliceHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .sliceWillBeRemoved, object: nil)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .usbCableHasBeenAdded, object: nil)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .usbCableWillBeRemoved, object: nil)
     
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .sliceMeterHasBeenAdded, object: nil)
-
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .tnfHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .tnfWillBeRemoved, object: nil)
+    NC.makeObserver(self, with: #selector(streamAdded(_:)), of: .waterfallHasBeenAdded, object: nil)
+    NC.makeObserver(self, with: #selector(streamRemoved(_:)), of: .waterfallWillBeRemoved, object: nil)
     
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .txAudioStreamHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .txAudioStreamWillBeRemoved, object: nil)
-    
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .usbCableHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .usbCableWillBeRemoved, object: nil)
-    
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .waterfallHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .waterfallWillBeRemoved, object: nil)
-    
-    NC.makeObserver(self, with: #selector(hasBeenAdded(_:)), of: .xvtrHasBeenAdded, object: nil)
-    NC.makeObserver(self, with: #selector(willBeRemoved(_:)), of: .xvtrWillBeRemoved, object: nil)    
-  }
-  @objc private func hasBeenAdded(_ note: Notification) {
-    var text = "ADDED   "
-    
-    if let obj = note.object {
-      
-      switch obj {
-      case is Amplifier:
-        text += "Amplifier      \((obj as! Amplifier).id)"
-        
-      case is AudioStream:
-        let audio = obj as! AudioStream
-        text += "DaxAudio       \(audio.id.hex)"
-        audioHandlers[audio.id] = AudioHandler(id: audio.id, delegate: self)
-        _api.radio!.audioStreams[audio.id]!.delegate = audioHandlers[audio.id]!
-        
-      case is IqStream:
-        let iq = obj as! IqStream
-        text += "DaxIq          \(iq.id.hex)"
-        iqHandlers[iq.id] = IqHandler(id: iq.id, delegate: self)
-        _api.radio!.iqStreams[iq.id]!.delegate = iqHandlers[iq.id]!
-        
-      case is Memory:
-        text += "Memory         \((obj as! Memory).id)"
-        
-      case is Meter:
-        let meter = obj as! Meter
-        let source = meter.source[0..<3]
-        let label = (source == "slc" ? "slice  = " : "number = ")
-        text += "Meter (\(source))    \(label)\(meter.number)  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)"
-
-      case is MicAudioStream:
-        let micAudio = obj as! MicAudioStream
-        text += "DaxMicAudio    \(micAudio.id.hex)"
-        micAudioHandlers[micAudio.id] = MicAudioHandler(id: micAudio.id, delegate: self)
-        _api.radio!.micAudioStreams[micAudio.id]!.delegate = micAudioHandlers[micAudio.id]!
-
-      case is Opus:
-        text += "Opus           \((obj as! Opus).id)"
-        
-      case is Panadapter:
-        let panadapter = obj as! Panadapter
-        text += "Panadapter     \(panadapter.id.hex)  center = \(panadapter.center.hzToMhz())  bandwidth = \(panadapter.bandwidth.hzToMhz())"
-        panadapterHandlers[panadapter.id] = PanadapterHandler(id: panadapter.id, delegate: self)
-        _api.radio!.panadapters[panadapter.id]!.delegate = panadapterHandlers[panadapter.id]!
-        
-      case is Profile:
-        text += "Profile"
-        
-      case is Radio:
-        let radio = Api.sharedInstance.activeRadio
-        text += "Radio          name = \(radio?.nickname ?? "")  model = \(radio?.model ?? "")"
-        
-      case is xLib6000.Slice:
-        let slice = obj as! xLib6000.Slice
-        text += "Slice          \(slice.id)  pan = \(slice.panadapterId.hex)  frequency = \(slice.frequency.hzToMhz())  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)"
-        
-      case is Tnf:
-        let tnf = obj as! Tnf
-        text += "Tnf            \(tnf.id)  frequency = \(tnf.frequency)  width = \(tnf.width)  depth = \(tnf.depth)  permanent = \(tnf.permanent)"
-        
-      case is TxAudioStream:
-        let txAudio = obj as! TxAudioStream
-        text += "DaxTxAudio     \(txAudio.id.hex)"
-
-      case is UsbCable:
-        text += "UsbCable       \((obj as! UsbCable).id)"
-        
-      case is Waterfall:
-        let waterfall = obj as! Waterfall
-        text += "Waterfall      \(waterfall.id.hex)"
-        waterfallHandlers[waterfall.id] = WaterfallHandler(id: waterfall.id, delegate: self)
-        _api.radio!.waterfalls[waterfall.id]!.delegate = waterfallHandlers[waterfall.id]!
-        
-      case is Xvtr:
-        text += "Xvtr           \((obj as! Xvtr).id)"
-        
-      default:
-        text += "Unknown object"
-      }
-    }
-    showInObjectsTable(text)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .xvtrHasBeenAdded, object: nil)
+//    NC.makeObserver(self, with: #selector(addedRemoved(_:)), of: .xvtrWillBeRemoved, object: nil)
   }
   
-  @objc private func willBeRemoved(_ note: Notification) {
-    var text = "REMOVED "
+  @objc private func streamAdded(_ note: Notification) {
     
-    if let obj = note.object {
+    switch note.object {
+    case is AudioStream:
+      break
       
-      switch obj {
-      case is Amplifier:
-        text += "Amplifier      \((obj as! Amplifier).id)"
-        
-      case is AudioStream:
-        let audio = obj as! AudioStream
-        _api.radio!.audioStreams[audio.id]!.delegate = nil
-        audioHandlers[audio.id] = nil
-        text += "DaxAudio       \(audio.id.hex)"
-        
-      case is IqStream:
-        let iq = obj as! IqStream
-        _api.radio!.iqStreams[iq.id]!.delegate = nil
-        iqHandlers[iq.id] = nil
-        text += "DaxIq          \(iq.id.hex)"
-        
-      case is Memory:
-        text += "Memory         \((obj as! Memory).id)"
-        
-      case is Meter:
-        let meter = obj as! Meter
-        let source = meter.source[0..<3]
-        let label = (source == "slc" ? "slice  = " : "number = ")
-        text += "Meter (\(source))    \(label)\(meter.number)  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)"
-
-      case is MicAudioStream:
-        let micAudio = obj as! MicAudioStream
-        _api.radio!.micAudioStreams[micAudio.id]!.delegate = nil
-        micAudioHandlers[micAudio.id] = nil
-        text += "DaxMicAudio    \(micAudio.id.hex)"
-        
-      case is Opus:
-        text += "Opus           \((obj as! Opus).id)"
-        
-      case is Panadapter:
-        let panadapter = obj as! Panadapter
-        _api.radio!.panadapters[panadapter.id]!.delegate = nil
-        panadapterHandlers[panadapter.id] = nil
-        text += "Panadapter     \(panadapter.id.hex)  center = \(panadapter.center.hzToMhz())  bandwidth = \(panadapter.bandwidth.hzToMhz())"
-        
-      case is Profile:
-        text += "Profile"
-        
-      case is Radio:
-        let radio = Api.sharedInstance.activeRadio
-        text += "Radio          name = \(radio?.nickname ?? "")  model = \(radio?.model ?? "")"
-        
-      case is xLib6000.Slice:
-        let slice = obj as! xLib6000.Slice
-        text += "Slice          \(slice.id)  pan = \(slice.panadapterId.hex)  frequency = \(slice.frequency.hzToMhz())  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)"
-
-      case is Tnf:
-        let tnf = obj as! Tnf
-        text += "Tnf            \(tnf.id)  frequency = \(tnf.frequency)  width = \(tnf.width)  depth = \(tnf.depth)  permanent = \(tnf.permanent)"
-
-      case is TxAudioStream:
-        let txAudio = obj as! TxAudioStream
-        text += "DaxTxAudio     \(txAudio.id.hex)"
-        
-      case is UsbCable:
-        text += "UsbCable       \((obj as! UsbCable).id)"
-        
-      case is Waterfall:
-        let waterfall = obj as! Waterfall
-        _api.radio!.waterfalls[waterfall.id]!.delegate = nil
-        waterfallHandlers[waterfall.id] = nil
-        text += "Waterfall      \(waterfall.id.hex)"
-        
-      case is Xvtr:
-        text += "Xvtr           \((obj as! Xvtr).id)"
-        
-      default:
-        text += "Unknown object"
-      }
-    
-    } else {
+    case is IqStream:
+      break
       
-      text += "No object, notification = \(note)"
+    case is MicAudioStream:
+      break
+      
+    case is Opus:
+      break
+      
+    case is Panadapter:
+      let panadapter = note.object as! Panadapter
+      panadapterHandlers[panadapter.id] = PanadapterHandler(id: panadapter.id, delegate: self)
+      _api.radio!.panadapters[panadapter.id]!.delegate = self.panadapterHandlers[panadapter.id]!
+      
+    case is TxAudioStream:
+      break
+      
+    case is Waterfall:
+      let waterfall = note.object as! Waterfall
+      self.waterfallHandlers[waterfall.id] = WaterfallHandler(id: waterfall.id, delegate: self)
+      self._api.radio!.waterfalls[waterfall.id]!.delegate = self.waterfallHandlers[waterfall.id]!
+
+    default:
+      break
     }
-    showInObjectsTable(text)
+  }
+  @objc private func streamRemoved(_ note: Notification) {
+
+    switch note.object {
+    case is AudioStream:
+      break
+      
+    case is IqStream:
+      break
+      
+    case is MicAudioStream:
+      break
+      
+    case is Opus:
+      break
+      
+    case is Panadapter:
+      let panadapter = note.object as! Panadapter
+      _api.radio!.panadapters[panadapter.id]!.delegate = nil
+      panadapterHandlers[panadapter.id] = nil
+
+    case is TxAudioStream:
+      break
+      
+    case is Waterfall:
+      let waterfall = note.object as! Waterfall
+      _api.radio!.waterfalls[waterfall.id]!.delegate = nil
+      waterfallHandlers[waterfall.id] = nil
+
+    default:
+      break
+    }
+  }
+
+  public func redraw() {
+    
+    DispatchQueue.main.async { [unowned self] in
+      self.objectsArray.removeAll()
+      
+      // Radio
+      if let radio = Api.sharedInstance.activeRadio {
+        self.showInObjectsTable("Radio          name = \(radio.nickname ?? "")  model = \(radio.model)")
+        
+        // Panadapters
+        for (_, panadapter) in self._api.radio!.panadapters {
+          self.showInObjectsTable("Panadapter     \(panadapter.id.hex)  center = \(panadapter.center.hzToMhz())  bandwidth = \(panadapter.bandwidth.hzToMhz())")
+
+          // Slices for this Panadapter
+          for (_, slice) in self._api.radio!.slices where panadapter.id == slice.panadapterId {
+            self.showInObjectsTable("      Slice          \(slice.id)  pan = \(slice.panadapterId.hex)  frequency = \(slice.frequency.hzToMhz())  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)")
+            
+            // Audio Streams for this Slice
+            for (_, audioStream) in self._api.radio!.audioStreams where audioStream.slice!.id == slice.id {
+              self.showInObjectsTable("      DaxAudio       \(audioStream.id.hex)")
+
+//              self.audioHandlers[audioStream.id] = AudioHandler(id: audioStream.id, delegate: self)
+//              self._api.radio!.audioStreams[audioStream.id]!.delegate = self.audioHandlers[audioStream.id]!
+            }
+            
+            // Meters for this Slice
+            for (_, meter) in self._api.radio!.meters where meter.source.hasPrefix("slc") {
+              self.showInObjectsTable("           Meter  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
+            }
+
+          }
+          // Waterfall for this Panadapter
+          for (_, waterfall) in self._api.radio!.waterfalls where panadapter.id == waterfall.panadapterId {
+            self.showInObjectsTable("      Waterfall      \(waterfall.id.hex)")
+          }
+          
+          // IQ Streams for this Panadapter
+          for (_, iqStream) in self._api.radio!.iqStreams where panadapter.id == iqStream.pan {
+            self.showInObjectsTable("      DaxIq          \(iqStream.id.hex)")
+
+//            self.iqHandlers[iqStream.id] = IqHandler(id: iqStream.id, delegate: self)
+//            self._api.radio!.iqStreams[iqStream.id]!.delegate = self.iqHandlers[iqStream.id]!
+          }
+        }
+        // Tnfs
+        for (_, tnf) in self._api.radio!.tnfs {
+          self.showInObjectsTable("Tnf            \(tnf.id)  frequency = \(tnf.frequency)  width = \(tnf.width)  depth = \(tnf.depth)  permanent = \(tnf.permanent)")
+        }
+        // Amplifiers
+        for (_, amplifier) in self._api.radio!.amplifiers {
+          self.showInObjectsTable("Amplifier      \(amplifier.id)")
+        }
+        // Memories
+        for (_, memory) in self._api.radio!.memories {
+          self.showInObjectsTable("Memory         \(memory.id)")
+        }
+        // Meters (not for a Slice)
+        for (_, meter) in self._api.radio!.meters where !meter.source.hasPrefix("slc") {
+          let source = meter.source[0..<3]
+          self.showInObjectsTable("Meter (\(source))    number = \(("00" + meter.number).suffix(3))  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
+        }
+        // Mic Audio Streams
+        for (_, micAudioStream) in self._api.radio!.micAudioStreams {
+          self.showInObjectsTable("DaxMicAudio    \(micAudioStream.id.hex)")
+        }
+        // Opus Streams
+        for (_, opusStream) in self._api.radio!.opusStreams {
+          self.showInObjectsTable("Opus           \(opusStream.id)")
+        }
+        // TX Audio Streams
+        for (_, txAudioStream) in self._api.radio!.txAudioStreams {
+          self.showInObjectsTable("DaxTxAudio     \(txAudioStream.id.hex)")
+        }
+        // USB Cables
+        for (_, usbCable) in self._api.radio!.usbCables {
+          self.showInObjectsTable("UsbCable       \(usbCable.id)")
+        }
+        // Xvtrs
+        for (_, xvtr) in self._api.radio!.xvtrs {
+          self.showInObjectsTable("Xvtr           \(xvtr.id)")
+        }
+      
+        for (id, _) in self.panadapterHandlers {
+          self.showInObjectsTable("Panadapter     \(id.hex)  stream")
+        }
+        for (id, _) in self.waterfallHandlers {
+          self.showInObjectsTable("Waterfall      \(id.hex)  stream")
+        }
+      }
+    }
   }
 }
