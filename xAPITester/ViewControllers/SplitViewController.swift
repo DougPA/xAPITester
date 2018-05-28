@@ -145,7 +145,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     _timeoutTimer.setEventHandler { [ unowned self] in
       
       // redraw the objects table when the timer fires
-      self.redraw()
+      self.refreshObjects()
     }
     // start the timer
     _timeoutTimer.resume()
@@ -577,7 +577,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     return view
   }
 
-  public func redraw() {
+  public func refreshObjects() {
     
     DispatchQueue.main.async { [unowned self] in
       self.objectsArray.removeAll()
@@ -627,6 +627,14 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         for (_, memory) in self._api.radio!.memories {
           self.showInObjectsTable("Memory         \(memory.id)")
         }
+        // USB Cables
+        for (_, usbCable) in self._api.radio!.usbCables {
+          self.showInObjectsTable("UsbCable       \(usbCable.id)")
+        }
+        // Xvtrs
+        for (_, xvtr) in self._api.radio!.xvtrs {
+          self.showInObjectsTable("Xvtr           \(xvtr.id)")
+        }
         // Meters (not for a Slice)
         for (_, meter) in self._api.radio!.meters where !meter.source.hasPrefix("slc") {
           let source = meter.source[0..<3]
@@ -643,14 +651,6 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         // TX Audio Streams
         for (_, txAudioStream) in self._api.radio!.txAudioStreams {
           self.showInObjectsTable("DaxTxAudio     \(txAudioStream.id.hex) stream")
-        }
-        // USB Cables
-        for (_, usbCable) in self._api.radio!.usbCables {
-          self.showInObjectsTable("UsbCable       \(usbCable.id)")
-        }
-        // Xvtrs
-        for (_, xvtr) in self._api.radio!.xvtrs {
-          self.showInObjectsTable("Xvtr           \(xvtr.id)")
         }
       }
     }

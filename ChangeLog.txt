@@ -3,7 +3,7 @@ xAPITester Change Log
 v5.1.2
 
 AudioHandler, IqHandler, MicAudioHandler, PanadapterHandler & WaterfallHandler.swift - removed
-SplitViewController.swift - refactored redraw()
+SplitViewController.swift - refactored redraw(), renamed to refreshObjects()
 
 v5.1.1
 
