@@ -12,9 +12,10 @@
 
 ## Usage
 
-A video explaining how to use the app can be found at:
+Two short videos explaining how to use the app can be found at:
 
 * https://youtu.be/GzCokeAfx_A
+* https://youtu.be/WoOqCAK8SVQ
 
 Please see the xAPITester.pdf file in this project or run the app and click the HELP menu choice.  
 (---- somewhat out of date but still useful----)  
