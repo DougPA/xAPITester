@@ -1,5 +1,13 @@
 xAPITester Change Log
 
+v5.1.3
+
+ViewController.swift - changed logic to display versions in window title
+Main.storyboard - added "Copy Handle" button
+ViewController.swift - added code to respond to "Copy Handle" button
+SplitViewController.swift - renamed FilterTag "streamId" to "myHandle"
+SplitViewController.swift - added FilterTag "handle"
+
 v5.1.2
 
 AudioHandler, IqHandler, MicAudioHandler, PanadapterHandler & WaterfallHandler.swift - removed

@@ -80,8 +80,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private var _appFolderUrl                   : URL!
   private var _macros                         : Macros!
   private var _apiVersion                     = ""
-  private var _apiBuild                       = ""
-  
+  private var _appVersion                     = ""
+
   // constants
   private let _dateFormatter                  = DateFormatter()
   private let kAutosaveName                   = NSWindow.FrameAutosaveName("xAPITesterWindow")
@@ -95,6 +95,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private let kVersionKey                     = "CFBundleShortVersionString"  // CF constants
   private let kBuildKey                       = "CFBundleVersion"
   private let kDelayForAvailableRadios        : UInt32 = 1
+  private let kSizeOfTimeStamp                = 9
   
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
@@ -106,11 +107,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
   public override func viewDidLoad() {
     super.viewDidLoad()
     
-    // get the version info from xLib6000
-    let frameworkBundle = Bundle(identifier: kxLib6000Identifier)
-    _apiVersion = (frameworkBundle?.object(forInfoDictionaryKey: kVersionKey) ?? "0") as! String
-    _apiBuild = (frameworkBundle?.object(forInfoDictionaryKey: kBuildKey) ?? "0") as! String
-
     _filterBy.selectItem(withTag: Defaults[.filterByTag])
     _filterObjectsBy.selectItem(withTag: Defaults[.filterObjectsByTag])
 
@@ -123,6 +119,10 @@ public final class ViewController             : NSViewController, RadioPickerDel
     
     // setup & register Defaults
     setupDefaults()
+    
+    // obtain & report component versions
+    captureVersionInfo()
+    setTitle()
     
     // color the text field to match the kMyHandleColor
     _streamId.backgroundColor = Defaults[.myHandleColor]
@@ -270,6 +270,29 @@ public final class ViewController             : NSViewController, RadioPickerDel
     }
     // paste the text into the command line
     _command.stringValue = textToCopy
+  }
+  /// Respond to the Copy Handle button
+  ///
+  /// - Parameter sender:     the button
+  ///
+  @IBAction func copyHandle(_ sender: Any) {
+    var textToCopy = ""
+    
+    // get the indexes of the selected rows
+    let indexSet = _splitViewViewController!._tableView.selectedRowIndexes
+    
+    for (_, rowIndex) in indexSet.enumerated() {
+      
+      let rowText = _splitViewViewController!._filteredTextArray[rowIndex]
+      
+      // remove the prefixes (Timestamps & Connection Handle)
+      textToCopy = String(rowText.components(separatedBy: "|")[0].dropFirst(kSizeOfTimeStamp + 1))
+      
+      // stop after the first line
+      break
+    }
+    // paste the text into the filter
+    Defaults[.filter] = textToCopy
   }
   /// Respond to the Load button (in the Commands & Replies box)
   ///
@@ -561,6 +584,22 @@ public final class ViewController             : NSViewController, RadioPickerDel
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
+  /// Fnd & report versions for this app and the underlying library
+  ///
+  fileprivate func captureVersionInfo() {
+    // get the version info from xLib6000
+    let frameworkBundle = Bundle(identifier: kxLib6000Identifier)
+    var version = frameworkBundle?.object(forInfoDictionaryKey: kVersionKey) ?? "0"
+    var build = frameworkBundle?.object(forInfoDictionaryKey: kBuildKey) ?? "0"
+    _apiVersion = "\(version).\(build)"
+    
+    // get the version info for this app
+    version = Bundle.main.object(forInfoDictionaryKey: kVersionKey) ?? "0"
+    build = Bundle.main.object(forInfoDictionaryKey: kBuildKey) ?? "0"
+    _appVersion = "\(version).\(build)"
+    
+    Log.sharedInstance.msg("\(kClientName) v\(_appVersion), xLib6000 v\(_apiVersion)", level: .info, function: #function, file: #file, line: #line)
+  }
   /// Setup & Register User Defaults
   ///
   fileprivate func setupDefaults() {
@@ -773,9 +812,9 @@ public final class ViewController             : NSViewController, RadioPickerDel
   /// Set the Window's title
   ///
   func setTitle() {
-    let title = (_api.activeRadio == nil ? "" : " - Connected to \(_api.activeRadio!.nickname ?? "") @ \(_api.activeRadio!.ipAddress), xLib6000 v\(_apiVersion).\(_apiBuild)")
+    let title = (_api.activeRadio == nil ? "" : "- Connected to \(_api.activeRadio!.nickname ?? "") @ \(_api.activeRadio!.ipAddress)")
     DispatchQueue.main.async {
-      self.view.window?.title = "\(kClientName)\(title)"
+      self.view.window?.title = "\(kClientName) v\(self._appVersion), xLib6000 v\(self._apiVersion) \(title)"
     }
   }
   /// Close the application

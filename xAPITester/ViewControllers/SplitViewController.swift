@@ -30,9 +30,10 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     case prefix
     case contains
     case exclude
-    case streamId
+    case myHandle
+    case handle
   }
-  public enum FilterObjectsTag: Int {                                              // types of filtering
+  public enum FilterObjectsTag: Int {                                       // types of filtering
     case none = 0
     case prefix
     case contains
@@ -77,8 +78,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       case .exclude:
         return textArray.filter { !$0.contains(Defaults[.filter]) }
         
-      case .streamId:
+      case .myHandle:
         return textArray.filter { $0.dropFirst(9).hasPrefix("S" + myHandle) }
+
+      case .handle:
+        return textArray.filter { $0.dropFirst(9).hasPrefix("S" + Defaults[.filter]) }
       }
     }}
   internal var _filteredObjectsArray           : [String] {                  // filtered version of objectsArray
