@@ -7,6 +7,9 @@ Main.storyboard - added "Copy Handle" button
 ViewController.swift - added code to respond to "Copy Handle" button
 SplitViewController.swift - renamed FilterTag "streamId" to "myHandle"
 SplitViewController.swift - added FilterTag "handle"
+ViewController.swift - refactored to use extensions & helper functions
+SplitViewController.swift - refactored to use extensions & helper functions
+AppExtensions.swift - removed unneeded extensions, added new functions & extensions
 
 v5.1.2
 
