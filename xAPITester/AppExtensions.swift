@@ -10,6 +10,9 @@ import Cocoa
 import SwiftyUserDefaults
 
 // ----------------------------------------------------------------------------
+// MARK: - EXTENSIONS
+
+// ----------------------------------------------------------------------------
 // MARK: - Definitions for SwiftyUserDefaults
 
 extension UserDefaults {
@@ -53,7 +56,7 @@ extension DefaultsKeys {
   static let showTimestamps                 = DefaultsKey<Bool>("showTimestamps")
   static let suppressUdp                    = DefaultsKey<Bool>("suppressUdp")
   static let useLowBw                       = DefaultsKey<Bool>("useLowBw")
-//  static let connectSimple                  = DefaultsKey<Bool>("connectSimple")
+  //  static let connectSimple                  = DefaultsKey<Bool>("connectSimple")
 }
 
 extension FileManager {
@@ -119,7 +122,7 @@ extension URL {
 // MARK: - String
 
 public extension String {
-
+  
   /// Check if a String is a valid IP4 address
   ///
   /// - Returns:          the result of the check as Bool
@@ -136,6 +139,9 @@ public extension String {
     return parts.count == 4 && nums.count == 4 && nums.filter { $0 >= 0 && $0 < 256}.count == 4
   }
 }
+
+// ----------------------------------------------------------------------------
+// MARK: - TOP-LEVEL FUNCTIONS
 
 /// Find versions for this app and the specified framework
 ///
