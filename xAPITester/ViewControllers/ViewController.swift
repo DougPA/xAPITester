@@ -79,8 +79,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private var _splitViewVC        : SplitViewController?
   private var _appFolderUrl                   : URL!
   private var _macros                         : Macros!
-  private var _apiVersion                     = ""
-  private var _appVersion                     = ""
   private var _versions                       : (api: String, app: String)?
 
   // constants
@@ -699,8 +697,14 @@ public final class ViewController             : NSViewController, RadioPickerDel
   ///
   func title() {
     
-    // get the versions (if not previously obtained)
-    if _versions == nil { _versions = versionInfo(framework: kxLib6000Identifier) }
+    // have the versions been captured?
+    if _versions == nil {
+      // NO, get the versions
+      _versions = versionInfo(framework: kxLib6000Identifier)
+      
+      // log them
+      Log.sharedInstance.msg("\(kClientName) v\(_versions!.app), xLib6000 v\(_versions!.api)", level: .info, function: #function, file: #file, line: #line)
+    }
 
     // format and set the window title
     let title = (_api.activeRadio == nil ? "" : "- Connected to \(_api.activeRadio!.nickname ?? "") @ \(_api.activeRadio!.ipAddress)")
