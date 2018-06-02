@@ -12,7 +12,7 @@
 
 ## Usage
 
-Two short videos explaining how to use the app can be found at:
+Two short videos explaining how to use the app (v5.1.2) can be found at:
 
 * https://youtu.be/GzCokeAfx_A            general usage
 * https://youtu.be/WoOqCAK8SVQ        use with SmartSDR / xSDR6000
