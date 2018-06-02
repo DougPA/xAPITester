@@ -139,24 +139,12 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     _font = NSFont(name: Defaults[.fontName], size: CGFloat(Defaults[.fontSize] ))!
     _tableView.rowHeight = _font.capHeight * 1.7
     
-    // create a timer to periodically redraw the objetcs table
-    _timeoutTimer = DispatchSource.makeTimerSource(flags: [.strict], queue: _timerQ)
-    
-    // Set timer with 100 millisecond leeway
-    _timeoutTimer.schedule(deadline: DispatchTime.now(), repeating: checkInterval, leeway: .milliseconds(100))      // Every second +/- 10%
-    
-    // set the event handler
-    _timeoutTimer.setEventHandler { [ unowned self] in
-      
-      // redraw the objects table when the timer fires
-      self.refreshObjects()
-    }
-    // start the timer
-    _timeoutTimer.resume()
+    // setup & start the Objects table timer
+    setupTimer()
   }
 
   deinit {
-    
+    // stop the Objects table timer
     _timeoutTimer?.cancel()
   }
   
@@ -169,21 +157,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   ///
   @IBAction func fontBigger(_ sender: AnyObject) {
     
-    // limit the font size
-    var newSize =  Defaults[.fontSize] + 1
-    if newSize > Defaults[.fontMaxSize] { newSize = Defaults[.fontMaxSize] }
-    
-    // save change to preferences
-    Defaults[.fontSize] = newSize
-    
-    // update the font
-    _font = NSFont(name: Defaults[.fontName], size: CGFloat(Defaults[.fontSize] ))!
-    _tableView.rowHeight = _font.capHeight * 1.7
-    _objectsTableView.rowHeight = _font.capHeight * 1.7
-    
-    // force a redraw
-    reloadTable()
-    reloadObjectsTable()
+    fontSize(larger: true)
   }
   /// 1st Responder to the Format->Font->Smaller menu (or Command-)
   ///
@@ -191,21 +165,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   ///
   @IBAction func fontSmaller(_ sender: AnyObject) {
     
-    // limit the font size
-    var newSize =  Defaults[.fontSize] - 1
-    if newSize < Defaults[.fontMinSize] { newSize = Defaults[.fontMinSize] }
-    
-    // save change to preferences
-    Defaults[.fontSize] = newSize
-    
-    // update the font
-    _font = NSFont(name: Defaults[.fontName], size: CGFloat(Defaults[.fontSize] ))!
-    _tableView.rowHeight = _font.capHeight * 1.7
-    _objectsTableView.rowHeight = _font.capHeight * 1.7
-    
-    // force a redraw
-    reloadTable()
-    reloadObjectsTable()
+    fontSize(larger: false)
   }
   
   // ----------------------------------------------------------------------------
@@ -235,16 +195,56 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       self._objectsTableView?.reloadData()
       
       // make sure the last row is visible
-//      if self._objectsTableView?.numberOfRows ?? 0 > 0 {
-//        
-//        self._objectsTableView?.scrollRowToVisible(self._objectsTableView!.numberOfRows - 1)
-//      }
     }
   }
   
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
+  /// Adjust the font size larger or smaller (within limits)
+  ///
+  /// - Parameter larger:           larger?
+  ///
+  private func fontSize(larger: Bool) {
+    
+    // limit the font size
+    var newSize =  Defaults[.fontSize] + (larger ? +1 : -1)
+    if larger {
+      if newSize > Defaults[.fontMaxSize] { newSize = Defaults[.fontMaxSize] }
+    } else {
+      if newSize < Defaults[.fontMinSize] { newSize = Defaults[.fontMinSize] }
+    }
+    
+    // save change to preferences
+    Defaults[.fontSize] = newSize
+    
+    // update the font
+    _font = NSFont(name: Defaults[.fontName], size: CGFloat(Defaults[.fontSize] ))!
+    _tableView.rowHeight = _font.capHeight * 1.7
+    _objectsTableView.rowHeight = _font.capHeight * 1.7
+    
+    // force a redraw
+    reloadTable()
+    reloadObjectsTable()
+  }
+  /// Setup & start the Objects table timer
+  ///
+  private func setupTimer() {
+    // create a timer to periodically redraw the objetcs table
+    _timeoutTimer = DispatchSource.makeTimerSource(flags: [.strict], queue: _timerQ)
+    
+    // Set timer with 100 millisecond leeway
+    _timeoutTimer.schedule(deadline: DispatchTime.now(), repeating: checkInterval, leeway: .milliseconds(100))      // Every second +/- 10%
+    
+    // set the event handler
+    _timeoutTimer.setEventHandler { [ unowned self] in
+      
+      // redraw the objects table when the timer fires
+      self.refreshObjects()
+    }
+    // start the timer
+    _timeoutTimer.resume()
+  }
   /// Add text to the table
   ///
   /// - Parameter text:       a text String
@@ -336,7 +336,88 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       showInTable("R\(commandSuffix)")
     }
   }
-  
+  /// Redraw the Objects table
+  ///
+  private func refreshObjects() {
+    
+    DispatchQueue.main.async { [unowned self] in
+      self.objectsArray.removeAll()
+      
+      // Radio
+      if let radio = Api.sharedInstance.activeRadio {
+        self.showInObjectsTable("Radio          name = \(radio.nickname ?? "")  model = \(radio.model)")
+        
+        // Panadapters
+        for (_, panadapter) in self._api.radio!.panadapters {
+          self.showInObjectsTable("Panadapter     \(panadapter.id.hex)  center = \(panadapter.center.hzToMhz())  bandwidth = \(panadapter.bandwidth.hzToMhz())")
+          
+          // Waterfall for this Panadapter
+          for (_, waterfall) in self._api.radio!.waterfalls where panadapter.id == waterfall.panadapterId {
+            self.showInObjectsTable("      Waterfall      \(waterfall.id.hex) stream")
+          }
+          
+          // IQ Streams for this Panadapter
+          for (_, iqStream) in self._api.radio!.iqStreams where panadapter.id == iqStream.pan {
+            self.showInObjectsTable("      DaxIq          \(iqStream.id.hex) stream")
+          }
+          
+          // Slices for this Panadapter
+          for (_, slice) in self._api.radio!.slices where panadapter.id == slice.panadapterId {
+            self.showInObjectsTable("      Slice          \(slice.id)  pan = \(slice.panadapterId.hex)  frequency = \(slice.frequency.hzToMhz())  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)")
+            
+            // Audio Stream for this Slice
+            for (_, audioStream) in self._api.radio!.audioStreams where audioStream.slice!.id == slice.id {
+              self.showInObjectsTable("           DaxAudio       \(audioStream.id.hex) stream")
+            }
+            
+            // Meters for this Slice
+            for (_, meter) in self._api.radio!.meters where meter.source.hasPrefix("slc") {
+              self.showInObjectsTable("           Meter  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
+            }
+            
+          }
+        }
+        // Tnfs
+        for (_, tnf) in self._api.radio!.tnfs {
+          self.showInObjectsTable("Tnf            \(tnf.id)  frequency = \(tnf.frequency)  width = \(tnf.width)  depth = \(tnf.depth)  permanent = \(tnf.permanent)")
+        }
+        // Amplifiers
+        for (_, amplifier) in self._api.radio!.amplifiers {
+          self.showInObjectsTable("Amplifier      \(amplifier.id)")
+        }
+        // Memories
+        for (_, memory) in self._api.radio!.memories {
+          self.showInObjectsTable("Memory         \(memory.id)")
+        }
+        // USB Cables
+        for (_, usbCable) in self._api.radio!.usbCables {
+          self.showInObjectsTable("UsbCable       \(usbCable.id)")
+        }
+        // Xvtrs
+        for (_, xvtr) in self._api.radio!.xvtrs {
+          self.showInObjectsTable("Xvtr           \(xvtr.id)")
+        }
+        // Meters (not for a Slice)
+        for (_, meter) in self._api.radio!.meters where !meter.source.hasPrefix("slc") {
+          let source = meter.source[0..<3]
+          self.showInObjectsTable("Meter (\(source))    number = \(("00" + meter.number).suffix(3))  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
+        }
+        // Mic Audio Stream
+        for (_, micAudioStream) in self._api.radio!.micAudioStreams {
+          self.showInObjectsTable("DaxMicAudio    \(micAudioStream.id.hex) stream")
+        }
+        // Opus Streams
+        for (_, opusStream) in self._api.radio!.opusStreams {
+          self.showInObjectsTable("Opus           \(opusStream.id) stream")
+        }
+        // TX Audio Stream
+        for (_, txAudioStream) in self._api.radio!.txAudioStreams {
+          self.showInObjectsTable("DaxTxAudio     \(txAudioStream.id.hex) stream")
+        }
+      }
+    }
+  }
+
   // ----------------------------------------------------------------------------
   // MARK: - ApiDelegate methods
   
@@ -579,85 +660,5 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       }
     }
     return view
-  }
-
-  public func refreshObjects() {
-    
-    DispatchQueue.main.async { [unowned self] in
-      self.objectsArray.removeAll()
-      
-      // Radio
-      if let radio = Api.sharedInstance.activeRadio {
-        self.showInObjectsTable("Radio          name = \(radio.nickname ?? "")  model = \(radio.model)")
-        
-        // Panadapters
-        for (_, panadapter) in self._api.radio!.panadapters {
-          self.showInObjectsTable("Panadapter     \(panadapter.id.hex)  center = \(panadapter.center.hzToMhz())  bandwidth = \(panadapter.bandwidth.hzToMhz())")
-
-          // Waterfall for this Panadapter
-          for (_, waterfall) in self._api.radio!.waterfalls where panadapter.id == waterfall.panadapterId {
-            self.showInObjectsTable("      Waterfall      \(waterfall.id.hex) stream")
-          }
-
-          // IQ Streams for this Panadapter
-          for (_, iqStream) in self._api.radio!.iqStreams where panadapter.id == iqStream.pan {
-            self.showInObjectsTable("      DaxIq          \(iqStream.id.hex) stream")
-          }
-
-          // Slices for this Panadapter
-          for (_, slice) in self._api.radio!.slices where panadapter.id == slice.panadapterId {
-            self.showInObjectsTable("      Slice          \(slice.id)  pan = \(slice.panadapterId.hex)  frequency = \(slice.frequency.hzToMhz())  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)")
-            
-            // Audio Stream for this Slice
-            for (_, audioStream) in self._api.radio!.audioStreams where audioStream.slice!.id == slice.id {
-              self.showInObjectsTable("           DaxAudio       \(audioStream.id.hex) stream")
-            }
-            
-            // Meters for this Slice
-            for (_, meter) in self._api.radio!.meters where meter.source.hasPrefix("slc") {
-              self.showInObjectsTable("           Meter  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
-            }
-
-          }
-        }
-        // Tnfs
-        for (_, tnf) in self._api.radio!.tnfs {
-          self.showInObjectsTable("Tnf            \(tnf.id)  frequency = \(tnf.frequency)  width = \(tnf.width)  depth = \(tnf.depth)  permanent = \(tnf.permanent)")
-        }
-        // Amplifiers
-        for (_, amplifier) in self._api.radio!.amplifiers {
-          self.showInObjectsTable("Amplifier      \(amplifier.id)")
-        }
-        // Memories
-        for (_, memory) in self._api.radio!.memories {
-          self.showInObjectsTable("Memory         \(memory.id)")
-        }
-        // USB Cables
-        for (_, usbCable) in self._api.radio!.usbCables {
-          self.showInObjectsTable("UsbCable       \(usbCable.id)")
-        }
-        // Xvtrs
-        for (_, xvtr) in self._api.radio!.xvtrs {
-          self.showInObjectsTable("Xvtr           \(xvtr.id)")
-        }
-        // Meters (not for a Slice)
-        for (_, meter) in self._api.radio!.meters where !meter.source.hasPrefix("slc") {
-          let source = meter.source[0..<3]
-          self.showInObjectsTable("Meter (\(source))    number = \(("00" + meter.number).suffix(3))  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
-        }
-        // Mic Audio Stream
-        for (_, micAudioStream) in self._api.radio!.micAudioStreams {
-          self.showInObjectsTable("DaxMicAudio    \(micAudioStream.id.hex) stream")
-        }
-        // Opus Streams
-        for (_, opusStream) in self._api.radio!.opusStreams {
-          self.showInObjectsTable("Opus           \(opusStream.id) stream")
-        }
-        // TX Audio Stream
-        for (_, txAudioStream) in self._api.radio!.txAudioStreams {
-          self.showInObjectsTable("DaxTxAudio     \(txAudioStream.id.hex) stream")
-        }
-      }
-    }
   }
 }

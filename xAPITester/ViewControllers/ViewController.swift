@@ -76,11 +76,12 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private var _commandsIndex                  = 0
   private var _commandsArray                  = [String]()                  // commands history
   private var _radioPickerTabViewController   : NSTabViewController?
-  private var _splitViewViewController        : SplitViewController?
+  private var _splitViewVC        : SplitViewController?
   private var _appFolderUrl                   : URL!
   private var _macros                         : Macros!
   private var _apiVersion                     = ""
   private var _appVersion                     = ""
+  private var _versions                       : (api: String, app: String)?
 
   // constants
   private let _dateFormatter                  = DateFormatter()
@@ -118,29 +119,17 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _sendButton.isEnabled = false
     
     // setup & register Defaults
-    setupDefaults()
+    defaults(from: "Defaults.plist")
     
-    // obtain & report component versions
-    captureVersionInfo()
-    setTitle()
+    // set the window title
+    title()
     
     // color the text field to match the kMyHandleColor
     _streamId.backgroundColor = Defaults[.myHandleColor]
     
-    let fileManager = FileManager.default
-    let urls = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask )
-    _appFolderUrl = urls.first!.appendingPathComponent( Bundle.main.bundleIdentifier! )
-    
-    // does the folder exist?
-    if !fileManager.fileExists( atPath: _appFolderUrl.path ) {
-      
-      // NO, create it
-      do {
-        try fileManager.createDirectory( at: _appFolderUrl, withIntermediateDirectories: false, attributes: nil)
-      } catch let error as NSError {
-        fatalError("Error creating App Support folder: \(error.localizedDescription)")
-      }
-    }
+    // get / create the Application Support folder
+    _appFolderUrl = FileManager.appFolder
+
     // open the Default Radio (if any), otherwise open the Picker
     checkForDefaultRadio()
   }
@@ -161,13 +150,13 @@ public final class ViewController             : NSViewController, RadioPickerDel
   public override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
     
     if segue.identifier!.rawValue == "SplitView" {
-      _splitViewViewController = segue.destinationController as? SplitViewController
-      _splitViewViewController!._parent = self
+      _splitViewVC = segue.destinationController as? SplitViewController
+      _splitViewVC!._parent = self
       
-      _splitViewViewController?.view.translatesAutoresizingMaskIntoConstraints = false
-      _api.testerDelegate = _splitViewViewController
+      _splitViewVC?.view.translatesAutoresizingMaskIntoConstraints = false
+      _api.testerDelegate = _splitViewVC
       
-      _macros = Macros(logHandler: _splitViewViewController!)
+      _macros = Macros(logHandler: _splitViewVC!)
     }
   }
   // ----------------------------------------------------------------------------
@@ -180,12 +169,12 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func clear(_ sender: NSButton) {
     
     // clear all previous commands & replies
-    _splitViewViewController?.textArray.removeAll()
-    _splitViewViewController?.reloadTable()
+    _splitViewVC?.textArray.removeAll()
+    _splitViewVC?.reloadTable()
     
     // clear all previous objects
-    _splitViewViewController?.objectsArray.removeAll()
-    _splitViewViewController?.reloadObjectsTable()
+    _splitViewVC?.objectsArray.removeAll()
+    _splitViewVC?.reloadObjectsTable()
   }
   /// Respond to the Connect button
   ///
@@ -223,53 +212,22 @@ public final class ViewController             : NSViewController, RadioPickerDel
   /// - Parameter sender:     any Object
   ///
   @IBAction func copyToClipboard(_ sender: Any){
-    var textToCopy = ""
     
     // if no rows selected, select all
-    if _splitViewViewController!._tableView.numberOfSelectedRows == 0 { _splitViewViewController!._tableView.selectAll(self) }
-    
-    // get the indexes of the selected rows
-    let indexSet = _splitViewViewController!._tableView.selectedRowIndexes
-    
-    for (_, rowIndex) in indexSet.enumerated() {
-      
-      var text = _splitViewViewController!._filteredTextArray[rowIndex]
-
-      // remove the prefixes (Timestamps & Connection Handle)
-      text = text.components(separatedBy: "|")[1]
-      
-      // accumulate the text lines
-      textToCopy += text + "\n"
-    }
-    // eliminate the last newline
-    textToCopy = String(textToCopy.dropLast())
+    if _splitViewVC!._tableView.numberOfSelectedRows == 0 { _splitViewVC!._tableView.selectAll(self) }
     
     let pasteBoard = NSPasteboard.general
     pasteBoard.clearContents()
-    pasteBoard.setString(textToCopy, forType:NSPasteboard.PasteboardType.string)
+    pasteBoard.setString( copyRows(_splitViewVC!._tableView, from: _splitViewVC!._filteredTextArray), forType:NSPasteboard.PasteboardType.string )
   }
   /// Respond to the Copy to Cmd button (in the Commands & Replies box)
   ///
   /// - Parameter sender:     any object
   ///
   @IBAction func copyToCmd(_ sender: Any) {
-    var textToCopy = ""
     
-    // get the indexes of the selected rows
-    let indexSet = _splitViewViewController!._tableView.selectedRowIndexes
-    
-    for (_, rowIndex) in indexSet.enumerated() {
-      
-      textToCopy = _splitViewViewController!._filteredTextArray[rowIndex]
-      
-      // remove the prefixes (Timestamps & Connection Handle)
-      textToCopy = textToCopy.components(separatedBy: "|")[1]
-      
-      // stop after the first line
-      break
-    }
     // paste the text into the command line
-    _command.stringValue = textToCopy
+    _command.stringValue = copyRows(_splitViewVC!._tableView, from: _splitViewVC!._filteredTextArray, stopOnFirst: true)
   }
   /// Respond to the Copy Handle button
   ///
@@ -279,11 +237,11 @@ public final class ViewController             : NSViewController, RadioPickerDel
     var textToCopy = ""
     
     // get the indexes of the selected rows
-    let indexSet = _splitViewViewController!._tableView.selectedRowIndexes
+    let indexSet = _splitViewVC!._tableView.selectedRowIndexes
     
     for (_, rowIndex) in indexSet.enumerated() {
       
-      let rowText = _splitViewViewController!._filteredTextArray[rowIndex]
+      let rowText = _splitViewVC!._filteredTextArray[rowIndex]
       
       // remove the prefixes (Timestamps & Connection Handle)
       textToCopy = String(rowText.components(separatedBy: "|")[0].dropFirst(kSizeOfTimeStamp + 1))
@@ -318,18 +276,18 @@ public final class ViewController             : NSViewController, RadioPickerDel
           try fileString = String(contentsOf: url)
           
           // separate into lines
-          self._splitViewViewController?.textArray = fileString.components(separatedBy: "\n")
+          self._splitViewVC?.textArray = fileString.components(separatedBy: "\n")
           
           // eliminate the last one (it's blank)
-          self._splitViewViewController?.textArray.removeLast()
+          self._splitViewVC?.textArray.removeLast()
           
           // force a redraw
-          self._splitViewViewController?.reloadTable()
+          self._splitViewVC?.reloadTable()
           
         } catch {
           
           // something bad happened!
-          self._splitViewViewController?.msg("Error reading file", level: .error, function: #function, file: #file, line: #line)
+          self._splitViewVC?.msg("Error reading file", level: .error, function: #function, file: #file, line: #line)
         }
       }
     }
@@ -370,7 +328,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
         } catch {
           
           // something bad happened!
-          self._splitViewViewController?.msg("Error reading file", level: .error, function: #function, file: #file, line: #line)
+          self._splitViewVC?.msg("Error reading file", level: .error, function: #function, file: #file, line: #line)
         }
       }
     }
@@ -422,15 +380,10 @@ public final class ViewController             : NSViewController, RadioPickerDel
       // if the user pressed Save
       if result == NSApplication.ModalResponse.OK {
         
-        var fileString = ""
-        
-        // build a string of all the commands & replies
-        for row in self._splitViewViewController!._filteredTextArray {
-          
-          fileString += row + "\n"
-        }
         // write it to the File
-        self.writeToFile(savePanel.url!, text: fileString)
+        if let error = savePanel.url!.writeArray( self._splitViewVC!._filteredTextArray ) {
+          self._api.log.msg(error, level: .error, function: #function, file: #file, line: #line)
+        }
       }
     }
   }
@@ -451,15 +404,10 @@ public final class ViewController             : NSViewController, RadioPickerDel
       // if the user pressed Save
       if result == NSApplication.ModalResponse.OK {
         
-        var fileString = ""
-        
-        // build a string of all the commands & replies
-        for command in self._commandsArray {
-          
-          fileString += command + "\n"
-        }
         // write it to the File
-        self.writeToFile(savePanel.url!, text: fileString)
+        if let error = savePanel.url!.writeArray( self._commandsArray ) {
+          self._api.log.msg(error, level: .error, function: #function, file: #file, line: #line)
+        }
       }
     }
 
@@ -520,8 +468,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func showTimestamps(_ sender: NSButton) {
     
     // force a redraw
-    _splitViewViewController?.reloadTable()
-    _splitViewViewController?.reloadObjectsTable()
+    _splitViewVC?.reloadTable()
+    _splitViewVC?.reloadObjectsTable()
   }
   /// Respond to the Close menu item
   ///
@@ -545,7 +493,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func updateFilter(_ sender: NSTextField) {
     
     // force a redraw
-    _splitViewViewController?.reloadTable()
+    _splitViewVC?.reloadTable()
   }
   /// The FilterBy PopUp changed (in the Commands & Replies box)
   ///
@@ -557,7 +505,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     Defaults[.filter] = ""
     
     // force a redraw
-    _splitViewViewController?.reloadTable()
+    _splitViewVC?.reloadTable()
   }
   /// The Filter text field changed (in the Objects box)
   ///
@@ -566,7 +514,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func updateFilterObjects(_ sender: NSTextField) {
     
     // force a redraw
-    _splitViewViewController?.reloadObjectsTable()
+    _splitViewVC?.reloadObjectsTable()
   }
   /// The FilterBy PopUp changed (in the Objects box)
   ///
@@ -578,53 +526,39 @@ public final class ViewController             : NSViewController, RadioPickerDel
     Defaults[.filterObjects] = ""
     
     // force a redraw
-    _splitViewViewController?.reloadObjectsTable()
+    _splitViewVC?.reloadObjectsTable()
   }
   
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
-  /// Fnd & report versions for this app and the underlying library
+  /// Copy selected rows from the array backing a table
   ///
-  fileprivate func captureVersionInfo() {
-    // get the version info from xLib6000
-    let frameworkBundle = Bundle(identifier: kxLib6000Identifier)
-    var version = frameworkBundle?.object(forInfoDictionaryKey: kVersionKey) ?? "0"
-    var build = frameworkBundle?.object(forInfoDictionaryKey: kBuildKey) ?? "0"
-    _apiVersion = "\(version).\(build)"
-    
-    // get the version info for this app
-    version = Bundle.main.object(forInfoDictionaryKey: kVersionKey) ?? "0"
-    build = Bundle.main.object(forInfoDictionaryKey: kBuildKey) ?? "0"
-    _appVersion = "\(version).\(build)"
-    
-    Log.sharedInstance.msg("\(kClientName) v\(_appVersion), xLib6000 v\(_apiVersion)", level: .info, function: #function, file: #file, line: #line)
-  }
-  /// Setup & Register User Defaults
+  /// - Parameters:
+  ///   - table:                        an NStableView instance
+  ///   - array:                        the backing array
+  ///   - stopOnFirst:                  stop after first row?
+  /// - Returns:                        a String of the rows
   ///
-  fileprivate func setupDefaults() {
-    //        let messageColor = NSColor(srgbRed: 1.0, green: 1.0, blue: 1.0, alpha: 0.1)
-    //        let commandColor = NSColor(srgbRed: 0.0, green: 1.0, blue: 0.0, alpha: 0.1)
-    //        let myHandleColor = NSColor(srgbRed: 1.0, green: 0.0, blue: 0.0, alpha: 0.1)
-    //        let neutralColor = NSColor(srgbRed: 0.0, green: 1.0, blue: 1.0, alpha: 0.1)
-    //        let otherHandleColor = NSColor(srgbRed: 1.0, green: 0.0, blue: 1.0, alpha: 0.1)
+  private func copyRows(_ table: NSTableView, from array: Array<String>, stopOnFirst: Bool = false) -> String {
+    var text = ""
     
-    // get the URL of the defaults file
-    let defaultsUrl = Bundle.main.url(forResource: "Defaults", withExtension: "plist")!
-    
-    // load the contents
-    let myDefaults = NSDictionary(contentsOf: defaultsUrl)!
-    
-    // register the defaults
-    Defaults.register(defaults: myDefaults as! Dictionary<String, Any>)
-    
-    //        Defaults[.messageColor] = messageColor
-    //        Defaults[.commandColor] = commandColor
-    //        Defaults[.myHandleColor] = myHandleColor
-    //        Defaults[.neutralColor] = neutralColor
-    //        Defaults[.otherHandleColor] = otherHandleColor
+    // get the selected rows
+    for (_, rowIndex) in table.selectedRowIndexes.enumerated() {
+      
+      text = array[rowIndex]
+      
+      // remove the prefixes (Timestamps & Connection Handle)
+      text = text.components(separatedBy: "|")[1]
+      
+      // stop after the first line?
+      if stopOnFirst { break }
+      
+      // accumulate the text lines
+      text += text + "\n"
+    }
+    return text
   }
-  
   /// Determine if the Default radio (if any) is present
   ///
   fileprivate func checkForDefaultRadio() {
@@ -653,7 +587,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
         
         // can the default radio be opened?
         if !openRadio(defaultRadioParameters) {
-          _splitViewViewController?.msg("Error opening default radio, \(defaultRadioParameters.name ?? "")", level: .warning, function: #function, file: #file, line: #line)
+          _splitViewVC?.msg("Error opening default radio, \(defaultRadioParameters.name ?? "")", level: .warning, function: #function, file: #file, line: #line)
           
           // NO, open the Radio Picker
           openRadioPicker( self)
@@ -668,54 +602,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     } else {
       // NOT VALID, open the Radio Picker
       openRadioPicker(self)
-    }
-  }
-  /// Write the Log to the App Support folder
-  ///
-  /// - parameter filterBy:   a MessageLevel
-  ///
-  private func writeLogToURL(_ url: URL) {
-    var fileString = ""
-    
-    // build a string of all the entries
-    for row in _splitViewViewController!._filteredTextArray {
-      
-      fileString += row + "\n"
-    }
-    // write the file
-    do {
-      
-      try fileString.write(to: url, atomically: true, encoding: String.Encoding.utf8)
-      
-    } catch let error as NSError {
-      
-      _api.log.msg("Error writing to file : \(error.localizedDescription)", level: .error, function: #function, file: #file, line: #line)
-      
-    } catch {
-      
-      _api.log.msg("Error writing Log", level: .error, function: #function, file: #file, line: #line)
-    }
-  }
-  /// Write Text to a File url
-  ///
-  /// - Parameters:
-  ///   - url:            a File Url
-  ///   - text:           the Text
-  ///
-  private func writeToFile(_ url: URL, text: String) {
-    do {
-      // write the string to the file url
-      try text.write(to: url, atomically: true, encoding: String.Encoding.utf8)
-      
-    } catch let error as NSError {
-      
-      // something bad happened!
-      self._api.log.msg("Error writing to file : \(error.localizedDescription)", level: .error, function: #function, file: #file, line: #line)
-      
-    } catch {
-      
-      // something bad happened!
-      self._api.log.msg("Error writing Log", level: .error, function: #function, file: #file, line: #line)
     }
   }
 
@@ -778,11 +664,11 @@ public final class ViewController             : NSViewController, RadioPickerDel
       self._connectButton.identifier = self.kDisconnect
       self._sendButton.isEnabled = true
 
-      setTitle()
+      title()
       
       return true
     }
-    setTitle()
+    title()
     return false
   }
   /// Close the currently active Radio
@@ -797,24 +683,29 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _connectButton.identifier = kConnect
     _localRemote.stringValue = ""
     
-    setTitle()
+    title()
   }
   /// Clear the reply table
   ///
   func clearTable() {
     
     // clear the previous Commands, Replies & Messages
-    if Defaults[.clearAtConnect] { _splitViewViewController!.textArray.removeAll() ;_splitViewViewController!._tableView.reloadData() }
+    if Defaults[.clearAtConnect] { _splitViewVC!.textArray.removeAll() ;_splitViewVC!._tableView.reloadData() }
     
     // clear the objects
-    _splitViewViewController!.objectsArray.removeAll() ;_splitViewViewController!._objectsTableView.reloadData()
+    _splitViewVC!.objectsArray.removeAll() ;_splitViewVC!._objectsTableView.reloadData()
   }
   /// Set the Window's title
   ///
-  func setTitle() {
+  func title() {
+    
+    // get the versions (if not previously obtained)
+    if _versions == nil { _versions = versionInfo(framework: kxLib6000Identifier) }
+
+    // format and set the window title
     let title = (_api.activeRadio == nil ? "" : "- Connected to \(_api.activeRadio!.nickname ?? "") @ \(_api.activeRadio!.ipAddress)")
     DispatchQueue.main.async {
-      self.view.window?.title = "\(kClientName) v\(self._appVersion), xLib6000 v\(self._apiVersion) \(title)"
+      self.view.window?.title = "\(kClientName) v\(self._versions!.app), xLib6000 v\(self._versions!.api) \(title)"
     }
   }
   /// Close the application
@@ -823,10 +714,51 @@ public final class ViewController             : NSViewController, RadioPickerDel
     
     terminate(self)
   }
+
+  // ----------------------------------------------------------------------------
+  // MARK: - NSTextFieldDelegate methods
+  
   /// Allow the user to press Enter to send a command
   ///
   public func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
     
+    // nested functions -----------
+    
+    func previousIndex() -> Int? {
+      var index: Int?
+      
+      guard _commandsArray.count != 0 else { return index }
+      
+      if _commandsIndex == 0 {
+        // at top of the list (oldest command)
+        index = 0
+        _commandsIndex = 0
+      } else {
+        // somewhere in list
+        index = _commandsIndex
+        _commandsIndex = index! - 1
+      }
+      return index
+    }
+    
+    func nextIndex() -> Int? {
+      var index: Int?
+      
+      guard _commandsArray.count != 0 else { return index }
+      
+      if _commandsIndex == _commandsArray.count - 1 {
+        // at bottom of list (newest command)
+        index =  -1
+      } else {
+        // somewhere else
+        index = _commandsIndex + 1
+      }
+      _commandsIndex = index != -1 ? index! : _commandsArray.count - 1
+      return index
+    }
+
+    // ----------------------------
+
     if (commandSelector == #selector(NSResponder.insertNewline(_:))) {
       // "click" the send button
       _sendButton.performClick(self)
@@ -856,39 +788,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     }
     // return true if the action was handled; otherwise false
     return false
-  }
-  
-  private func previousIndex() -> Int? {
-    var index: Int?
-    
-    guard _commandsArray.count != 0 else { return index }
-    
-    if _commandsIndex == 0 {
-      // at top of the list (oldest command)
-      index = 0
-      _commandsIndex = 0
-    } else {
-      // somewhere in list
-      index = _commandsIndex
-      _commandsIndex = index! - 1
-    }
-    return index
-  }
-  
-  private func nextIndex() -> Int? {
-    var index: Int?
-    
-    guard _commandsArray.count != 0 else { return index }
-    
-    if _commandsIndex == _commandsArray.count - 1 {
-      // at bottom of list (newest command)
-      index =  -1
-    } else {
-      // somewhere else
-      index = _commandsIndex + 1
-    }
-    _commandsIndex = index != -1 ? index! : _commandsArray.count - 1
-    return index
   }
 }
 
