@@ -28,6 +28,10 @@ For an example of a SmartSDR-like client for the Mac, please take a look at the 
 
 * https://github.com/DougPA/xSDR6000
 
+If you require a Mac version of DAX and/or CAT, please see.
+
+* https://dl3lsm.blogspot.com
+
 
 ## Builds
 
@@ -50,3 +54,10 @@ on GitHub at:
 
 * https://github.com/radex/SwiftyUserDefaults  
 * https://github.com/DougPA/xLib6000  
+
+
+## Known Issues
+
+* none at present
+
+Please reports any bugs you observe to douglas.adams@me.com
