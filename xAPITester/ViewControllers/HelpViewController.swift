@@ -42,7 +42,7 @@ final class HelpViewController              : NSViewController {
     super.viewWillAppear()
     
     // restore the position
-    view.window!.setFrameUsingName( NSWindow.FrameAutosaveName(rawValue: kAutosaveName))
+    view.window!.setFrameUsingName(kAutosaveName)
   }
   
   override func viewWillDisappear() {
@@ -50,7 +50,7 @@ final class HelpViewController              : NSViewController {
     super.viewWillDisappear()
     
     // save the position
-    view.window!.saveFrame(usingName: NSWindow.FrameAutosaveName(rawValue: kAutosaveName))
+    view.window!.saveFrame(usingName: kAutosaveName)
   }
   
 }

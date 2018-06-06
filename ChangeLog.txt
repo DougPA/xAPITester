@@ -1,5 +1,15 @@
 xAPITester Change Log
 
+v5.1.4
+
+converted to Swift 4.2
+Embeds Swift 4.2. version of xLib6000.framework & SwiftyUserDefaults.framework
+ViewController.swift - changes to conform to Swift 4.2
+HelpViewController.swift - changes to conform to Swift 4.2
+SplitViewController - changes to conform to Swift 4.2
+WANRadioPickerViewController.swift - changes to conform to Swift 4.2
+
+
 v5.1.3
 
 ViewController.swift - changed logic to display versions in window title

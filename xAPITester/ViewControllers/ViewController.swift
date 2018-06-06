@@ -90,12 +90,18 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private let kRemote                         = "SmartLink"
   private let kLocalTab                       = 0
   private let kRemoteTab                      = 1
-  private let kxLib6000Identifier             = "net.k3tzr.xLib6000"          // Bundle identifier for xLib6000
   private let kVersionKey                     = "CFBundleShortVersionString"  // CF constants
   private let kBuildKey                       = "CFBundleVersion"
   private let kDelayForAvailableRadios        : UInt32 = 1
   private let kSizeOfTimeStamp                = 9
-  
+  private let kSBI_RadioPicker                = "RadioPicker"
+  private let kCommandsRepliesFileName        = "xAPITester"
+  private let kCommandsRepliesFileExt         = "txt"
+  private let kMacroFileName                  = "macro_1"
+  private let kMacroFileExt                   = "macro"
+  private let kDefaultsFile                   = "Defaults.plist"
+  private let kSWI_SplitView                  = "SplitView"
+
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
 
@@ -117,7 +123,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _sendButton.isEnabled = false
     
     // setup & register Defaults
-    defaults(from: "Defaults.plist")
+    defaults(from: kDefaultsFile)
     
     // set the window title
     title()
@@ -147,7 +153,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
 
   public override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
     
-    if segue.identifier!.rawValue == "SplitView" {
+    if segue.identifier! == kSWI_SplitView {
       _splitViewVC = segue.destinationController as? SplitViewController
       _splitViewVC!._parent = self
       
@@ -216,7 +222,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     
     let pasteBoard = NSPasteboard.general
     pasteBoard.clearContents()
-    pasteBoard.setString( copyRows(_splitViewVC!._tableView, from: _splitViewVC!._filteredTextArray), forType:NSPasteboard.PasteboardType.string )
+    pasteBoard.setString( copyRows(_splitViewVC!._tableView, from: _splitViewVC!._filteredTextArray), forType: NSPasteboard.PasteboardType.string )
   }
   /// Respond to the Copy to Cmd button (in the Commands & Replies box)
   ///
@@ -257,7 +263,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func load(_ sender: NSButton) {
     
     let openPanel = NSOpenPanel()
-    openPanel.allowedFileTypes = ["txt"]
+    openPanel.allowedFileTypes = [kCommandsRepliesFileExt]
     openPanel.directoryURL = _appFolderUrl
 
     // open an Open Dialog
@@ -297,8 +303,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func loadMacro(_ sender: NSButton) {
     
     let openPanel = NSOpenPanel()
-    openPanel.allowedFileTypes = ["macro"]
-    openPanel.nameFieldStringValue = "macro_1"
+    openPanel.allowedFileTypes = [kMacroFileExt]
+    openPanel.nameFieldStringValue = kMacroFileName
     openPanel.directoryURL = _appFolderUrl
     
     // open an Open Dialog
@@ -338,7 +344,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func openRadioPicker(_ sender: AnyObject) {
     
     // get an instance of the RadioPicker
-    _radioPickerTabViewController = storyboard!.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "RadioPicker")) as? NSTabViewController
+    _radioPickerTabViewController = storyboard!.instantiateController(withIdentifier: kSBI_RadioPicker) as? NSTabViewController
     
     // make this View Controller the delegate of the RadioPickers
     _radioPickerTabViewController!.tabViewItems[kLocalTab].viewController!.representedObject = self
@@ -350,7 +356,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     DispatchQueue.main.async {
       
       // show the RadioPicker sheet
-      self.presentViewControllerAsSheet(self._radioPickerTabViewController!)
+      self.presentAsSheet(self._radioPickerTabViewController!)
     }
   }
   /// Respond to the Run button (in the Macros box)
@@ -368,8 +374,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func save(_ sender: NSButton) {
     
     let savePanel = NSSavePanel()
-    savePanel.allowedFileTypes = ["txt"]
-    savePanel.nameFieldStringValue = "xAPITester"
+    savePanel.allowedFileTypes = [kCommandsRepliesFileExt]
+    savePanel.nameFieldStringValue = kCommandsRepliesFileName
     savePanel.directoryURL = _appFolderUrl
     
     // open a Save Dialog
@@ -392,8 +398,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func saveMacro(_ sender: NSButton) {
 
     let savePanel = NSSavePanel()
-    savePanel.allowedFileTypes = ["macro"]
-    savePanel.nameFieldStringValue = "macro_1"
+    savePanel.allowedFileTypes = [kMacroFileExt]
+    savePanel.nameFieldStringValue = kMacroFileName
     savePanel.directoryURL = _appFolderUrl
     
     // open a Save Dialog
@@ -619,7 +625,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
       let selectedIndex = _radioPickerTabViewController?.selectedTabViewItemIndex
       Defaults[.showRemoteTabView] = ( selectedIndex == kRemoteTab ? true : false )
       
-      dismissViewController(_radioPickerTabViewController!)
+      dismiss(_radioPickerTabViewController!)
     }
     _radioPickerTabViewController = nil
   }
@@ -700,16 +706,16 @@ public final class ViewController             : NSViewController, RadioPickerDel
     // have the versions been captured?
     if _versions == nil {
       // NO, get the versions
-      _versions = versionInfo(framework: kxLib6000Identifier)
+      _versions = versionInfo(framework: Api.kBundleIdentifier)
       
       // log them
-      Log.sharedInstance.msg("\(kClientName) v\(_versions!.app), xLib6000 v\(_versions!.api)", level: .info, function: #function, file: #file, line: #line)
+      Log.sharedInstance.msg("\(kClientName) v\(_versions!.app), \(Api.kId) v\(_versions!.api)", level: .info, function: #function, file: #file, line: #line)
     }
 
     // format and set the window title
     let title = (_api.activeRadio == nil ? "" : "- Connected to \(_api.activeRadio!.nickname ?? "") @ \(_api.activeRadio!.ipAddress)")
     DispatchQueue.main.async {
-      self.view.window?.title = "\(kClientName) v\(self._versions!.app), xLib6000 v\(self._versions!.api) \(title)"
+      self.view.window?.title = "\(kClientName) v\(self._versions!.app), \(Api.kId) v\(self._versions!.api) \(title)"
     }
   }
   /// Close the application

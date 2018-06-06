@@ -119,7 +119,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   private var _timeoutTimer                   : DispatchSourceTimer!          // timer fired every "checkInterval"
   private var _timerQ                         = DispatchQueue(label: "xAPITester" + ".timerQ")
 
-  private let kAutosaveName                   = NSSplitView.AutosaveName(rawValue: kClientName + "SplitView")
+  private let kAutosaveName                   = NSSplitView.AutosaveName(kClientName + "SplitView")
   private let checkInterval                   : TimeInterval = 1.0
   
   // ----------------------------------------------------------------------------

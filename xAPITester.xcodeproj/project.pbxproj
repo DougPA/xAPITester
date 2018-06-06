@@ -446,7 +446,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xAPITester;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
 		};
@@ -467,7 +467,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xAPITester;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Release;
 		};

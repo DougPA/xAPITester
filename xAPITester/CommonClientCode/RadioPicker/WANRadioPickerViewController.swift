@@ -261,13 +261,13 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       
       // Login to auth0
       // get an instance of Auth0 controller
-      _auth0ViewController = storyboard!.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "Auth0Login")) as? Auth0ViewController
+      _auth0ViewController = storyboard!.instantiateController(withIdentifier: "Auth0Login") as? Auth0ViewController
       
       // make this View Controller the delegate of the Auth0 controller
       _auth0ViewController!.representedObject = self
       
       // show the Auth0 sheet
-      presentViewControllerAsSheet(_auth0ViewController!)
+      presentAsSheet(_auth0ViewController!)
 
     } else {
       // logout from the actual auth0 account
@@ -542,7 +542,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   func closeAuth0Sheet() {
     
-    if _auth0ViewController != nil { dismissViewController(_auth0ViewController!) }
+    if _auth0ViewController != nil { dismiss(_auth0ViewController!) }
     _auth0ViewController = nil
   }
   /// Set the id and refresh token
