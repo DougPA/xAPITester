@@ -2,7 +2,7 @@ xLib6000 Change Log
 
 v1.1.7
 
-
+EqualizerCommands.swift - corrected level commands ("<band>Hz" vs "<band>hz")
 
 
 v1.1.6
