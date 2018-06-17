@@ -366,16 +366,26 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
             self.showInObjectsTable("      Slice          \(slice.id)  pan = \(slice.panadapterId.hex)  frequency = \(slice.frequency.hzToMhz())  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)")
             
             // Audio Stream for this Slice
-            for (_, audioStream) in self._api.radio!.audioStreams where audioStream.slice!.id == slice.id {
-              self.showInObjectsTable("           DaxAudio       \(audioStream.id.hex) stream")
+            for (_, audioStream) in self._api.radio!.audioStreams {
+              if audioStream.slice?.id == slice.id {
+                self.showInObjectsTable("           DaxAudio       \(audioStream.id.hex) stream")
+              }
             }
             
             // Meters for this Slice
             for (_, meter) in self._api.radio!.meters where meter.source.hasPrefix("slc") {
               self.showInObjectsTable("           Meter  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
-            }
-            
+            }            
           }
+        }
+        // IQ Streams without a Panadapter
+        for (_, iqStream) in self._api.radio!.iqStreams where iqStream.pan == 0 {
+          self.showInObjectsTable("DaxIq          \(iqStream.id.hex) stream,  panadapter = -not assigned-")
+        }
+        
+        // Audio Stream without a Slice
+        for (_, audioStream) in self._api.radio!.audioStreams where audioStream.slice == nil {
+          self.showInObjectsTable("DaxAudio       \(audioStream.id.hex) stream,  slice = -not assigned-")
         }
         // Tnfs
         for (_, tnf) in self._api.radio!.tnfs {
