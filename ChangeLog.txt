@@ -1,5 +1,10 @@
 xAPITester Change Log
 
+v5.1.5
+
+Updated xLib6000.framework - changes added properties "detached" & "nr2" to Slice
+
+
 v5.1.4
 
 converted to Swift 4.2
