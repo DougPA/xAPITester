@@ -2,7 +2,7 @@ xLib6000 Change Log
 
 v1.1.11
 
-
+Slice.swift - added properties "detached" and "nr2" (not sure what their usage should be)
 
 
 v1.1.10

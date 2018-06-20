@@ -701,11 +701,13 @@ SWIFT_CLASS("_TtC8xLib60005Slice")
 @property (nonatomic) BOOL autoPan;
 @property (nonatomic) NSInteger daxClients;
 @property (nonatomic) BOOL daxTxEnabled;
+@property (nonatomic) BOOL detached;
 @property (nonatomic) BOOL diversityChild;
 @property (nonatomic) NSInteger diversityIndex;
 @property (nonatomic) BOOL diversityParent;
 @property (nonatomic, readonly) BOOL inUse;
 @property (nonatomic, copy) NSArray<NSString *> * _Nonnull modeList;
+@property (nonatomic) NSInteger nr2;
 @property (nonatomic) NSInteger owner;
 @property (nonatomic) uint32_t panadapterId;
 @property (nonatomic) BOOL postDemodBypassEnabled;
