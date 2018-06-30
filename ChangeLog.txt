@@ -1,9 +1,12 @@
 xAPITester Change Log
 
+v5.1.6
+
+Updated xLib6000.framework - changes added properties "band_zoom" & "segment_zoom" to Panadapter & Waterfall
+
 v5.1.5
 
 Updated xLib6000.framework - changes added properties "detached" & "nr2" to Slice
-
 
 v5.1.4
 
