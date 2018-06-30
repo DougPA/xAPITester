@@ -1,5 +1,9 @@
 xAPITester Change Log
 
+v5.1.7
+
+Updated xLib6000.framework - changes added properties "amplifier" to Interlock
+
 v5.1.6
 
 Updated xLib6000.framework - changes added properties "band_zoom" & "segment_zoom" to Panadapter & Waterfall
