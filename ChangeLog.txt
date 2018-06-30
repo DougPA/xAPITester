@@ -1,5 +1,17 @@
 xAPITester Change Log
 
+v5.1.8
+
+ViewController.swift - removed closeRadioPicker(), clearTable() & terminateApp() from RadioPickerDelegate protocol
+ViewController.swift - added code to openRadio(_:isWan:wanHandle:) to clear table
+ViewController.swift - removed clearTable()
+LANRadioPickerViewController.swift - modified closeButton(_:) and terminate(_:)
+LANRadioPickerViewController.swift - removed calls to clearTable()
+LANRadioPickerViewController.swift - added capture of parent view controller
+WANRadioPickerViewController - modified closeButton(_:) and terminate(_:)
+WANRadioPickerViewController - removed calls to clearTable()
+WANRadioPickerViewController - added capture of parent view controller
+
 v5.1.7
 
 Updated xLib6000.framework - changes added properties "amplifier" to Interlock

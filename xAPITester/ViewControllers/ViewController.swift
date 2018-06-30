@@ -18,10 +18,6 @@ protocol RadioPickerDelegate: class {
   
   var token: Token? { get set }
   
-  /// Close this sheet
-  ///
-  func closeRadioPicker()
-  
   /// Open the specified Radio
   ///
   /// - Parameters:
@@ -35,14 +31,6 @@ protocol RadioPickerDelegate: class {
   /// Close the active Radio
   ///
   func closeRadio()
-  
-  /// Clear the reply table
-  ///
-  func clearTable()
-  
-  /// Close the application
-  ///
-  func terminateApp()
 }
 
 // ------------------------------------------------------------------------------
@@ -645,6 +633,12 @@ public final class ViewController             : NSViewController, RadioPickerDel
     // fail if no Radio selected
     guard let selectedRadio = radio else { return false }
     
+    // clear the previous Commands, Replies & Messages
+    if Defaults[.clearAtConnect] { _splitViewVC!.textArray.removeAll() ;_splitViewVC!._tableView.reloadData() }
+    
+    // clear the objects
+    _splitViewVC!.objectsArray.removeAll() ;_splitViewVC!._objectsTableView.reloadData()
+
     // WAN connect
     if isWan {
       _localRemote.stringValue = kRemote
@@ -688,16 +682,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _localRemote.stringValue = ""
     
     title()
-  }
-  /// Clear the reply table
-  ///
-  func clearTable() {
-    
-    // clear the previous Commands, Replies & Messages
-    if Defaults[.clearAtConnect] { _splitViewVC!.textArray.removeAll() ;_splitViewVC!._tableView.reloadData() }
-    
-    // clear the objects
-    _splitViewVC!.objectsArray.removeAll() ;_splitViewVC!._objectsTableView.reloadData()
   }
   /// Set the Window's title
   ///

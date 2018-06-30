@@ -21,10 +21,6 @@ import SwiftyUserDefaults
 
 protocol LANRadioPickerDelegate: class {
   
-  /// Close this sheet
-  ///
-  func closeRadioPicker()
-  
   /// Open the specified Radio
   ///
   /// - Parameters:
@@ -38,14 +34,6 @@ protocol LANRadioPickerDelegate: class {
   /// Close the active Radio
   ///
   func closeRadio()
-
-  /// Clear the reply table
-  ///
-  func clearTable()
-  
-  /// Close the application
-  ///
-  func terminateApp()
 }
 
 // --------------------------------------------------------------------------------
@@ -66,7 +54,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   
   private var _api                          = Api.sharedInstance
   private var _selectedRadio                : RadioParameters?            // Radio in selected row
-  
+  private var _parentVc                     : NSViewController?
   private weak var _delegate                : RadioPickerDelegate? {
     return representedObject as? RadioPickerDelegate
   }
@@ -88,6 +76,8 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     
     super.viewDidLoad()
 
+    _parentVc = parent
+    
     // allow the User to double-click the desired Radio
     _radioTableView.doubleAction = #selector(LANRadioPickerViewController.selectButton(_:))
     
@@ -105,8 +95,8 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   @IBAction func terminate(_ sender: AnyObject) {
     
-    _delegate?.closeRadioPicker()
-    _delegate?.terminateApp()
+    dismiss(_parentVc!)
+    NSApp.terminate(self)
   }
   /// Respond to the Default button
   ///
@@ -141,7 +131,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   @IBAction func closeButton(_ sender: AnyObject) {
 
     // close this view & controller
-    _delegate?.closeRadioPicker()
+    dismiss(_parentVc!)
   }
   /// Respond to the Select button
   ///
@@ -171,8 +161,6 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     
     if _selectButton.title == kConnectTitle {
       // RadioPicker sheet will close & Radio will be opened
-      
-      _delegate?.clearTable()
       
       // tell the delegate to connect to the selected Radio
       let _ = _delegate?.openRadio(_selectedRadio, isWan: false, wanHandle: "")

@@ -54,6 +54,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     return representedObject as? RadioPickerDelegate
   }
   private var _selectedRadio                : RadioParameters?              // Radio in selected row
+  private var _parentVc                     : NSViewController?
   private var _wanServer                    : WanServer?
   
   // constants
@@ -90,6 +91,8 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    _parentVc = parent
+
     var idToken = ""
     var loggedIn = false
     
@@ -173,8 +176,8 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   @IBAction func terminate(_ sender: AnyObject) {
     
-    _delegate?.closeRadioPicker()
-    _delegate?.terminateApp()
+    dismiss(_parentVc!)
+    NSApp.terminate(self)
   }
   /// Respond to the Close button
   ///
@@ -185,8 +188,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     // diconnect from WAN server
     _wanServer?.disconnect()
     
-    // close this view & controller
-    _delegate?.closeRadioPicker()
+    dismiss(_parentVc!)
   }
   /// Respond to the Select button
   ///
@@ -309,9 +311,6 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     // instantiate a WanServer instance
     _wanServer = WanServer(delegate: self)
     
-    // clear the reply table
-    _delegate?.clearTable()
-
     // connect with pinger to avoid the SmartLink server to disconnect if we take too long (>30s)
     // to select and connect to a radio
     if (_wanServer?.connect(appName: kClientName, platform: kPlatform, token: token, ping: true)) != nil {
