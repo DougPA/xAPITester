@@ -1,10 +1,45 @@
 xLib6000 Change Log
 
+v1.2.4  OPEN for changes
+
+
+
+
+
+v1.2.3
+
+Panadapter.swift - "switch" changed to "if" in accumulate(vita:)
+Waterfall.swift - "switch" changed to "if" in accumulate(vita:)
+Api.swift - in setupCommands(_:) suppressed MTU command for versions prior to 2.3.x
+
+v1.2.2
+
+PanadapterCommands.swift - added bandZoomEnabled & segmentZoomEnabled
+Api.swift - added radioVersionMajor & radioVersionMinor properties
+Panadapter.swift - changed PanadapterFrame accumulate(vita:) to check radio version
+Waterfall.swift - changed WaterfallFrame accumulate(vita:) to check radio version
+
+v1.2.1
+
+Changed version number due to major change in UDP handling
+
+============================================================
+
+v1.1.13
+
+Api.swift - added NSObject to API's inheritance
+Api.swift - added "@objc dynamic" to sharedInstance delaration
+Api.swift - added .setMtu to the Commands enum and to allSecondaryCommands for 2.3.7
+Panadapter.swift - refactored panadapterFrame class and vitaProcessor(_:) method for v2.3.7
+Waterfall.swift - refactored waterfallFrame class and vitaProcessor(_:) method for 2.3.7
+README.MD - added note regarding 2.3.7 requirement
+
 v1.1.12
 
 Api.swift - changed kApiFirmwareSupport to 2.3.7.x
 Panadapter.swift - added band_zoom & segment_zoom tokens and parsing
 Waterfall.swift - added band_zoom & segment_zoom tokens and parsing
+Interlock.swift - added amplifier token and parsing
 
 v1.1.11
 
@@ -112,7 +147,6 @@ Api.swift - added testerModeEnabled property, used in class isStatusForThisClien
 FlexErrors.swift - refactored
 on each object, in the <object>Commands.swift file, simplified names of instance methods (removed the name of the object as part of the method name)
 on each object, in the <object>Commands.swift file, made "create" a class method and "remove" an instance method
-
 
 ============================================================
 
