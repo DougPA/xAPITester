@@ -1,5 +1,11 @@
 xAPITester Change Log
 
+v5.1.9
+
+SplitViewController.swift - added Radio version into Radio object display
+xLib6000.framework - updated to latest version 1.2.4
+recompiled with Xcode 10 beta 3
+
 v5.1.8
 
 ViewController.swift - removed closeRadioPicker(), clearTable() & terminateApp() from RadioPickerDelegate protocol
@@ -30,7 +36,7 @@ converted to Swift 4.2
 Embeds Swift 4.2. version of xLib6000.framework & SwiftyUserDefaults.framework
 ViewController.swift - changes to conform to Swift 4.2
 HelpViewController.swift - changes to conform to Swift 4.2
-SplitViewController - changes to conform to Swift 4.2
+SplitViewController.swift - changes to conform to Swift 4.2
 WANRadioPickerViewController.swift - changes to conform to Swift 4.2
 
 
