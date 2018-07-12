@@ -378,6 +378,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
             }            
           }
         }
+        // Opus Streams
+        for (_, opusStream) in self._api.radio!.opusStreams {
+          self.showInObjectsTable("Opus           \(opusStream.id.hex) stream, rx = \(opusStream.rxEnabled), rx stopped = \(opusStream.rxStopped), tx = \(opusStream.txEnabled)")
+        }
+        
         // IQ Streams without a Panadapter
         for (_, iqStream) in self._api.radio!.iqStreams where iqStream.pan == 0 {
           self.showInObjectsTable("DaxIq          \(iqStream.id.hex) stream,  panadapter = -not assigned-")
@@ -416,20 +421,17 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         for (_, micAudioStream) in self._api.radio!.micAudioStreams {
           self.showInObjectsTable("DaxMicAudio    \(micAudioStream.id.hex) stream")
         }
-        // Opus Streams
-        for (_, opusStream) in self._api.radio!.opusStreams {
-          self.showInObjectsTable("Opus           \(opusStream.id) stream")
-        }
-        // TX Audio Stream
-        for (_, txAudioStream) in self._api.radio!.txAudioStreams {
-          self.showInObjectsTable("DaxTxAudio     \(txAudioStream.id.hex) stream")
-        }
       }
     }
   }
 
+  private func removeAllStreams() {
+    
+    Api.sharedInstance.radio!.opusStreams.removeAll()
+  }
+  
   // ----------------------------------------------------------------------------
-  // MARK: - ApiDelegate methods
+  // MARK: - Api Delegate methods
   
   /// Process a sent message
   ///
@@ -476,6 +478,12 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     case "S":   // Status type
       // format: <apiHandle>|<message>, where <message> is of the form: <msgType> <otherMessageComponents>
       
+      let components = text.split(separator: "|")
+      if components[1].hasPrefix("client") && components[1].contains("disconnected"){
+        
+        removeAllStreams()
+      }
+      
       showInTable(text)
       
     case "V":   // Version Type
@@ -515,7 +523,6 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   public func vitaParser(_ vitaPacket: Vita) {
     
     // unused in xAPITester
-    
   }
   
   // ----------------------------------------------------------------------------

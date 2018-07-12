@@ -1,5 +1,10 @@
 xAPITester Change Log
 
+v5.1.10
+
+SplitViewController.swift - added removeAllStreams() & logic to call it on client disconnect
+SplitViewController.swift - corrected opusStreams display in object table
+
 v5.1.9
 
 SplitViewController.swift - added Radio version into Radio object display
