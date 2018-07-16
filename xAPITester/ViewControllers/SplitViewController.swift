@@ -345,7 +345,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       
       // Radio
       if let radio = Api.sharedInstance.activeRadio {
-        self.showInObjectsTable("Radio          name = \(radio.nickname ?? "")  model = \(radio.model), version = \(radio.firmwareVersion!)")
+        self.showInObjectsTable("Radio          name = \(radio.nickname ?? "")  model = \(radio.model), version = \(radio.firmwareVersion!)" +
+          ", atu = \(Api.sharedInstance.radio!.atuPresent ? "Yes" : "No"), gps = \(Api.sharedInstance.radio!.gpsPresent ? "Yes" : "No")" +
+          ", scu's = \(Api.sharedInstance.radio!.numberOfScus)")
         
         // Panadapters
         for (_, panadapter) in self._api.radio!.panadapters {
