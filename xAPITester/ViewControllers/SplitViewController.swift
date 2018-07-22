@@ -380,6 +380,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
             }            
           }
         }
+        // Tx Audio Streams
+        for (_, txAudioStream) in self._api.radio!.txAudioStreams {
+          self.showInObjectsTable("Tx Audio       \(txAudioStream.id.hex) stream")
+        }
+        
         // Opus Streams
         for (_, opusStream) in self._api.radio!.opusStreams {
           self.showInObjectsTable("Opus           \(opusStream.id.hex) stream, rx = \(opusStream.rxEnabled), rx stopped = \(opusStream.rxStopped), tx = \(opusStream.txEnabled)")

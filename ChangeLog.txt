@@ -1,5 +1,9 @@
 xAPITester Change Log
 
+v5.1.12
+
+SplitViewController.swift - added Tx Audio stream
+
 v5.1.11
 
 SplitViewController.swift - added gps, atu and scu info to Radio line
