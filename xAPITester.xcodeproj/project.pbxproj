@@ -16,7 +16,7 @@
 		9102C2152066C03700F4B655 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 9102C1F12066C03700F4B655 /* README.md */; };
 		9102C2192066C10300F4B655 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9102C2172066C10300F4B655 /* Defaults.plist */; };
 		9102C21C2066C27A00F4B655 /* SwiftyUserDefaults.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */; };
-		9102C21D2066C27A00F4B655 /* SwiftyUserDefaults.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9102C21D2066C27A00F4B655 /* SwiftyUserDefaults.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		913F7EB52066C8BB00F35E9B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 913F7EB42066C8BB00F35E9B /* Assets.xcassets */; };
 		9161C77E20B901A3003A2257 /* Macros.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9161C77D20B901A3003A2257 /* Macros.swift */; };
 		9185B0B920867E3B004D4C40 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B0AB20867E3B004D4C40 /* Keychain.swift */; };
@@ -33,7 +33,7 @@
 		91A2D8DD2069481000676728 /* ChangeLog.txt in Resources */ = {isa = PBXBuildFile; fileRef = 91A2D8DC2069481000676728 /* ChangeLog.txt */; };
 		91B4C08E206D477200897398 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91B4C08D206D477200897398 /* SplitViewController.swift */; };
 		91FDF1C4206BD6FE00C75CE7 /* xLib6000.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91FDF1C3206BD6FE00C75CE7 /* xLib6000.framework */; };
-		91FDF1C5206BD6FE00C75CE7 /* xLib6000.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91FDF1C3206BD6FE00C75CE7 /* xLib6000.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		91FDF1C5206BD6FE00C75CE7 /* xLib6000.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91FDF1C3206BD6FE00C75CE7 /* xLib6000.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -240,7 +240,7 @@
 				TargetAttributes = {
 					9102C1AA2066BE0700F4B655 = {
 						CreatedOnToolsVersion = 9.2;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -434,7 +434,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -443,6 +445,7 @@
 				);
 				INFOPLIST_FILE = xAPITester/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xAPITester;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -455,7 +458,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -464,6 +469,7 @@
 				);
 				INFOPLIST_FILE = xAPITester/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xAPITester;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

@@ -1,5 +1,12 @@
 xAPITester Change Log
 
+v5.1.13
+
+xLib6000.framework - updated to latest version 2.0.2
+WANRadioPickerViewController - added tooltip to radioTableView
+WANRadioPickerViewController - added tooltip to radioTableView
+various - using os_log instaed of delegate based logging
+
 v5.1.12
 
 SplitViewController.swift - added Tx Audio stream

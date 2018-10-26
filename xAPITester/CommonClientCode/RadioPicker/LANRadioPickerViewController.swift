@@ -66,7 +66,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   private let kSetAsDefault                 = "Set as Default"
   private let kClearDefault                 = "Clear Default"
   private let kDefaultFlag                  = "YES"
-  
+
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
   
@@ -238,6 +238,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       // all other fields, set the stringValue of the cell's text field to the appropriate field
       view.textField!.stringValue = _api.availableRadios[row].valueForName(tableColumn!.identifier.rawValue) ?? ""
     }
+    view.toolTip = _api.availableRadios[row].description()
     return view
   }
   /// Tableview selection change delegate method

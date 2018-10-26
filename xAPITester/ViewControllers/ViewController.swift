@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import os.log
 import xLib6000
 import SwiftyUserDefaults
 
@@ -43,6 +44,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   // MARK: - Private properties
   
   private var _api                            = Api.sharedInstance          // Api to the Radio
+  private let _log                            = OSLog(subsystem: "net.k3tzr.xAPITester", category: "ViewController")
   
   @IBOutlet weak internal var _command        : NSTextField!
   @IBOutlet weak internal var _connectButton  : NSButton!
@@ -148,7 +150,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
       _splitViewVC?.view.translatesAutoresizingMaskIntoConstraints = false
       _api.testerDelegate = _splitViewVC
       
-      _macros = Macros(logHandler: _splitViewVC!)
+      _macros = Macros()
     }
   }
   // ----------------------------------------------------------------------------
@@ -279,7 +281,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
         } catch {
           
           // something bad happened!
-          self._splitViewVC?.msg("Error reading file", level: .error, function: #function, file: #file, line: #line)
+          self._splitViewVC?.msg("Error reading file")
         }
       }
     }
@@ -320,7 +322,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
         } catch {
           
           // something bad happened!
-          self._splitViewVC?.msg("Error reading file", level: .error, function: #function, file: #file, line: #line)
+          self._splitViewVC?.msg("Error reading file")
         }
       }
     }
@@ -374,7 +376,9 @@ public final class ViewController             : NSViewController, RadioPickerDel
         
         // write it to the File
         if let error = savePanel.url!.writeArray( self._splitViewVC!._filteredTextArray ) {
-          self._api.log.msg(error, level: .error, function: #function, file: #file, line: #line)
+//          self._api.log.msg(error, level: .error, function: #function, file: #file, line: #line)
+
+          os_log("%{public}@", log: self._log, type: .error, error)
         }
       }
     }
@@ -398,7 +402,9 @@ public final class ViewController             : NSViewController, RadioPickerDel
         
         // write it to the File
         if let error = savePanel.url!.writeArray( self._commandsArray ) {
-          self._api.log.msg(error, level: .error, function: #function, file: #file, line: #line)
+//          self._api.log.msg(error, level: .error, function: #function, file: #file, line: #line)
+
+          os_log("%{public}@", log: self._log, type: .error, error)
         }
       }
     }
@@ -435,7 +441,9 @@ public final class ViewController             : NSViewController, RadioPickerDel
         } else {
           
           // NO, log it
-          _api.log.msg("Condition false : \(evaluatedCommand.condition)", level: .error, function: #function, file: #file, line: #line)
+//          _api.log.msg("Condition false : \(evaluatedCommand.condition)", level: .error, function: #function, file: #file, line: #line)
+
+          os_log("Condition false: %{public}@", log: self._log, type: .error, evaluatedCommand.condition)
         }
       
       } else {
@@ -573,13 +581,15 @@ public final class ViewController             : NSViewController, RadioPickerDel
         Defaults[.defaultsDictionary] = foundRadioParameters.dictFromParams()
         
         // log it
-        _api.log.msg("\(foundRadioParameters.nickname ?? "") @ \(foundRadioParameters.ipAddress)", level: .info, function: #function, file: #file, line: #line)
+//        _api.log.msg("\(foundRadioParameters.nickname ?? "") @ \(foundRadioParameters.ipAddress)", level: .info, function: #function, file: #file, line: #line)
+
+        os_log("%{public}@ @ %{public}@", log: self._log, type: .error, foundRadioParameters.nickname ?? "", foundRadioParameters.ipAddress)
       }
       if found {
         
         // can the default radio be opened?
         if !openRadio(defaultRadioParameters) {
-          _splitViewVC?.msg("Error opening default radio, \(defaultRadioParameters.name ?? "")", level: .warning, function: #function, file: #file, line: #line)
+          _splitViewVC?.msg("Error opening default radio, \(defaultRadioParameters.name ?? "")")
           
           // NO, open the Radio Picker
           openRadioPicker( self)
@@ -693,7 +703,9 @@ public final class ViewController             : NSViewController, RadioPickerDel
       _versions = versionInfo(framework: Api.kBundleIdentifier)
       
       // log them
-      Log.sharedInstance.msg("\(kClientName) v\(_versions!.app), \(Api.kId) v\(_versions!.api)", level: .info, function: #function, file: #file, line: #line)
+//      Log.sharedInstance.msg("\(kClientName) v\(_versions!.app), \(Api.kId) v\(_versions!.api)", level: .info, function: #function, file: #file, line: #line)
+
+      os_log("%{public}@ v%{public}@, %{public}@, v%{public}@", log: self._log, type: .error, kClientName, _versions!.app, Api.kId, _versions!.api)
     }
 
     // format and set the window title

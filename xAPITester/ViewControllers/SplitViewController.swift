@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import os.log
 import xLib6000
 import SwiftyUserDefaults
 
@@ -14,7 +15,7 @@ import SwiftyUserDefaults
 // MARK: - SplitViewController Class implementation
 // ------------------------------------------------------------------------------
 
-class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelegate, NSTableViewDataSource,  LogHandler {
+class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelegate, NSTableViewDataSource {
   
   static let kOtherColor                      = NSColor(red: 1.0, green: 1.0, blue: 0.0, alpha: 0.2)
   static let kRadioColor                      = NSColor(red: 1.0, green: 0.0, blue: 1.0, alpha: 0.2)
@@ -106,6 +107,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   // MARK: - Private properties
   
   private var _api                            = Api.sharedInstance          // Api to the Radio
+  private let _log                            = OSLog(subsystem: "net.k3tzr.xAPITester", category: "SplitVC")
   internal weak var _parent                   : ViewController?
   internal let _objectQ                       = DispatchQueue(label: kClientName + ".objectQ", attributes: [.concurrent])
   
@@ -132,8 +134,8 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     _api.testerDelegate = self
     
-    // give the Log object (in the API) access to our logger
-    Log.sharedInstance.delegate = self
+//    // give the Log object (in the API) access to our logger
+//    Log.sharedInstance.delegate = self
     
     // setup the font
     _font = NSFont(name: Defaults[.fontName], size: CGFloat(Defaults[.fontSize] ))!
@@ -287,7 +289,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     // ignore incorrectly formatted replies
     if components.count < 2 {
       
-      _api.log.msg("Incomplete reply, c\(commandSuffix)", level: .error, function: #function, file: #file, line: #line)
+//      _api.log.msg("Incomplete reply, c\(commandSuffix)", level: .error, function: #function, file: #file, line: #line)
+
+      os_log("Incomplete reply, c%{public}@", log: self._log, type: .error, commandSuffix)
       return
     }
     
@@ -497,7 +501,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       showInTable(text)
       
     default:    // Unknown Type
-      _api.log.msg("Unexpected Message Type from radio, \(text[text.startIndex])", level: .error, function: #function, file: #file, line: #line)
+//      _api.log.msg("Unexpected Message Type from radio, \(text[text.startIndex])", level: .error, function: #function, file: #file, line: #line)
+
+      os_log("Unexpected Message Type from radio, %{public}@", log: self._log, type: .error, text[text.startIndex] as! CVarArg)
     }
   }
   /// Add a Reply Handler for a specific Sequence/Command
@@ -544,8 +550,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   ///   - file:       the name of the file containing the function
   ///   - line:       the line number creating the msg
   ///
-  public func msg(_ msg: String, level: MessageLevel, function: StaticString, file: StaticString, line: Int ) -> Void {
-    
+//  public func msg(_ msg: String, level: OSType, function: StaticString, file: StaticString, line: Int ) -> Void {
+  public func msg(_ msg: String) -> Void {
+
     // Show API log messages
     showInTable("----- \(msg) -----")
   }
