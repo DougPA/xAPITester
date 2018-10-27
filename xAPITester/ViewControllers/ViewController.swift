@@ -578,18 +578,18 @@ public final class ViewController             : NSViewController, RadioPickerDel
         
         // YES, Save it in case something changed
         found = true
-        Defaults[.defaultsDictionary] = foundRadioParameters.dictFromParams()
+        Defaults[.defaultsDictionary] = foundRadioParameters.dict
         
         // log it
 //        _api.log.msg("\(foundRadioParameters.nickname ?? "") @ \(foundRadioParameters.ipAddress)", level: .info, function: #function, file: #file, line: #line)
 
-        os_log("%{public}@ @ %{public}@", log: self._log, type: .error, foundRadioParameters.nickname ?? "", foundRadioParameters.ipAddress)
+        os_log("%{public}@ @ %{public}@", log: self._log, type: .error, foundRadioParameters.nickname, foundRadioParameters.ipAddress)
       }
       if found {
         
         // can the default radio be opened?
         if !openRadio(defaultRadioParameters) {
-          _splitViewVC?.msg("Error opening default radio, \(defaultRadioParameters.name ?? "")")
+          _splitViewVC?.msg("Error opening default radio, \(defaultRadioParameters.name)")
           
           // NO, open the Radio Picker
           openRadioPicker( self)
@@ -709,7 +709,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     }
 
     // format and set the window title
-    let title = (_api.activeRadio == nil ? "" : "- Connected to \(_api.activeRadio!.nickname ?? "") @ \(_api.activeRadio!.ipAddress)")
+    let title = (_api.activeRadio == nil ? "" : "- Connected to \(_api.activeRadio!.nickname) @ \(_api.activeRadio!.ipAddress)")
     DispatchQueue.main.async {
       self.view.window?.title = "\(kClientName) v\(self._versions!.app), \(Api.kId) v\(self._versions!.api) \(title)"
     }

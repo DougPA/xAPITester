@@ -110,11 +110,11 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     // Clear / Set the Default
     if sender.title == kClearDefault {
       
-      Defaults[.defaultsDictionary] = RadioParameters().dictFromParams()
+      Defaults[.defaultsDictionary] = RadioParameters().dict
       
     } else {
       
-      Defaults[.defaultsDictionary] = _api.availableRadios[selectedRow].dictFromParams()
+      Defaults[.defaultsDictionary] = _api.availableRadios[selectedRow].dict
     }
     
     // to display the Default status
@@ -238,7 +238,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       // all other fields, set the stringValue of the cell's text field to the appropriate field
       view.textField!.stringValue = _api.availableRadios[row].valueForName(tableColumn!.identifier.rawValue) ?? ""
     }
-    view.toolTip = _api.availableRadios[row].description()
+    view.toolTip = _api.availableRadios[row].description
     return view
   }
   /// Tableview selection change delegate method
