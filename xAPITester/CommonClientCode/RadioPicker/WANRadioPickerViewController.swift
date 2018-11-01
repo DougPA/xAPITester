@@ -534,7 +534,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
           // log the event
 //          self._api.log.msg("Open remote radio \(self._selectedRadio?.name ?? "") not successful", level: .error, function: #function, file: #file, line: #line)
 
-          os_log("Open remote radio %{public}@ not successful", log: self._log, type: .error, self._selectedRadio?.name ?? "")
+          os_log("Open remote radio %{public}@ not successful", log: self._log, type: .error, self._selectedRadio?.nickname ?? "")
         }
         
       } else {
@@ -669,7 +669,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     } else {
       
       // NO, all other fields, set the stringValue of the cell's text field to the appropriate field
-      view.textField!.stringValue = _availableRemoteRadios[row].valueForName(tableColumn!.identifier.rawValue) ?? ""
+      view.textField!.stringValue = _availableRemoteRadios[row].valueForName(tableColumn!.identifier.rawValue)
     }
     view.toolTip = _api.availableRadios[row].description
     return view

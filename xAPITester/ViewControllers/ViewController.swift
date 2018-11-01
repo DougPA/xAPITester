@@ -568,7 +568,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     let defaultRadioParameters = RadioParameters( Defaults[.defaultsDictionary] )
     
     // is it valid?
-    if defaultRadioParameters.ipAddress != "" && defaultRadioParameters.port != 0 {
+    if defaultRadioParameters.publicIp != "" && defaultRadioParameters.port != 0 {
       
       // YES, allow time to hear the UDP broadcasts
       sleep(kDelayForAvailableRadios)
@@ -583,13 +583,13 @@ public final class ViewController             : NSViewController, RadioPickerDel
         // log it
 //        _api.log.msg("\(foundRadioParameters.nickname ?? "") @ \(foundRadioParameters.ipAddress)", level: .info, function: #function, file: #file, line: #line)
 
-        os_log("%{public}@ @ %{public}@", log: self._log, type: .error, foundRadioParameters.nickname, foundRadioParameters.ipAddress)
+        os_log("%{public}@ @ %{public}@", log: self._log, type: .error, foundRadioParameters.nickname, foundRadioParameters.publicIp)
       }
       if found {
         
         // can the default radio be opened?
         if !openRadio(defaultRadioParameters) {
-          _splitViewVC?.msg("Error opening default radio, \(defaultRadioParameters.name)")
+          _splitViewVC?.msg("Error opening default radio, \(defaultRadioParameters.nickname)")
           
           // NO, open the Radio Picker
           openRadioPicker( self)
@@ -703,13 +703,11 @@ public final class ViewController             : NSViewController, RadioPickerDel
       _versions = versionInfo(framework: Api.kBundleIdentifier)
       
       // log them
-//      Log.sharedInstance.msg("\(kClientName) v\(_versions!.app), \(Api.kId) v\(_versions!.api)", level: .info, function: #function, file: #file, line: #line)
-
       os_log("%{public}@ v%{public}@, %{public}@, v%{public}@", log: self._log, type: .error, kClientName, _versions!.app, Api.kId, _versions!.api)
     }
 
     // format and set the window title
-    let title = (_api.activeRadio == nil ? "" : "- Connected to \(_api.activeRadio!.nickname) @ \(_api.activeRadio!.ipAddress)")
+    let title = (_api.activeRadio == nil ? "" : "- Connected to \(_api.activeRadio!.nickname) @ \(_api.activeRadio!.publicIp)")
     DispatchQueue.main.async {
       self.view.window?.title = "\(kClientName) v\(self._versions!.app), \(Api.kId) v\(self._versions!.api) \(title)"
     }

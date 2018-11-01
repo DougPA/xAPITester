@@ -236,7 +236,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     } else {
       
       // all other fields, set the stringValue of the cell's text field to the appropriate field
-      view.textField!.stringValue = _api.availableRadios[row].valueForName(tableColumn!.identifier.rawValue) ?? ""
+      view.textField!.stringValue = _api.availableRadios[row].valueForName(tableColumn!.identifier.rawValue)
     }
     view.toolTip = _api.availableRadios[row].description
     return view

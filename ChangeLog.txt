@@ -1,5 +1,11 @@
 xAPITester Change Log
 
+v5.1.14
+
+ViewController.swift - incorporation of changes in xLib6000 to RadioParameters
+LANRadioPickerViewController.swift - incorporation of changes in xLib6000 to RadioParameters
+WANRadioPickerViewController.swift - incorporation of changes in xLib6000 to RadioParameters
+
 v5.1.13
 
 xLib6000.framework - updated to latest version 2.0.2
