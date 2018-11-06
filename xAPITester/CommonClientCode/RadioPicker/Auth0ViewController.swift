@@ -58,7 +58,7 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   @IBOutlet private weak var _customView    : NSView!
   
   private let _api                          = Api.sharedInstance
-  private let _log                          = OSLog(subsystem: "net.k3tzr.xAPITester", category: "Auth0VC")
+  private let _log                          = OSLog(subsystem: Api.kDomainId + "." + kClientName, category: "Auth0VC")
   private var myWebView                     : WKWebView!
   private let myURL                         = URL(string: smartLinkURL)!
   private let kAutosaveName                 = NSWindow.FrameAutosaveName("AuthViewWindow")
@@ -116,8 +116,6 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
     // load it
     if myWebView.load(request) == nil {
       
-//      _api.log.msg("Auth0 web view failed to load", level: .error, function: #function, file: #file, line: #line)
-
       os_log("Auth0 web view failed to load", log: _log, type: .error)
     }
   }
@@ -160,8 +158,6 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   ///
   func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
     
-//    _api.log.msg("Could not navigate to Auth0 page: \(error.localizedDescription)", level: .error, function: #function, file: #file, line: #line)
-
     os_log("Could not navigate to Auth0 page: %{public}@", log: _log, type: .error, error.localizedDescription)
   }
   /// Decides whether to allow or cancel a navigation

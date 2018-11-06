@@ -49,16 +49,16 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   @IBOutlet private weak var _loginButton   : NSButton!
   
   private var _api                          = Api.sharedInstance
-  private let _log                          = OSLog(subsystem: "net.k3tzr.xAPITester", category: "WanRadioPickerVC")
+  private let _log                          = OSLog(subsystem: Api.kDomainId + "." + kClientName, category: "WanRadioPickerVC")
   private var _auth0ViewController          : Auth0ViewController?
   private var _availableRemoteRadios        = [RadioParameters]()           // Radios discovered
   private weak var _delegate                : RadioPickerDelegate? {
     return representedObject as? RadioPickerDelegate
   }
   private var _selectedRadio                : RadioParameters?              // Radio in selected row
-  private var _parentVc                     : NSViewController?
   private var _wanServer                    : WanServer?
-  
+  private var _parentVc                     : NSViewController!
+
   // constants
   private let kApplicationJson              = "application/json"
   private let kAuth0Delegation              = "https://frtest.auth0.com/delegation"
@@ -93,8 +93,6 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    _parentVc = parent
-
     var idToken = ""
     var loggedIn = false
     
@@ -105,69 +103,68 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     _loginButton.title = kLoginTitle
     _nameLabel.stringValue = ""
     _callLabel.stringValue = ""
-    
+
+    // get a reference to the Tab view controller (the "presented" vc)
+    _parentVc = parent!
+
     // TODO: put this on a background queue??
     // check if we have logged in into Auth0 and try to get a token using the refresh token from the Keychain
 
-    // 1. is there a saved token which has not expired?
+    // is there a saved Auth0 token which has not expired?
     if let previousIdToken = _delegate?.token, previousIdToken.isValidAtDate( Date()) {
-      // YES, save it
-      idToken = previousIdToken.value
-      loggedIn = true
-    }
-    // 2 if not check if we have a refresh token for the last email (user defaults) in the keychain
-    // if not --> Auth0 login window
-    // if yes --> try to get id token --> if it fails --> Auth0 login window
-    
-    // if step 1 failed, is there a saved email?
-    if !loggedIn, Defaults[.auth0Email] != "" {
 
-      // YES, try to get a Refresh Token from the Keychain
-      if let refreshToken = Keychain.get(kService, account: Defaults[.auth0Email]) {
+      // YES, we are already logged into SmartLink, use the saved token
+      loggedIn = true
+      idToken = previousIdToken.value
+    }
+    
+    // if not logged in at this point, is there a saved email to use for obtaining a refresh token?
+    if !loggedIn, Defaults[.smartLinkAuth0Email] != "" {
+
+      // YES, try to get a Refresh Token from our Keychain
+      if let refreshToken = Keychain.get(kService, account: Defaults[.smartLinkAuth0Email]) {
         
         // can we get an Id Token from the Refresh Token?
         if let refreshedIdToken = getIdTokenFromRefreshToken(refreshToken) {
           
-          // YES, save the token
-          idToken = refreshedIdToken
+          // YES, now we are logged into SmartLink, use the saved token
           loggedIn = true
+          idToken = refreshedIdToken
 
         } else {
           
-          // NO, delete the refresh token and email (no longer valid)
-          Defaults[.auth0Email] = ""
-          Keychain.delete(kService, account: Defaults[.auth0Email])
+          // NO, the refresh token and email are no longer valid, delete them
+          Defaults[.smartLinkAuth0Email] = ""
+          Keychain.delete(kService, account: Defaults[.smartLinkAuth0Email])
         }
       }
     }
-    // exit if not logged in
+    // exit if we are not logged in at this point (User will need to press the Log In button)
     guard loggedIn else { return }
     
-    // we're logged in, get the picture
+    // we're logged in, get the User image (gravatar)
     do {
       
       // try to get the JSON Web Token
       let jwt = try decode(jwt: idToken)
       
-      // get the Log On picture (if any)
+      // get the Log On image (if any) from the token
       let claim = jwt.claim(name: kClaimPicture)
       if let gravatar = claim.string, let url = URL(string: gravatar) {
         
-        setGravatarFrom(url: url)
+        setLogOnImage(from: url)
       }
       
     } catch let error as NSError {
       
       // log the error
-//      _api.log.msg("Error decoding JWT token: \(error.localizedDescription)", level: .error, function: #function, file: #file, line: #line)
-
       os_log("Error decoding JWT token: %{public}@", log: _log, type: .error, error.localizedDescription)
     }
     
-    // connect to SmartLink server
+    // connect to the SmartLink server
     connectWanServer(token: idToken)
     
-    // toggle the button title
+    // change the button title
     _loginButton.title = kLogoutTitle
   }
   
@@ -176,31 +173,32 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   
   /// Respond to the Close menu item
   ///
-  /// - Parameter sender:     the button
+  /// - Parameter sender:         the button
   ///
   @IBAction func terminate(_ sender: AnyObject) {
     
-    dismiss(_parentVc!)
+    _parentVc.dismiss(sender)
     NSApp.terminate(self)
   }
   /// Respond to the Close button
   ///
-  /// - Parameter sender: the button
+  /// - Parameter sender:         the button
   ///
   @IBAction func closeButton(_ sender: AnyObject) {
     
     // diconnect from WAN server
     _wanServer?.disconnect()
     
-    dismiss(_parentVc!)
+    _parentVc.dismiss(sender)
   }
   /// Respond to the Select button
   ///
-  /// - Parameter _: the button
+  /// - Parameter:                the button
   ///
   @IBAction func selectButton( _: AnyObject ) {
     
-    openClose(lowBW: Defaults[.useLowBw])
+    // attempt to Open / Close the selected Radio
+    openClose(lowBW: Defaults[.lowBandwidthEnabled])
   }
   /// Respond to the Login button
   ///
@@ -208,6 +206,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   @IBAction func loginButton(_ sender: NSButton) {
     
+    // Log IN / Out of SmartLink
     logInOut()
   }
   
@@ -220,15 +219,34 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   private func openClose(lowBW: Bool = false) {
     
+    // Connect or Disconnect?
     if _selectButton.title == kConnectTitle {
-      // RadioPicker sheet will close & Radio will be opened
       
+      // CONNECT, RadioPicker sheet will close & Radio will be opened
+      
+      // is the selected radio in use, but not by this app?
+      if _selectedRadio!.status == "In_Use" && _api.activeRadio == nil {
+        
+        // YES, ask the user to confirm closing it
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "Disconnect Radio?"
+        alert.informativeText = "Are you sure you want to disconnect the current radio session?"
+        alert.addButton(withTitle: "Yes")
+        alert.addButton(withTitle: "No")
+        
+        // do nothing if closing is not confirmed by the user
+        if alert.runModal() == NSApplication.ModalResponse.alertSecondButtonReturn { return }
+      }
       _selectedRadio?.lowBandwidthConnect = lowBW
       
       getAuthentificationForRadio(_selectedRadio)
 
+      _parentVc.dismiss(self)
+
     } else {
-      // RadioPicker sheet will remain open & Radio will be disconnected
+      
+      // DISCONNECT, RadioPicker sheet will remain open & Radio will be disconnected
       
       // tell the delegate to disconnect
       _delegate?.closeRadio()
@@ -247,9 +265,11 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       
       // is a "Hole Punch" required?
       if radio.requiresHolePunch {
+        
         // TODO: handle hole punch port
 
       } else {
+        
         // NO
         radio.negotiatedHolePunchPort = 0
       }
@@ -267,8 +287,9 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       
       // Login to auth0
       // get an instance of Auth0 controller
-      _auth0ViewController = storyboard!.instantiateController(withIdentifier: "Auth0Login") as? Auth0ViewController
-      
+      _auth0ViewController = storyboard!.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Auth0Login")) as? Auth0ViewController
+//      _auth0ViewController!.view.translatesAutoresizingMaskIntoConstraints = false
+
       // make this View Controller the delegate of the Auth0 controller
       _auth0ViewController!.representedObject = self
       
@@ -279,10 +300,10 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       // logout from the actual auth0 account
       // remove refresh token from keychain and email from defaults
       
-      if Defaults[.auth0Email] != "" {
+      if Defaults[.smartLinkAuth0Email] != "" {
         
-        Keychain.delete(kService, account: Defaults[.auth0Email])
-        Defaults[.auth0Email] = ""
+        Keychain.delete(kService, account: Defaults[.smartLinkAuth0Email])
+        Defaults[.smartLinkAuth0Email] = ""
       }
       
       // clear tableview
@@ -305,7 +326,6 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       self._radioTableView.reloadData()
     }
   }
-  
   /// Connect to the Wan Server
   ///
   /// - Parameter token:                token
@@ -317,20 +337,10 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     
     // connect with pinger to avoid the SmartLink server to disconnect if we take too long (>30s)
     // to select and connect to a radio
-    if (_wanServer?.connect(appName: kClientName, platform: kPlatform, token: token, ping: true)) != nil {
-      
-      // log success
-//      _api.log.msg("Connected to SmartLink Server", level: .info, function: #function, file: #file, line: #line)
-
-      os_log("Connected to SmartLink Server", log: _log, type: .info)
-
-    } else {
+    if !_wanServer!.connect(appName: kClientName, platform: kPlatform, token: token, ping: true) {
       
       // log the error
-//      _api.log.msg("Error connecting to SmartLink Server", level: .warning, function: #function, file: #file, line: #line)
-
-      os_log("Error connecting to SmartLink Server", log: _log, type: .error)
-      
+      os_log("Error connecting to SmartLink Server", log: _log, type: .default)
     }
   }
   /// Given a Refresh Token attempt to get a Token
@@ -360,9 +370,8 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     guard let data = responseData, error == nil else {
       
       // log the error
-//      _api.log.msg("Error retrieving id token token: \(error?.localizedDescription ?? "")", level: .error, function: #function, file: #file, line: #line)
-
       os_log("Error retrieving id token token: %{public}@", log: _log, type: .error, error?.localizedDescription ?? "")
+
       return nil
     }
     
@@ -375,17 +384,15 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
         // validate id token; see https://auth0.com/docs/tokens/id-token#validate-an-id-token
         if !isJWTValid(jwt) {
           // log the error
-//          _api.log.msg("JWT token not valid", level: .error, function: #function, file: #file, line: #line)
-
           os_log("JWT token not valid", log: _log, type: .error)
+          
           return nil
         }
         
       } catch let error as NSError {
         // log the error
-//        _api.log.msg("Error decoding JWT token: \(error.localizedDescription)", level: .error, function: #function, file: #file, line: #line)
-
         os_log("Error decoding JWT token: %{public}@", log: _log, type: .error, error.localizedDescription)
+        
         return nil
       }
       
@@ -456,7 +463,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   /// - Parameter url:                  the URL of the image
   ///
-  private func setGravatarFrom(url: URL) {
+  private func setLogOnImage(from url: URL) {
     
     // get the image
     let image = NSImage(contentsOf: url)
@@ -532,17 +539,13 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
         if !(self._delegate?.openRadio(self._selectedRadio, isWan: true, wanHandle: handle) ?? false ) {
 
           // log the event
-//          self._api.log.msg("Open remote radio \(self._selectedRadio?.name ?? "") not successful", level: .error, function: #function, file: #file, line: #line)
-
-          os_log("Open remote radio %{public}@ not successful", log: self._log, type: .error, self._selectedRadio?.nickname ?? "")
+          os_log("Open remote radio FAILED: %{public}@ @ %{public}@", log: self._log, type: .error, self._selectedRadio!.nickname, self._selectedRadio!.publicIp)
         }
         
       } else {
         
         // log the error
-//        self._api.log.msg("Unexpected serial number mismatch in wanRadioConnectReady()", level: .error, function: #function, file: #file, line: #line)
-
-        os_log("Unexpected serial number mismatch in wanRadioConnectReady()", log: self._log, type: .error)
+        os_log("Unexpected serial number mismatch in wanRadioConnectReady(), %{public}@ vs %{public}@", log: self._log, type: .error, self._selectedRadio!.serialNumber, serial)
       }
     }
   }
@@ -580,9 +583,8 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       // validate id token; see https://auth0.com/docs/tokens/id-token#validate-an-id-token
       if !isJWTValid(jwt) {
         
-//        _api.log.msg("JWT token not valid", level: .error, function: #function, file: #file, line: #line)
+        os_log("JWT token not valid", log: _log, type: .error)
 
-        os_log("JWT token not valid", log: self._log, type: .error)
         return
       }
       // save the Log On email (if any)
@@ -590,7 +592,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       if let email = claim.string {
         
         // YES, save in user defaults
-        Defaults[.auth0Email] = email
+        Defaults[.smartLinkAuth0Email] = email
         
         // save refresh token in keychain
         Keychain.set(kService, account: email, data: refreshToken)
@@ -600,7 +602,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       claim = jwt.claim(name: kClaimPicture)
       if let gravatar = claim.string, let url = URL(string: gravatar) {
         
-        setGravatarFrom(url: url)
+        setLogOnImage(from: url)
       }
       // get the expiry date (if any)
       if let expiresAt = jwt.expiresAt {
@@ -610,9 +612,8 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     } catch let error as NSError {
       
       // log the error & exit
-//      _api.log.msg("Error decoding JWT token: \(error.localizedDescription)", level: .error, function: #function, file: #file, line: #line)
+      os_log("Error decoding JWT token: %{print}@", log: _log, type: .error, error.localizedDescription)
 
-      os_log("Error decoding JWT token: %{public}@", log: self._log, type: .error, error.localizedDescription)
       return
     }
     
@@ -671,7 +672,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       // NO, all other fields, set the stringValue of the cell's text field to the appropriate field
       view.textField!.stringValue = _availableRemoteRadios[row].valueForName(tableColumn!.identifier.rawValue)
     }
-    view.toolTip = _api.availableRadios[row].description
+    view.toolTip = _availableRemoteRadios[row].description
     return view
   }
   /// Tableview selection change delegate method

@@ -1,5 +1,12 @@
 xAPITester Change Log
 
+v5.1.15
+
+various - incorporate latest WANRadioPickerViewController, LANRadioPickerViewController & Auth0ViewController
+AppExtensions.swift - incorporate RadioParameters changes
+Main.storyboard - update Picker sheets
+ViewController.swift - incorporate RadioParameters changes
+
 v5.1.14
 
 ViewController.swift - incorporation of changes in xLib6000 to RadioParameters

@@ -21,6 +21,10 @@ import SwiftyUserDefaults
 
 protocol LANRadioPickerDelegate: class {
   
+  /// Close this sheet
+  ///
+  func closeRadioPicker()
+  
   /// Open the specified Radio
   ///
   /// - Parameters:
@@ -34,6 +38,14 @@ protocol LANRadioPickerDelegate: class {
   /// Close the active Radio
   ///
   func closeRadio()
+
+  /// Clear the reply table
+  ///
+  func clearTable()
+  
+  /// Close the application
+  ///
+  func terminateApp()
 }
 
 // --------------------------------------------------------------------------------
@@ -54,7 +66,8 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   
   private var _api                          = Api.sharedInstance
   private var _selectedRadio                : RadioParameters?            // Radio in selected row
-  private var _parentVc                     : NSViewController?
+  private var _parentVc                     : NSViewController!
+  
   private weak var _delegate                : RadioPickerDelegate? {
     return representedObject as? RadioPickerDelegate
   }
@@ -66,7 +79,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   private let kSetAsDefault                 = "Set as Default"
   private let kClearDefault                 = "Clear Default"
   private let kDefaultFlag                  = "YES"
-
+  
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
   
@@ -76,16 +89,17 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     
     super.viewDidLoad()
 
-    _parentVc = parent
-    
     // allow the User to double-click the desired Radio
     _radioTableView.doubleAction = #selector(LANRadioPickerViewController.selectButton(_:))
     
     _selectButton.title = kConnectTitle
 
+    // get a reference to the Tab view controller (the "presented" vc)
+    _parentVc = parent! as! NSTabViewController
+    
     addNotifications()
   }
-  
+
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
@@ -95,7 +109,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   @IBAction func terminate(_ sender: AnyObject) {
     
-    dismiss(_parentVc!)
+    _parentVc.dismiss(sender)
     NSApp.terminate(self)
   }
   /// Respond to the Default button
@@ -110,11 +124,11 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     // Clear / Set the Default
     if sender.title == kClearDefault {
       
-      Defaults[.defaultsDictionary] = RadioParameters().dict
+      Defaults[.defaultRadio] = RadioParameters().dict
       
     } else {
       
-      Defaults[.defaultsDictionary] = _api.availableRadios[selectedRow].dict
+      Defaults[.defaultRadio] = _api.availableRadios[selectedRow].dict
     }
     
     // to display the Default status
@@ -131,7 +145,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   @IBAction func closeButton(_ sender: AnyObject) {
 
     // close this view & controller
-    dismiss(_parentVc!)
+    _parentVc.dismiss(sender)
   }
   /// Respond to the Select button
   ///
@@ -160,11 +174,29 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   private func openClose() {
     
     if _selectButton.title == kConnectTitle {
+      
+      // if the selected radio in use?
+      if _selectedRadio!.status == "In_Use" && _api.activeRadio == nil {
+
+        // YES, ask the user to confirm closing it
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "Disconnect Radio?"
+        alert.informativeText = "Are you sure you want to disconnect the current radio session?"
+        alert.addButton(withTitle: "Yes")   // 1000
+        alert.addButton(withTitle: "No")    // 1001
+
+        // ignore if not confirmed by the user
+        if alert.runModal() == NSApplication.ModalResponse.alertSecondButtonReturn { return }
+      }
+
       // RadioPicker sheet will close & Radio will be opened
       
       // tell the delegate to connect to the selected Radio
       let _ = _delegate?.openRadio(_selectedRadio, isWan: false, wanHandle: "")
 
+     _parentVc.dismiss((self))
+      
     } else {
       // RadioPicker sheet will remain open & Radio will be disconnected
       
@@ -182,7 +214,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   private func addNotifications() {
     
     // Available Radios changed
-    NC.makeObserver(self, with: #selector(radiosAvailable(_:)), of: .radiosAvailable, object: nil)
+    NC.makeObserver(self, with: #selector(radiosAvailable(_:)), of: .radiosAvailable)
   }
   /// Process .radiosAvailable Notification
   ///
@@ -224,22 +256,34 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   func tableView( _ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
     
     // get a view for the cell
-    let view = tableView.makeView(withIdentifier: tableColumn!.identifier, owner:self) as! NSTableCellView
+    let cellView = tableView.makeView(withIdentifier: tableColumn!.identifier, owner:self) as! NSTableCellView
     
-    // what field?
+    // is this the default row?
+    let isDefaultRow = RadioParameters( Defaults[.defaultRadio] ) == _api.availableRadios[row]
+    
+    // default field?
     if tableColumn!.identifier.rawValue == kColumnIdentifierDefaultRadio {
       
-      // is this row the default?
-      let defaultRadio = RadioParameters( Defaults[.defaultsDictionary] )
-      view.textField!.stringValue = (defaultRadio == _api.availableRadios[row] ? kDefaultFlag : "")
+      // YES
+      cellView.textField!.stringValue = (isDefaultRow ? kDefaultFlag : "")
       
     } else {
       
-      // all other fields, set the stringValue of the cell's text field to the appropriate field
-      view.textField!.stringValue = _api.availableRadios[row].valueForName(tableColumn!.identifier.rawValue)
+      // NO, all other fields, set the stringValue of the cell's text field to the appropriate field
+      cellView.textField!.stringValue = _api.availableRadios[row].valueForName(tableColumn!.identifier.rawValue)
     }
-    view.toolTip = _api.availableRadios[row].description
-    return view
+    
+    cellView.wantsLayer = true
+    // color the default row
+    if isDefaultRow {
+      cellView.layer!.backgroundColor = NSColor(red: 0.0, green: 0.5, blue: 0.0, alpha: 0.4).cgColor
+    } else {
+      cellView.layer!.backgroundColor = NSColor.clear.cgColor
+    }
+    
+    // make the discovery fields a tooltip
+    cellView.toolTip = _api.availableRadios[row].description
+    return cellView
   }
   /// Tableview selection change delegate method
   ///
@@ -257,14 +301,14 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       _selectedRadio = _api.availableRadios[_radioTableView.selectedRow]
       
       // set "default button" title appropriately
-      let defaultRadio = RadioParameters( Defaults[.defaultsDictionary] )
-      _defaultButton.title = (defaultRadio == _api.availableRadios[_radioTableView.selectedRow] ? kClearDefault : kSetAsDefault)
+      let defaultRadio = RadioParameters( Defaults[.defaultRadio] )
       
       // set the "select button" title appropriately
       var isActive = false
       if let activeRadio = _api.activeRadio {
         isActive = ( activeRadio == _api.availableRadios[_radioTableView.selectedRow] )
       }
+      _defaultButton.title = (defaultRadio == _api.availableRadios[_radioTableView.selectedRow] ? kClearDefault : kSetAsDefault)
       _selectButton.title = (isActive ? kDisconnectTitle : kConnectTitle)
       
     } else {

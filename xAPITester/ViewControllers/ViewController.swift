@@ -565,7 +565,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     var found = false
     
     // get the default Radio
-    let defaultRadioParameters = RadioParameters( Defaults[.defaultsDictionary] )
+    let defaultRadioParameters = RadioParameters( Defaults[.defaultRadio] )
     
     // is it valid?
     if defaultRadioParameters.publicIp != "" && defaultRadioParameters.port != 0 {
@@ -578,7 +578,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
         
         // YES, Save it in case something changed
         found = true
-        Defaults[.defaultsDictionary] = foundRadioParameters.dict
+        Defaults[.defaultRadio] = foundRadioParameters.dict
         
         // log it
 //        _api.log.msg("\(foundRadioParameters.nickname ?? "") @ \(foundRadioParameters.ipAddress)", level: .info, function: #function, file: #file, line: #line)
