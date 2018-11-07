@@ -478,7 +478,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func terminate(_ sender: AnyObject) {
     
     // disconnect the active radio
-    _api.disconnect()
+    _api.shutdown()
     
     _sendButton.isEnabled = false
     _connectButton.title = kConnect.rawValue
@@ -684,7 +684,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   func closeRadio() {
     
     // disconnect the active radio
-    _api.disconnect()
+    _api.shutdown()
     
     _sendButton.isEnabled = false
     _connectButton.title = kConnect.rawValue

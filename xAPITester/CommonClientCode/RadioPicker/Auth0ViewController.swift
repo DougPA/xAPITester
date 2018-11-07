@@ -61,7 +61,7 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   private let _log                          = OSLog(subsystem: Api.kDomainId + "." + kClientName, category: "Auth0VC")
   private var myWebView                     : WKWebView!
   private let myURL                         = URL(string: smartLinkURL)!
-  private let kAutosaveName                 = NSWindow.FrameAutosaveName("AuthViewWindow")
+  private let kAutosaveName                 = "AuthViewWindow"
   private var _delegate                     : Auth0ControllerDelegate {
     return representedObject as! Auth0ControllerDelegate }
 

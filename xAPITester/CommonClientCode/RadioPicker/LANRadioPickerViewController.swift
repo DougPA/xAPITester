@@ -10,6 +10,7 @@
 import Cocoa
 import xLib6000
 import SwiftyUserDefaults
+import os.log
 
 //#if XSDR6000
 //  import xLib6000
@@ -65,6 +66,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   @IBOutlet private var _defaultButton      : NSButton!                   // Set as default
   
   private var _api                          = Api.sharedInstance
+  private let _log                          = OSLog(subsystem: Api.kDomainId + "." + kClientName, category: "LANRadioPickerVC")
   private var _selectedRadio                : RadioParameters?            // Radio in selected row
   private var _parentVc                     : NSViewController!
   
@@ -95,7 +97,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     _selectButton.title = kConnectTitle
 
     // get a reference to the Tab view controller (the "presented" vc)
-    _parentVc = parent! as! NSTabViewController
+    _parentVc = parent!
     
     addNotifications()
   }
@@ -103,14 +105,22 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
-  /// Respond to the Close menu item
+  /// Respond to the Quit menu item
   ///
   /// - Parameter sender:     the button
   ///
-  @IBAction func terminate(_ sender: AnyObject) {
+  @IBAction func quitRadio(_ sender: AnyObject) {
     
     _parentVc.dismiss(sender)
-    NSApp.terminate(self)
+    
+    // perform an orderly shutdown of all the components
+    _api.shutdown(reason: .normal)
+    
+    DispatchQueue.main.async {
+      os_log("Application closed by user", log: self._log, type: .info)
+
+      NSApp.terminate(self)
+    }
   }
   /// Respond to the Default button
   ///
@@ -194,9 +204,11 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       
       // tell the delegate to connect to the selected Radio
       let _ = _delegate?.openRadio(_selectedRadio, isWan: false, wanHandle: "")
-
-     _parentVc.dismiss((self))
       
+      DispatchQueue.main.async { [unowned self] in
+        self.closeButton(self)
+      }
+
     } else {
       // RadioPicker sheet will remain open & Radio will be disconnected
       
@@ -276,7 +288,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     cellView.wantsLayer = true
     // color the default row
     if isDefaultRow {
-      cellView.layer!.backgroundColor = NSColor(red: 0.0, green: 0.5, blue: 0.0, alpha: 0.4).cgColor
+      cellView.layer!.backgroundColor = NSColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 0.2).cgColor
     } else {
       cellView.layer!.backgroundColor = NSColor.clear.cgColor
     }

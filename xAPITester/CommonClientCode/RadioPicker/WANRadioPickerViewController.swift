@@ -11,10 +11,6 @@ import os.log
 import xLib6000
 import SwiftyUserDefaults
 
-//#if XSDR6000
-//  import xLib6000
-//#endif
-
 public struct Token {
 
   var value         : String
@@ -171,14 +167,22 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
-  /// Respond to the Close menu item
+  /// Respond to the Quit menu item
   ///
-  /// - Parameter sender:         the button
+  /// - Parameter sender:     the button
   ///
-  @IBAction func terminate(_ sender: AnyObject) {
+  @IBAction func quitRadio(_ sender: AnyObject) {
     
     _parentVc.dismiss(sender)
-    NSApp.terminate(self)
+    
+    // perform an orderly shutdown of all the components
+    _api.shutdown(reason: .normal)
+    
+    DispatchQueue.main.async {
+      os_log("Application closed by user", log: self._log, type: .info)
+      
+      NSApp.terminate(self)
+    }
   }
   /// Respond to the Close button
   ///
@@ -186,8 +190,8 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   @IBAction func closeButton(_ sender: AnyObject) {
     
-    // diconnect from WAN server
-    _wanServer?.disconnect()
+//    // diconnect from WAN server
+//    _wanServer?.disconnect()
     
     _parentVc.dismiss(sender)
   }
@@ -206,7 +210,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   @IBAction func loginButton(_ sender: NSButton) {
     
-    // Log IN / Out of SmartLink
+    // Log In / Out of SmartLink
     logInOut()
   }
   
@@ -242,7 +246,9 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       
       getAuthentificationForRadio(_selectedRadio)
 
-      _parentVc.dismiss(self)
+      DispatchQueue.main.async { [unowned self] in
+        self.closeButton(self)
+      }
 
     } else {
       
@@ -287,7 +293,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       
       // Login to auth0
       // get an instance of Auth0 controller
-      _auth0ViewController = storyboard!.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Auth0Login")) as? Auth0ViewController
+      _auth0ViewController = storyboard!.instantiateController(withIdentifier: "Auth0Login") as? Auth0ViewController
 //      _auth0ViewController!.view.translatesAutoresizingMaskIntoConstraints = false
 
       // make this View Controller the delegate of the Auth0 controller
@@ -335,6 +341,9 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     // instantiate a WanServer instance
     _wanServer = WanServer(delegate: self)
     
+//    // clear the reply table
+//    _delegate?.clearTable()
+
     // connect with pinger to avoid the SmartLink server to disconnect if we take too long (>30s)
     // to select and connect to a radio
     if !_wanServer!.connect(appName: kClientName, platform: kPlatform, token: token, ping: true) {

@@ -1,5 +1,12 @@
 xAPITester Change Log
 
+v5.1.16
+
+ViewController.swift - incorporated latest changes from xSDR6000
+Auth0ViewController.swift - incorporated latest changes from xSDR6000
+LANRadioPickerViewController.swift - incorporated latest changes from xSDR6000
+WANRadioPickerViewController.swift - incorporated latest changes from xSDR6000
+
 v5.1.15
 
 various - incorporate latest WANRadioPickerViewController, LANRadioPickerViewController & Auth0ViewController
