@@ -70,7 +70,6 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         return textArray
         
       case .prefix:
-        Swift.print(textArray)
         return textArray.filter { $0.contains("|" + Defaults[.filter]) }
         
       case .contains:
