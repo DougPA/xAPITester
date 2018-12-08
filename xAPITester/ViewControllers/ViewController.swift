@@ -66,7 +66,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private var _commandsIndex                  = 0
   private var _commandsArray                  = [String]()                  // commands history
   private var _radioPickerTabViewController   : NSTabViewController?
-  private var _splitViewVC        : SplitViewController?
+  private var _splitViewVC                    : SplitViewController?
   private var _appFolderUrl                   : URL!
   private var _macros                         : Macros!
   private var _versions                       : (api: String, app: String)?
@@ -644,10 +644,11 @@ public final class ViewController             : NSViewController, RadioPickerDel
     guard let selectedRadio = radio else { return false }
     
     // clear the previous Commands, Replies & Messages
-    if Defaults[.clearAtConnect] { _splitViewVC!.textArray.removeAll() ;_splitViewVC!._tableView.reloadData() }
+    if Defaults[.clearAtConnect] { _splitViewVC?.textArray.removeAll() ;_splitViewVC?._tableView.reloadData() }
     
     // clear the objects
-    _splitViewVC!.objectsArray.removeAll() ;_splitViewVC!._objectsTableView.reloadData()
+    _splitViewVC?.objectsArray.removeAll()
+    _splitViewVC?._objectsTableView.reloadData()
 
     // WAN connect
     if isWan {
