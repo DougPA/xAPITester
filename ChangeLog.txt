@@ -1,5 +1,10 @@
 xAPITester Change Log
 
+v5.1.17
+
+ViewController.swift - corrected a bug in openRadio()
+Incorporated latest version of xLib6000 (v2.1.1 as of 8 Dec 2018)
+
 v5.1.16
 
 ViewController.swift - incorporated latest changes from xSDR6000
