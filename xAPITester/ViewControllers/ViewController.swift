@@ -606,27 +606,46 @@ public final class ViewController             : NSViewController, RadioPickerDel
       openRadioPicker(self)
     }
   }
+  /// Set the Window's title
+  ///
+  private func title() {
+    
+    // have the versions been captured?
+    if _versions == nil {
+      // NO, get the versions
+      _versions = versionInfo(framework: Api.kBundleIdentifier)
+      
+      // log them
+      os_log("%{public}@ v%{public}@, %{public}@, v%{public}@", log: self._log, type: .error, kClientName, _versions!.app, Api.kId, _versions!.api)
+    }
+    
+    // format and set the window title
+    let title = (_api.activeRadio == nil ? "" : "- Connected to \(_api.activeRadio!.nickname) @ \(_api.activeRadio!.publicIp)")
+    DispatchQueue.main.async {
+      self.view.window?.title = "\(kClientName) v\(self._versions!.app), \(Api.kId) v\(self._versions!.api) \(title)"
+    }
+  }
 
   // ----------------------------------------------------------------------------
   // MARK: - RadioPickerDelegate methods
   
   var token: Token?
   
-  /// Close the RadioPicker sheet
-  ///
-  func closeRadioPicker() {
-    
-    // close the RadioPicker
-    if _radioPickerTabViewController != nil {
-      
-      // get the current tab & and set the default
-      let selectedIndex = _radioPickerTabViewController?.selectedTabViewItemIndex
-      Defaults[.showRemoteTabView] = ( selectedIndex == kRemoteTab ? true : false )
-      
-      dismiss(_radioPickerTabViewController!)
-    }
-    _radioPickerTabViewController = nil
-  }
+//  /// Close the RadioPicker sheet
+//  ///
+//  func closeRadioPicker() {
+//
+//    // close the RadioPicker
+//    if _radioPickerTabViewController != nil {
+//
+//      // get the current tab & and set the default
+//      let selectedIndex = _radioPickerTabViewController?.selectedTabViewItemIndex
+//      Defaults[.showRemoteTabView] = ( selectedIndex == kRemoteTab ? true : false )
+//
+//      dismiss(_radioPickerTabViewController!)
+//    }
+//    _radioPickerTabViewController = nil
+//  }
   /// Connect the selected Radio
   ///
   /// - Parameters:
@@ -636,9 +655,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
   /// - Returns:                success / failure
   ///
   func openRadio(_ radio: RadioParameters?, isWan: Bool = false, wanHandle: String = "") -> Bool {
-    
-    // close the Radio Picker (if open)
-    closeRadioPicker()
     
     // fail if no Radio selected
     guard let selectedRadio = radio else { return false }
@@ -693,25 +709,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _localRemote.stringValue = ""
     
     title()
-  }
-  /// Set the Window's title
-  ///
-  func title() {
-    
-    // have the versions been captured?
-    if _versions == nil {
-      // NO, get the versions
-      _versions = versionInfo(framework: Api.kBundleIdentifier)
-      
-      // log them
-      os_log("%{public}@ v%{public}@, %{public}@, v%{public}@", log: self._log, type: .error, kClientName, _versions!.app, Api.kId, _versions!.api)
-    }
-
-    // format and set the window title
-    let title = (_api.activeRadio == nil ? "" : "- Connected to \(_api.activeRadio!.nickname) @ \(_api.activeRadio!.publicIp)")
-    DispatchQueue.main.async {
-      self.view.window?.title = "\(kClientName) v\(self._versions!.app), \(Api.kId) v\(self._versions!.api) \(title)"
-    }
   }
   /// Close the application
   ///
