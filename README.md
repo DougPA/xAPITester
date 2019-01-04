@@ -2,8 +2,8 @@
 ## API Explorer for the FlexRadio (TM) 6000 series software defined radios.
 
 ### Built on:
-*  macOS 10.14 (Deployment Target of macOS 10.12)
-*  Xcode 10.0 (10A255)
+*  macOS 10.14.2 (Deployment Target of macOS 10.12)
+*  Xcode 10.1 (10B61)
 *  Swift 4.2
 
 
