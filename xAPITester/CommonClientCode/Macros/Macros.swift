@@ -366,7 +366,7 @@ final public class Macros {
         return slice.id
         
       case "freq":
-        return (slice.frequency + value).hzToMhz()
+        return (slice.frequency + value).hzToMhz
         
       default:
 //        _log.msg("Macro error: slice param - \(p)", level: .error, function: #function, file: #file, line: #line)

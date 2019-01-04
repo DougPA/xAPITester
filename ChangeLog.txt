@@ -1,5 +1,11 @@
 xAPITester Change Log
 
+v5.1.18
+
+xLib6000.framework - incorporated latest version (v2.2.2)
+SplitViewController.swift - updated mhzToHz from func to var
+Macros.swift - updated mhzToHz from func to var
+
 v5.1.17
 
 ViewController.swift - corrected a bug in openRadio()

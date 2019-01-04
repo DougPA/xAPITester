@@ -354,7 +354,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
         // Panadapters
         for (_, panadapter) in self._api.radio!.panadapters {
-          self.showInObjectsTable("Panadapter     \(panadapter.id.hex)  center = \(panadapter.center.hzToMhz())  bandwidth = \(panadapter.bandwidth.hzToMhz())")
+          self.showInObjectsTable("Panadapter     \(panadapter.id.hex)  center = \(panadapter.center.hzToMhz)  bandwidth = \(panadapter.bandwidth.hzToMhz)")
           
           // Waterfall for this Panadapter
           for (_, waterfall) in self._api.radio!.waterfalls where panadapter.id == waterfall.panadapterId {
@@ -368,7 +368,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
           
           // Slices for this Panadapter
           for (_, slice) in self._api.radio!.slices where panadapter.id == slice.panadapterId {
-            self.showInObjectsTable("      Slice          \(slice.id)  pan = \(slice.panadapterId.hex)  frequency = \(slice.frequency.hzToMhz())  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)")
+            self.showInObjectsTable("      Slice          \(slice.id)  pan = \(slice.panadapterId.hex)  frequency = \(slice.frequency.hzToMhz)  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)")
             
             // Audio Stream for this Slice
             for (_, audioStream) in self._api.radio!.audioStreams {
