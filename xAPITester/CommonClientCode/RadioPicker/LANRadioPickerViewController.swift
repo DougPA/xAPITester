@@ -288,7 +288,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     cellView.wantsLayer = true
     // color the default row
     if isDefaultRow {
-      cellView.layer!.backgroundColor = NSColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 0.2).cgColor
+      cellView.layer!.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.2).cgColor
     } else {
       cellView.layer!.backgroundColor = NSColor.clear.cgColor
     }
