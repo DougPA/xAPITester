@@ -17,11 +17,11 @@ import SwiftyUserDefaults
 
 class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelegate, NSTableViewDataSource {
   
-  static let kOtherColor                      = NSColor(red: 1.0, green: 1.0, blue: 0.0, alpha: 0.2)
-  static let kRadioColor                      = NSColor(red: 1.0, green: 0.0, blue: 1.0, alpha: 0.2)
-  static let kStartedColor                    = NSColor(red: 0.0, green: 1.0, blue: 1.0, alpha: 0.2)
-  static let kSubordinateColor                = NSColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 0.2)
-  static let kStreamColor                     = NSColor(red: 0.0, green: 0.0, blue: 1.0, alpha: 0.1)
+//  static let kOtherColor                      = NSColor(red: 1.0, green: 1.0, blue: 0.0, alpha: 0.2)
+//  static let kRadioColor                      = NSColor(red: 1.0, green: 0.0, blue: 1.0, alpha: 0.2)
+//  static let kStartedColor                    = NSColor(red: 0.0, green: 1.0, blue: 1.0, alpha: 0.2)
+//  static let kSubordinateColor                = NSColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 0.2)
+//  static let kStreamColor                     = NSColor(red: 0.0, green: 0.0, blue: 1.0, alpha: 0.1)
   
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
@@ -377,9 +377,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
               }
             }
             
-            // Meters for this Slice
-            for (_, meter) in self._api.radio!.meters where meter.source.hasPrefix("slc") {
-              self.showInObjectsTable("           Meter  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
+            // sort the Meters for this Slice
+            for (_, meter) in slice.meters.sorted(by: { $0.value.number < $1.value.number }) {
+              self.showInObjectsTable("           number = \(("00" + meter.number).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
             }            
           }
         }
@@ -423,9 +423,12 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
           self.showInObjectsTable("Xvtr           \(xvtr.id)")
         }
         // Meters (not for a Slice)
-        for (_, meter) in self._api.radio!.meters where !meter.source.hasPrefix("slc") {
-          let source = meter.source[0..<3]
-          self.showInObjectsTable("Meter (\(source))    number = \(("00" + meter.number).suffix(3))  id = \(("00" + meter.id).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
+        let sortedMeters = self._api.radio!.meters.sorted(by: {
+            ( $0.value.source[0..<3], Int($0.value.group.suffix(3), radix: 10)!, $0.value.number.suffix(3) ) <
+            ( $1.value.source[0..<3], Int($1.value.group.suffix(3), radix: 10)!, $1.value.number.suffix(3) )
+        })
+        for (_, meter) in sortedMeters where !meter.source.hasPrefix("slc") {
+          self.showInObjectsTable("Meter          source = \(meter.source[0..<3])  group = \(("00" + meter.group).suffix(3))  number = \(("00" + meter.number).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
         }
         // Mic Audio Stream
         for (_, micAudioStream) in self._api.radio!.micAudioStreams {
@@ -608,34 +611,34 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         if msgText.hasPrefix("-----") {                                         // application messages
           
           // application messages from this app
-          view.textField!.backgroundColor = Defaults[.messageColor]
-          
+          view.textField!.backgroundColor = NSColor.black
+
         } else if msgText.hasPrefix("c") || msgText.hasPrefix("C") {
           
           // commands sent by this app
-          view.textField!.backgroundColor = Defaults[.commandColor]
-          
+          view.textField!.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.3)
+
         } else if msgText.hasPrefix("r") || msgText.hasPrefix("R") {
           
           // reply messages
-          view.textField!.backgroundColor = Defaults[.myHandleColor]
-          
+          view.textField!.backgroundColor = NSColor.lightGray.withAlphaComponent(0.3)
+
         } else if msgText.hasPrefix("v") || msgText.hasPrefix("V") ||
           msgText.hasPrefix("h") || msgText.hasPrefix("H") ||
           msgText.hasPrefix("m") || msgText.hasPrefix("M") {
           
           // messages not directed to a specific client
-          view.textField!.backgroundColor = Defaults[.neutralColor]
-          
+          view.textField!.backgroundColor = NSColor.systemYellow.withAlphaComponent(0.3)
+
         } else if msgText.hasPrefix("s" + myHandle) || msgText.hasPrefix("S" + myHandle) {
           
           // status sent to myHandle
-          view.textField!.backgroundColor = Defaults[.myHandleColor]
-          
+          view.textField!.backgroundColor = NSColor.systemRed.withAlphaComponent(0.3)
+
         } else {
           
           // status sent to a handle other than mine
-          view.textField!.backgroundColor = Defaults[.otherHandleColor]
+          view.textField!.backgroundColor = NSColor.systemRed.withAlphaComponent(0.5)
         }
         // set the font
         view.textField!.font = _font
@@ -660,27 +663,27 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         if msgText.hasPrefix("Radio") {
           
           // ADDED or REMOVED Radio messages
-          view.textField!.backgroundColor = SplitViewController.kRadioColor
-          
+          view.textField!.backgroundColor = NSColor.labelColor.withAlphaComponent(0.2)
+
         } else if msgText.hasPrefix("STARTED") {
           
           // Subordinate messages
-          view.textField!.backgroundColor = SplitViewController.kStartedColor
+          view.textField!.backgroundColor = NSColor.systemBrown.withAlphaComponent(0.2)
 
         } else if msgText.hasSuffix("stream") {
           
           // Subordinate messages
-          view.textField!.backgroundColor = SplitViewController.kStreamColor
-          
+          view.textField!.backgroundColor = NSColor.systemBlue.withAlphaComponent(0.3)
+
         } else if msgText.hasPrefix("    ") {
           
           // Subordinate messages
-          view.textField!.backgroundColor = SplitViewController.kSubordinateColor
-          
+          view.textField!.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.2)
+
         } else {
           
           // Other messages
-          view.textField!.backgroundColor = SplitViewController.kOtherColor
+          view.textField!.backgroundColor = NSColor.systemYellow.withAlphaComponent(0.2)
         }
         // set the font
         view.textField!.font = _font

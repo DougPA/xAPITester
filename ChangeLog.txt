@@ -1,5 +1,13 @@
 xAPITester Change Log
 
+v5.1.19 19-Feb-2019
+
+xLib6000.framework - incorporated v2.3.9
+SplitViewController.swift - color changes to support Dark Mode
+SplitViewController.swift - changes to the way Meters are displayed
+ViewController.swift - color changes to use color from Defaults
+AppExtensions.swift - color changes to support Dark Mode
+
 v5.1.18
 
 xLib6000.framework - incorporated latest version (v2.2.2)

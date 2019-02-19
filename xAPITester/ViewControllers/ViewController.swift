@@ -119,8 +119,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
     title()
     
     // color the text field to match the kMyHandleColor
-    _streamId.backgroundColor = Defaults[.myHandleColor]
-    
+    _streamId.backgroundColor = NSColor.systemPink.withAlphaComponent(0.1)
+
     // get / create the Application Support folder
     _appFolderUrl = FileManager.appFolder
 
