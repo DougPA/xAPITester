@@ -153,6 +153,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
       _macros = Macros()
     }
   }
+  
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   

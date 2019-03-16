@@ -12,6 +12,8 @@ import SwiftyUserDefaults
 // ----------------------------------------------------------------------------
 // MARK: - EXTENSIONS
 
+typealias NC = NotificationCenter
+
 // ----------------------------------------------------------------------------
 // MARK: - Definitions for SwiftyUserDefaults
 

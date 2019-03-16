@@ -186,7 +186,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     if _selectButton.title == kConnectTitle {
       
       // if the selected radio in use?
-      if _selectedRadio!.status == "In_Use" && _api.activeRadio == nil {
+      if Defaults[.isGui] && _selectedRadio!.status == "In_Use" && _api.activeRadio == nil {
 
         // YES, ask the user to confirm closing it
         let alert = NSAlert()

@@ -378,8 +378,10 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
             }
             
             // sort the Meters for this Slice
-            for (_, meter) in slice.meters.sorted(by: { $0.value.number < $1.value.number }) {
-              self.showInObjectsTable("           number = \(("00" + meter.number).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
+            for (_, meter) in self._api.radio!.meters.sorted(by: { $0.value.number < $1.value.number }) {
+              if meter.source == "slc" && meter.group == slice.id {
+              self.showInObjectsTable("           Meter \(("00" + meter.number).suffix(3))  source = \(meter.source)  group = \(meter.group)  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
+              }
             }            
           }
         }
@@ -427,7 +429,8 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
             ( $0.value.source[0..<3], Int($0.value.group.suffix(3), radix: 10)!, $0.value.number.suffix(3) ) <
             ( $1.value.source[0..<3], Int($1.value.group.suffix(3), radix: 10)!, $1.value.number.suffix(3) )
         })
-        for (_, meter) in sortedMeters where !meter.source.hasPrefix("slc") {
+//        for (_, meter) in sortedMeters where !meter.source.hasPrefix("slc") {
+        for (_, meter) in sortedMeters {
           self.showInObjectsTable("Meter          source = \(meter.source[0..<3])  group = \(("00" + meter.group).suffix(3))  number = \(("00" + meter.number).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
         }
         // Mic Audio Stream

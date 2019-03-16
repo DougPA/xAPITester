@@ -17,6 +17,7 @@
 		9102C2192066C10300F4B655 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9102C2172066C10300F4B655 /* Defaults.plist */; };
 		9102C21C2066C27A00F4B655 /* SwiftyUserDefaults.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */; };
 		9102C21D2066C27A00F4B655 /* SwiftyUserDefaults.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		913660EF223C3283005907E5 /* MeterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 913660EE223C3283005907E5 /* MeterViewController.swift */; };
 		913F7EB52066C8BB00F35E9B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 913F7EB42066C8BB00F35E9B /* Assets.xcassets */; };
 		9161C77E20B901A3003A2257 /* Macros.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9161C77D20B901A3003A2257 /* Macros.swift */; };
 		9185B0B920867E3B004D4C40 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B0AB20867E3B004D4C40 /* Keychain.swift */; };
@@ -63,6 +64,7 @@
 		9102C2172066C10300F4B655 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
 		9102C2182066C10300F4B655 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SwiftyUserDefaults.framework; sourceTree = "<group>"; };
+		913660EE223C3283005907E5 /* MeterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeterViewController.swift; sourceTree = "<group>"; };
 		913F7EB42066C8BB00F35E9B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9161C77D20B901A3003A2257 /* Macros.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Macros.swift; sourceTree = "<group>"; };
 		9185B0AB20867E3B004D4C40 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
@@ -144,6 +146,7 @@
 				9102C1C82066C03700F4B655 /* ViewController.swift */,
 				9102C1C92066C03700F4B655 /* HelpViewController.swift */,
 				91B4C08D206D477200897398 /* SplitViewController.swift */,
+				913660EE223C3283005907E5 /* MeterViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -289,6 +292,7 @@
 				9185B0C220867E3B004D4C40 /* WANRadioPickerViewController.swift in Sources */,
 				9185B0C120867E3B004D4C40 /* Auth0ViewController.swift in Sources */,
 				9102C1F92066C03700F4B655 /* AppDelegate.swift in Sources */,
+				913660EF223C3283005907E5 /* MeterViewController.swift in Sources */,
 				9102C1F72066C03700F4B655 /* ViewController.swift in Sources */,
 				9185B0BB20867E3B004D4C40 /* JWT.swift in Sources */,
 				9185B0BF20867E3B004D4C40 /* StringExtensions.swift in Sources */,

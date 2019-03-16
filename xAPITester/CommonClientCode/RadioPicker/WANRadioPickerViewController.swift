@@ -229,7 +229,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       // CONNECT, RadioPicker sheet will close & Radio will be opened
       
       // is the selected radio in use, but not by this app?
-      if _selectedRadio!.status == "In_Use" && _api.activeRadio == nil {
+      if Defaults[.isGui] && _selectedRadio!.status == "In_Use" && _api.activeRadio == nil {
         
         // YES, ask the user to confirm closing it
         let alert = NSAlert()
