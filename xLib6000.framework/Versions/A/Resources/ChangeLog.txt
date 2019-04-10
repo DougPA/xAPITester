@@ -1,5 +1,26 @@
 xLib6000 Change Log
 
+v3.0.0
+
+RadioParameters.swift - added new v3 parameters
+Vita.swift - in class parseDiscovery(_:) added new v3 parameters
+Modified all "Unknown token" messages to display <token = value>
+Radio.swift - added RadioTokens daxIqCapacity & daxIqAvailable & code to process them
+Radio.swift - added properties localPtt, clientId, station & program & code to process them
+Interlock.swift - added Token txClientHandle, added code to process it
+InterlockCommands.swift - added txClientHandle property & code to process it
+Api.swift - updated kApiFirmwareSupport to 3.0.18.x
+Api.swift - changes to the timing & content of the Primary, Secondary & Subscription command sets
+
+v2.5.1
+
+Vita.swift - in class parseDiscovery(_:), added printing of kv.value for unknown token
+
+
+v2.5.0 27-Mar-2019
+
+Recompiled for Swift 5.0 - changes made as needed
+
 
 v2.4.3 10-Mar-2019
 
