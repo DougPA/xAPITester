@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14460.31"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14490.70"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -497,7 +497,7 @@
                                         <menuItem title="Show Sidebar" keyEquivalent="s" id="kIP-vf-haE">
                                             <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
                                             <connections>
-                                                <action selector="toggleSourceList:" target="Ady-hI-5gd" id="iwa-gc-5KM"/>
+                                                <action selector="toggleSidebar:" target="Ady-hI-5gd" id="iwa-gc-5KM"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem title="Enter Full Screen" keyEquivalent="f" id="4J7-dP-txa">
@@ -2049,7 +2049,7 @@ Gw
                                     <rect key="frame" x="1" y="275" width="880" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
-                                <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="LqH-Sb-ean">
+                                <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="LqH-Sb-ean">
                                     <rect key="frame" x="224" y="17" width="15" height="102"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
@@ -2085,21 +2085,73 @@ Gw
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="D2u-ya-qaZ">
+                                <rect key="frame" x="18" y="323" width="57" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Filter by " id="WGh-L7-VW2">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="slA-fj-Lpj">
+                                <rect key="frame" x="95" y="318" width="87" height="25"/>
+                                <popUpButtonCell key="cell" type="push" title="None" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="bXk-KI-IOR" id="5Qt-e9-AjQ">
+                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="menu"/>
+                                    <menu key="menu" id="bIy-gO-nW2">
+                                        <items>
+                                            <menuItem title="None" state="on" id="bXk-KI-IOR">
+                                                <modifierMask key="keyEquivalentModifierMask"/>
+                                            </menuItem>
+                                            <menuItem title="Source" tag="1" id="Ic3-Zx-KLK"/>
+                                            <menuItem title="Number" tag="2" id="Uwn-cH-TYo"/>
+                                            <menuItem title="Name" tag="3" id="oSV-wn-Ecn"/>
+                                            <menuItem title="Group" tag="4" id="aL6-m9-rhY">
+                                                <modifierMask key="keyEquivalentModifierMask"/>
+                                            </menuItem>
+                                        </items>
+                                    </menu>
+                                </popUpButtonCell>
+                                <connections>
+                                    <action selector="updateFilterBy:" target="O7A-Nr-J4z" id="eKV-8b-zZQ"/>
+                                </connections>
+                            </popUpButton>
+                            <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kkT-Lz-iEe">
+                                <rect key="frame" x="190" y="322" width="197" height="22"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="197" id="AyR-Mk-OmL"/>
+                                </constraints>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="" drawsBackground="YES" id="Vyo-r3-tEG">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <action selector="updateFilterText:" target="O7A-Nr-J4z" id="iRr-cB-hkD"/>
+                                </connections>
+                            </textField>
                         </subviews>
                         <constraints>
+                            <constraint firstItem="slA-fj-Lpj" firstAttribute="top" secondItem="HTb-xc-43Q" secondAttribute="top" constant="10" id="0Z9-8O-KZ7"/>
                             <constraint firstItem="QMQ-4J-kY8" firstAttribute="top" secondItem="gli-ct-x8T" secondAttribute="bottom" constant="13" id="6i3-Tk-tt2"/>
                             <constraint firstItem="sz4-C2-fm1" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="HTb-xc-43Q" secondAttribute="leading" constant="20" symbolic="YES" id="A5F-W2-F6q"/>
                             <constraint firstItem="gli-ct-x8T" firstAttribute="leading" secondItem="e58-PS-3r5" secondAttribute="trailing" constant="15" id="BTU-X1-32Z"/>
                             <constraint firstItem="gli-ct-x8T" firstAttribute="centerY" secondItem="e58-PS-3r5" secondAttribute="centerY" id="C81-fF-Pls"/>
                             <constraint firstItem="QMQ-4J-kY8" firstAttribute="top" secondItem="e58-PS-3r5" secondAttribute="bottom" constant="11" id="HfM-4u-lOj"/>
                             <constraint firstItem="sz4-C2-fm1" firstAttribute="baseline" secondItem="e58-PS-3r5" secondAttribute="baseline" constant="3" id="JJO-tj-X1L"/>
+                            <constraint firstItem="kkT-Lz-iEe" firstAttribute="leading" secondItem="slA-fj-Lpj" secondAttribute="trailing" constant="11" id="Q36-1D-YRM"/>
                             <constraint firstItem="gli-ct-x8T" firstAttribute="top" secondItem="HTb-xc-43Q" secondAttribute="top" constant="10" id="Rua-MX-GsK"/>
                             <constraint firstItem="QMQ-4J-kY8" firstAttribute="leading" secondItem="HTb-xc-43Q" secondAttribute="leading" constant="20" id="UYa-Jn-LPd"/>
                             <constraint firstItem="gli-ct-x8T" firstAttribute="trailing" secondItem="QMQ-4J-kY8" secondAttribute="trailing" id="Ujs-Rq-4zp"/>
+                            <constraint firstItem="D2u-ya-qaZ" firstAttribute="leading" secondItem="HTb-xc-43Q" secondAttribute="leading" constant="20" id="VGb-Wp-hOI"/>
+                            <constraint firstItem="kkT-Lz-iEe" firstAttribute="top" secondItem="HTb-xc-43Q" secondAttribute="top" constant="8" id="VII-fZ-a8n"/>
+                            <constraint firstItem="D2u-ya-qaZ" firstAttribute="top" secondItem="HTb-xc-43Q" secondAttribute="top" constant="12" id="XDo-wW-xSJ"/>
                             <constraint firstItem="e58-PS-3r5" firstAttribute="trailing" secondItem="QMQ-4J-kY8" secondAttribute="trailing" constant="-137" id="YFT-yX-gvK"/>
                             <constraint firstAttribute="bottom" secondItem="QMQ-4J-kY8" secondAttribute="bottom" constant="20" id="aKt-u7-bUc"/>
+                            <constraint firstItem="slA-fj-Lpj" firstAttribute="leading" secondItem="D2u-ya-qaZ" secondAttribute="trailing" constant="24" id="h1x-pC-63x"/>
                             <constraint firstItem="e58-PS-3r5" firstAttribute="leading" secondItem="sz4-C2-fm1" secondAttribute="trailing" constant="8" id="hQc-iX-lBG"/>
                             <constraint firstAttribute="trailing" secondItem="QMQ-4J-kY8" secondAttribute="trailing" constant="20" id="mhb-kS-ica"/>
+                            <constraint firstItem="slA-fj-Lpj" firstAttribute="leading" secondItem="D2u-ya-qaZ" secondAttribute="trailing" constant="24" id="p9O-gU-Uda"/>
                             <constraint firstItem="QMQ-4J-kY8" firstAttribute="top" secondItem="HTb-xc-43Q" secondAttribute="top" constant="40" id="pZz-Mj-qyJ"/>
                         </constraints>
                     </view>
@@ -2107,9 +2159,12 @@ Gw
                         <outlet property="_meterUnits" destination="gli-ct-x8T" id="mfg-ag-lPX"/>
                         <outlet property="_meterValue" destination="e58-PS-3r5" id="X3l-nU-SCb"/>
                         <outlet property="_tableView" destination="PZm-Kx-ZwG" id="Twn-3V-z6K"/>
+                        <outlet property="filterMetersBy" destination="slA-fj-Lpj" id="I33-pd-wOY"/>
+                        <outlet property="filterMetersText" destination="kkT-Lz-iEe" id="8Cs-xw-bSp"/>
                     </connections>
                 </viewController>
                 <customObject id="sEL-1s-W0c" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <userDefaultsController id="2Zk-09-reC"/>
             </objects>
             <point key="canvasLocation" x="1444" y="-381"/>
         </scene>

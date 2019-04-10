@@ -22,6 +22,10 @@
 	<string></string>
 	<key>filterByTag</key>
 	<integer>0</integer>
+	<key>filterMeters</key>
+	<string></string>
+	<key>filterMetersByTag</key>
+	<integer>0</integer>
 	<key>filterObjects</key>
 	<string></string>
 	<key>filterObjectsByTag</key>

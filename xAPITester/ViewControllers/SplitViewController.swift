@@ -26,7 +26,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
   
-  public enum FilterTag: Int {                                              // types of filtering
+  public enum MessagesFilters: Int {
     case none = 0
     case prefix
     case contains
@@ -34,7 +34,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     case myHandle
     case handle
   }
-  public enum FilterObjectsTag: Int {                                       // types of filtering
+  public enum ObjectsFilters: Int {
     case none = 0
     case prefix
     case contains
@@ -51,54 +51,38 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     get { return _objectQ.sync { _myHandle } }
     set { _objectQ.sync(flags: .barrier) { _myHandle = newValue } } }
   
-  internal var objectsArray: [String] {
-    get { return _objectQ.sync { _objectsArray } }
-    set { _objectQ.sync(flags: .barrier) { _objectsArray = newValue } } }
+  internal var objects: [String] {
+    get { return _objectQ.sync { _objects } }
+    set { _objectQ.sync(flags: .barrier) { _objects = newValue } } }
   
-  internal var textArray: [String] {
-    get { return _objectQ.sync { _textArray } }
-    set { _objectQ.sync(flags: .barrier) { _textArray = newValue } } }
+  internal var messages: [String] {
+    get { return _objectQ.sync { _messages } }
+    set { _objectQ.sync(flags: .barrier) { _messages = newValue } } }
   
   internal var replyHandlers: [SequenceId: ReplyTuple] {
     get { return _objectQ.sync { _replyHandlers } }
     set { _objectQ.sync(flags: .barrier) { _replyHandlers = newValue } } }
   
-  internal var _filteredTextArray              : [String] {                  // filtered version of textArray
+  internal var _filteredMessages              : [String] {                  // filtered version of textArray
     get {
-      switch FilterTag(rawValue: Defaults[.filterByTag]) ?? .none {
-      case .none:
-        return textArray
-        
-      case .prefix:
-        return textArray.filter { $0.contains("|" + Defaults[.filter]) }
-        
-      case .contains:
-        return textArray.filter { $0.contains(Defaults[.filter]) }
-        
-      case .exclude:
-        return textArray.filter { !$0.contains(Defaults[.filter]) }
-        
-      case .myHandle:
-        return textArray.filter { $0.dropFirst(9).hasPrefix("S" + myHandle) }
-
-      case .handle:
-        return textArray.filter { $0.dropFirst(9).hasPrefix("S" + Defaults[.filter]) }
+      switch MessagesFilters(rawValue: Defaults[.filterByTag]) ?? .none {
+      
+      case .none:       return messages
+      case .prefix:     return messages.filter { $0.contains("|" + Defaults[.filter]) }
+      case .contains:   return messages.filter { $0.contains(Defaults[.filter]) }
+      case .exclude:    return messages.filter { !$0.contains(Defaults[.filter]) }
+      case .myHandle:   return messages.filter { $0.dropFirst(9).hasPrefix("S" + myHandle) }
+      case .handle:     return messages.filter { $0.dropFirst(9).hasPrefix("S" + Defaults[.filter]) }
       }
     }}
-  internal var _filteredObjectsArray           : [String] {                  // filtered version of objectsArray
+  internal var _filteredObjects           : [String] {                  // filtered version of objectsArray
     get {
-      switch FilterObjectsTag(rawValue: Defaults[.filterObjectsByTag]) ?? .none {
-      case .none:
-        return objectsArray
-        
-      case .prefix:
-        return objectsArray.filter { $0.dropFirst(9).hasPrefix(Defaults[.filterObjects]) }
-        
-      case .contains:
-        return objectsArray.filter { $0.contains(Defaults[.filterObjects]) }
-        
-      case .exclude:
-        return objectsArray.filter { !$0.contains(Defaults[.filterObjects]) }
+      switch ObjectsFilters(rawValue: Defaults[.filterObjectsByTag]) ?? .none {
+      
+      case .none:       return objects
+      case .prefix:     return objects.filter { $0.dropFirst(9).hasPrefix(Defaults[.filterObjects]) }
+      case .contains:   return objects.filter { $0.contains(Defaults[.filterObjects]) }
+      case .exclude:    return objects.filter { !$0.contains(Defaults[.filterObjects]) }
       }
     }}
   
@@ -114,8 +98,8 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   
   private var _myHandle                       = ""
   private var _replyHandlers                  = [SequenceId: ReplyTuple]()  // Dictionary of pending replies
-  private var _textArray                      = [String]()                  // backing storage for the table
-  private var _objectsArray                   = [String]()                  // backing storage for the objects table
+  private var _messages                       = [String]()                  // backing storage for the table
+  private var _objects                        = [String]()                  // backing storage for the objects table
 
   private var _timeoutTimer                   : DispatchSourceTimer!          // timer fired every "checkInterval"
   private var _timerQ                         = DispatchQueue(label: "xAPITester" + ".timerQ")
@@ -257,7 +241,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     // add the Timestamp to the Text
     let timeInterval = Date().timeIntervalSince(startTimestamp)
-    textArray.append( String( format: "%8.3f", timeInterval) + " " + text )
+    messages.append( String( format: "%8.3f", timeInterval) + " " + text )
     
     reloadTable()
   }
@@ -272,7 +256,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     // add the Timestamp to the Text
     let timeInterval = Date().timeIntervalSince(startTimestamp)
-    objectsArray.append( String( format: "%8.3f", timeInterval) + " " + text )
+    objects.append( String( format: "%8.3f", timeInterval) + " " + text )
     
     reloadObjectsTable()
   }
@@ -344,7 +328,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   private func refreshObjects() {
     
     DispatchQueue.main.async { [unowned self] in
-      self.objectsArray.removeAll()
+      self.objects.removeAll()
       
       // Radio
       if let radio = Api.sharedInstance.activeRadio {
@@ -380,7 +364,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
             // sort the Meters for this Slice
             for (_, meter) in self._api.radio!.meters.sorted(by: { $0.value.number < $1.value.number }) {
               if meter.source == "slc" && meter.group == slice.id {
-              self.showInObjectsTable("           Meter \(("00" + meter.number).suffix(3))  source = \(meter.source)  group = \(meter.group)  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
+              self.showInObjectsTable("           Meter \(("00" + meter.number).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
               }
             }            
           }
@@ -430,7 +414,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
             ( $1.value.source[0..<3], Int($1.value.group.suffix(3), radix: 10)!, $1.value.number.suffix(3) )
         })
 //        for (_, meter) in sortedMeters where !meter.source.hasPrefix("slc") {
-        for (_, meter) in sortedMeters {
+        for (_, meter) in sortedMeters where !meter.source.hasPrefix("slc") {
           self.showInObjectsTable("Meter          source = \(meter.source[0..<3])  group = \(("00" + meter.group).suffix(3))  number = \(("00" + meter.number).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
         }
         // Mic Audio Stream
@@ -574,11 +558,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     if aTableView == _tableView {
       
-      return _filteredTextArray.count
+      return _filteredMessages.count
       
     } else {
       
-      return _filteredObjectsArray.count
+      return _filteredObjects.count
     }
   }
   
@@ -602,10 +586,10 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     if tableView === _tableView! {
       
       // validate the index
-      if _filteredTextArray.count - 1 >= row {
+      if _filteredMessages.count - 1 >= row {
         
         // Replies & Commands, get the text including Timestamp
-        let rowText = _filteredTextArray[row]
+        let rowText = _filteredMessages[row]
         
         // get the text without the Timestamp
         let msgText = String(rowText.dropFirst(9))
@@ -654,10 +638,10 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     else {
       
       // validate the index
-      if _filteredObjectsArray.count - 1 >= row {
+      if _filteredObjects.count - 1 >= row {
         
         // Objects, get the text including Timestamp
-        let rowText = _filteredObjectsArray[row]
+        let rowText = _filteredObjects[row]
         
         // get the text without the Timestamp
         let msgText = String(rowText.dropFirst(9))

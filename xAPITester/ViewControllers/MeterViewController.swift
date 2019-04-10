@@ -8,18 +8,49 @@
 
 import Cocoa
 import xLib6000
+import SwiftyUserDefaults
 
 class MeterViewController                     : NSViewController, NSTableViewDelegate, NSTableViewDataSource {
 
+  // ----------------------------------------------------------------------------
+  // MARK: - Public properties
+  
+  public enum MetersFilters: Int {
+    case none = 0
+    case source
+    case number
+    case name
+    case group
+  }
+
+  // ----------------------------------------------------------------------------
+  // MARK: - Internal properties
+  
+  internal var _filteredMeters                : [Meter] {
+    get {
+
+      Swift.print("FilterMetersByTag = \(Defaults[.filterMetersByTag])")
+      
+      switch MetersFilters(rawValue: Defaults[.filterMetersByTag]) ?? .none {
+      
+      case .none:     return _meters
+      case .source:   return _meters.filter { $0.source == Defaults[.filterMeters] }
+      case .number:   return _meters.filter { $0.number == Defaults[.filterMeters] }
+      case .name:     return _meters.filter { $0.name == Defaults[.filterMeters] }
+      case .group:    return _meters.filter { $0.group == Defaults[.filterMeters] }
+      }
+    }}
 
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  @IBOutlet weak var _tableView               : NSTableView!
-  @IBOutlet weak var _meterValue              : NSTextField!
-  @IBOutlet weak var _meterUnits              : NSTextField!
+  @IBOutlet private weak var filterMetersBy    : NSPopUpButton!
+  @IBOutlet private weak var filterMetersText  : NSTextField!
+  @IBOutlet private weak var _tableView        : NSTableView!
+  @IBOutlet private weak var _meterValue       : NSTextField!
+  @IBOutlet private weak var _meterUnits       : NSTextField!
   
-  private var _array                          = [Meter]()
+  private var _meters                          = [Meter]()
   
   // ----------------------------------------------------------------------------
   // MARK: - Overridden Methods
@@ -29,7 +60,51 @@ class MeterViewController                     : NSViewController, NSTableViewDel
     
     addNotifications()
   }
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Action Methods
+  
+  /// The FilterBy PopUp changed (in the Objects box)
+  ///
+  /// - Parameter sender:     the popup
+  ///
+  @IBAction func updateFilterBy(_ sender: NSPopUpButton) {
+    
+    // clear the Filter string field
+    Defaults[.filterMeters] = ""
+    Defaults[.filterMetersByTag] = sender.selectedTag()
+    
+    // force a redraw
+    reloadMetersTable()
+  }
+  /// The Filter text field changed (in the Objects box)
+  ///
+  /// - Parameter sender:     the text field
+  ///
+  @IBAction func updateFilterText(_ sender: NSTextField) {
+    
+    Defaults[.filterMeters] = sender.stringValue
+    
+    // force a redraw
+    reloadMetersTable()
+  }
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Internal Methods
+  
+  /// Refresh the TableView & make its last row visible
+  ///
+  internal func reloadMetersTable() {
+    
+    DispatchQueue.main.async { [unowned self] in
 
+      self.filterMetersText.stringValue = Defaults[.filterMeters]
+
+      // reload the table
+      self._tableView.reloadData()
+    }
+  }
+  
   // ----------------------------------------------------------------------------
   // MARK: - Notification Methods
   
@@ -64,9 +139,8 @@ class MeterViewController                     : NSViewController, NSTableViewDel
         if let self = self {
           let row = self._tableView.selectedRow
           if row >= 0 {
-            //      self?._tableView.reloadData()
-            self._meterValue.stringValue = String(format: "%3.2f",self._array[row].value)
-            self._meterUnits.stringValue = self._array[row].units
+            self._meterValue.stringValue = String(format: "%3.2f", self._filteredMeters[row].value)
+            self._meterUnits.stringValue = self._filteredMeters[row].units
           }
         }
     }
@@ -83,9 +157,12 @@ class MeterViewController                     : NSViewController, NSTableViewDel
   public func numberOfRows(in aTableView: NSTableView) -> Int {
     
     if let radio = Api.sharedInstance.radio {
-      _array = Array(radio.meters.values).sorted(by: {Int($0.number, radix: 10) ?? 0 < Int($1.number, radix: 10) ?? 0})
+      _meters = Array(radio.meters.values).sorted(by: {Int($0.number, radix: 10) ?? 0 < Int($1.number, radix: 10) ?? 0})
     }
-    return _array.count
+    
+    Swift.print("Meters count = \(_filteredMeters.count)")
+    
+    return _filteredMeters.count
   }
   
   // ----------------------------------------------------------------------------
@@ -108,21 +185,21 @@ class MeterViewController                     : NSViewController, NSTableViewDel
     switch tableColumn!.identifier.rawValue {
       
     case "Number":
-      view.textField!.stringValue = _array[row].number
+      view.textField!.stringValue = _filteredMeters[row].number
     case "Source":
-      view.textField!.stringValue = _array[row].source
+      view.textField!.stringValue = _filteredMeters[row].source
     case "Name":
-      view.textField!.stringValue = _array[row].name
+      view.textField!.stringValue = _filteredMeters[row].name
     case "Units":
-      view.textField!.stringValue = _array[row].units
+      view.textField!.stringValue = _filteredMeters[row].units
     case "Low":
-      view.textField!.stringValue = String(format: "%3.2f",_array[row].low)
+      view.textField!.stringValue = String(format: "%3.2f", _filteredMeters[row].low)
     case "High":
-      view.textField!.stringValue = String(format: "%3.2f",_array[row].high)
+      view.textField!.stringValue = String(format: "%3.2f", _filteredMeters[row].high)
     case "Fps":
-      view.textField!.integerValue = _array[row].fps
+      view.textField!.integerValue = _filteredMeters[row].fps
     case "Description":
-      view.textField!.stringValue = _array[row].desc
+      view.textField!.stringValue = _filteredMeters[row].desc
     default:
       fatalError("Invalid column id - \(tableColumn!.identifier.rawValue)")
     }

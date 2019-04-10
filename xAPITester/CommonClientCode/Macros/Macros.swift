@@ -262,8 +262,8 @@ final public class Macros {
     if string.contains("<") && string.contains(">") {
       
       // YES, isolate it
-      let i = string.index(of: "<")!
-      let j = string.index(of: ">")!
+      let i = string.firstIndex(of: "<")!
+      let j = string.firstIndex(of: ">")!
       let expr = String(string[string.index(after: i)..<j])
       
       // separate the "object" from the "modifier"

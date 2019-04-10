@@ -41,6 +41,8 @@ extension DefaultsKeys {
   static let enablePinging                  = DefaultsKey<Bool>("enablePinging")
   static let filter                         = DefaultsKey<String>("filter")
   static let filterByTag                    = DefaultsKey<Int>("filterByTag")
+  static let filterMeters                   = DefaultsKey<String>("filterMeters")
+  static let filterMetersByTag              = DefaultsKey<Int>("filterMetersByTag")
   static let filterObjects                  = DefaultsKey<String>("filterObjects")
   static let filterObjectsByTag             = DefaultsKey<Int>("filterObjectsByTag")
   static let fontMaxSize                    = DefaultsKey<Int>("fontMaxSize")

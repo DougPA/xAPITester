@@ -1,13 +1,17 @@
 xAPITester Change Log
 
-v5.1.20
+v5.2.0 10-Apr-2019
 
-xLib6000.framework - incorporated v2.3.10
+xLib6000.framework - incorporated v3.0.0
+MeterViewController.swift - added the ability to filter memter table
+
+
+v5.1.20 28-Mar-2019
+
+Recompiled for Swift 5.0 - changes made as needed
+xLib6000.framework - incorporated v2.5.0
 SplitViewController.swift - minor changes to displa of meters
 Added MeterViewController - to view meters and their values
-
-
-
 
 
 v5.1.19 19-Feb-2019

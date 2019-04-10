@@ -164,11 +164,11 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func clear(_ sender: NSButton) {
     
     // clear all previous commands & replies
-    _splitViewVC?.textArray.removeAll()
+    _splitViewVC?.messages.removeAll()
     _splitViewVC?.reloadTable()
     
     // clear all previous objects
-    _splitViewVC?.objectsArray.removeAll()
+    _splitViewVC?.objects.removeAll()
     _splitViewVC?.reloadObjectsTable()
   }
   /// Respond to the Connect button
@@ -213,7 +213,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     
     let pasteBoard = NSPasteboard.general
     pasteBoard.clearContents()
-    pasteBoard.setString( copyRows(_splitViewVC!._tableView, from: _splitViewVC!._filteredTextArray), forType: NSPasteboard.PasteboardType.string )
+    pasteBoard.setString( copyRows(_splitViewVC!._tableView, from: _splitViewVC!._filteredMessages), forType: NSPasteboard.PasteboardType.string )
   }
   /// Respond to the Copy to Cmd button (in the Commands & Replies box)
   ///
@@ -222,7 +222,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func copyToCmd(_ sender: Any) {
     
     // paste the text into the command line
-    _command.stringValue = copyRows(_splitViewVC!._tableView, from: _splitViewVC!._filteredTextArray, stopOnFirst: true)
+    _command.stringValue = copyRows(_splitViewVC!._tableView, from: _splitViewVC!._filteredMessages, stopOnFirst: true)
   }
   /// Respond to the Copy Handle button
   ///
@@ -236,7 +236,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     
     for (_, rowIndex) in indexSet.enumerated() {
       
-      let rowText = _splitViewVC!._filteredTextArray[rowIndex]
+      let rowText = _splitViewVC!._filteredMessages[rowIndex]
       
       // remove the prefixes (Timestamps & Connection Handle)
       textToCopy = String(rowText.components(separatedBy: "|")[0].dropFirst(kSizeOfTimeStamp + 1))
@@ -271,10 +271,10 @@ public final class ViewController             : NSViewController, RadioPickerDel
           try fileString = String(contentsOf: url)
           
           // separate into lines
-          self._splitViewVC?.textArray = fileString.components(separatedBy: "\n")
+          self._splitViewVC?.messages = fileString.components(separatedBy: "\n")
           
           // eliminate the last one (it's blank)
-          self._splitViewVC?.textArray.removeLast()
+          self._splitViewVC?.messages.removeLast()
           
           // force a redraw
           self._splitViewVC?.reloadTable()
@@ -376,7 +376,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
       if result == NSApplication.ModalResponse.OK {
         
         // write it to the File
-        if let error = savePanel.url!.writeArray( self._splitViewVC!._filteredTextArray ) {
+        if let error = savePanel.url!.writeArray( self._splitViewVC!._filteredMessages ) {
 //          self._api.log.msg(error, level: .error, function: #function, file: #file, line: #line)
 
           os_log("%{public}@", log: self._log, type: .error, error)
@@ -582,8 +582,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
         Defaults[.defaultRadio] = foundRadioParameters.dict
         
         // log it
-//        _api.log.msg("\(foundRadioParameters.nickname ?? "") @ \(foundRadioParameters.ipAddress)", level: .info, function: #function, file: #file, line: #line)
-
         os_log("%{public}@ @ %{public}@", log: self._log, type: .error, foundRadioParameters.nickname, foundRadioParameters.publicIp)
       }
       if found {
@@ -617,7 +615,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
       _versions = versionInfo(framework: Api.kBundleIdentifier)
       
       // log them
-      os_log("%{public}@ v%{public}@, %{public}@, v%{public}@", log: self._log, type: .error, kClientName, _versions!.app, Api.kId, _versions!.api)
+      os_log("%{public}@ v%{public}@, %{public}@ v%{public}@", log: self._log, type: .error, kClientName, _versions!.app, Api.kId, _versions!.api)
     }
     
     // format and set the window title
@@ -661,10 +659,10 @@ public final class ViewController             : NSViewController, RadioPickerDel
     guard let selectedRadio = radio else { return false }
     
     // clear the previous Commands, Replies & Messages
-    if Defaults[.clearAtConnect] { _splitViewVC?.textArray.removeAll() ;_splitViewVC?._tableView.reloadData() }
+    if Defaults[.clearAtConnect] { _splitViewVC?.messages.removeAll() ;_splitViewVC?._tableView.reloadData() }
     
     // clear the objects
-    _splitViewVC?.objectsArray.removeAll()
+    _splitViewVC?.objects.removeAll()
     _splitViewVC?._objectsTableView.reloadData()
 
     // WAN connect
