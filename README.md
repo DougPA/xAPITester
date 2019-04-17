@@ -1,16 +1,25 @@
-# xAPITester
+# xAPITester for v3
 ## API Explorer for the FlexRadio (TM) 6000 series software defined radios.
 
 ### Built on:
-*  macOS 10.14.2 (Deployment Target of macOS 10.12)
-*  Xcode 10.1 (10B61)
-*  Swift 4.2
+*  macOS 10.14.4 (Deployment Target of macOS 10.12)
+*  Xcode 10.2(10E125)
+*  Swift 5.0
 
 
 **This version supports SmartLink (TM).**
 
 
 ## Usage
+
+
+
+
+THIS IS MY INITIAL WORK ON v3 COMPATIBILITY, IT IS NOT A COMPLETE, WORKING v3 IMPLEMENTATION
+
+
+
+
 
 Two short videos explaining how to use the app (v5.1.2) can be found at:
 

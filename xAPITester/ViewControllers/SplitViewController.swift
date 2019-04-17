@@ -279,48 +279,32 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     }
     
     // is there an Object expecting to be notified?
-    if let replyTuple = replyHandlers[ components[0] ] {
+    if let _ = replyHandlers[ components[0] ] {
       
-      // an Object is waiting for this reply, send the Command to the Handler on that Object
-      
-      let command = replyTuple.command
-      
-      // is there a ReplyHandler for this command?
-      //      if let handler = replyTuple.replyTo {
-      //
-      //        // YES, pass it to the ReplyHandler
-      //        handler(command, components[0], components[1], (components.count == 3) ? components[2] : "")
-      //      }
-      // Show all replies?
-      if Defaults[.showAllReplies] {
+      switch (Defaults[.showAllReplies], components[1], components[2]) {
         
-        // SHOW ALL, is it a ping reply?
-        if command == "ping" {
-          
-          // YES, are pings being shown?
-          if Defaults[.showPings] {
-            
-            // YES, show the ping reply
-            showInTable("R\(commandSuffix)")
-          }
-        } else {
-          
-          // SHOW ALL, it's not a ping reply
-          showInTable("R\(commandSuffix)")
-        }
+      // NOT SHOW ALL, "0" response
+      case (false, "0", _):   break
         
-      } else if components[1] != "0" || (components.count > 2 && components[2] != "") {
+      // SHOW ALL, "0" response
+      case (true, "0", _):    showInTable("R\(commandSuffix)")
         
-        // NOT SHOW ALL, only show non-zero replies with additional information
-        showInTable("R\(commandSuffix)")
+      // ANY, non-zero, no explanation
+      case (_, _, ""):        showInTable("R\(commandSuffix)\(flexErrorString(errorCode: components[1]))")
+        
+      // ANY, non-zero, with explanation
+      case (_, _, _):         showInTable("R\(commandSuffix)")
       }
-      // Remove the object from the notification list
-      replyHandlers[components[0]] = nil
       
     } else {
       
       // no Object is waiting for this reply, show it
-      showInTable("R\(commandSuffix)")
+      if components[2] == "" {
+        showInTable("R\(commandSuffix)\(flexErrorString(errorCode: components[1]))")
+      
+      } else {
+        showInTable("R\(commandSuffix)")
+      }
     }
   }
   /// Redraw the Objects table
@@ -332,42 +316,51 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       
       // Radio
       if let radio = Api.sharedInstance.activeRadio {
-        self.showInObjectsTable("Radio          name = \(radio.nickname)  model = \(radio.model), version = \(radio.firmwareVersion)" +
+        
+        self.showInObjectsTable("Radio  name = \(radio.nickname)  model = \(radio.model), version = \(radio.firmwareVersion)" +
           ", atu = \(Api.sharedInstance.radio!.atuPresent ? "Yes" : "No"), gps = \(Api.sharedInstance.radio!.gpsPresent ? "Yes" : "No")" +
           ", scu's = \(Api.sharedInstance.radio!.numberOfScus)")
         
-        // Panadapters
-        for (_, panadapter) in self._api.radio!.panadapters {
-          self.showInObjectsTable("Panadapter     \(panadapter.id.hex)  center = \(panadapter.center.hzToMhz)  bandwidth = \(panadapter.bandwidth.hzToMhz)")
+        self.showInObjectsTable("\n")
+
+        for client in Api.sharedInstance.radio!.guiClients.values {
           
-          // Waterfall for this Panadapter
-          for (_, waterfall) in self._api.radio!.waterfalls where panadapter.id == waterfall.panadapterId {
-            self.showInObjectsTable("      Waterfall      \(waterfall.id.hex) stream")
-          }
+          self.showInObjectsTable("   Client  handle = \(client.handle.hex)  program = \(client.program)  station = \(client.station), id = \(client.id?.uuidString ?? "")")
           
-          // IQ Streams for this Panadapter
-          for (_, iqStream) in self._api.radio!.iqStreams where panadapter.id == iqStream.pan {
-            self.showInObjectsTable("      DaxIq          \(iqStream.id.hex) stream")
-          }
-          
-          // Slices for this Panadapter
-          for (_, slice) in self._api.radio!.slices where panadapter.id == slice.panadapterId {
-            self.showInObjectsTable("      Slice          \(slice.id)  pan = \(slice.panadapterId.hex)  frequency = \(slice.frequency.hzToMhz)  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)")
+          // Panadapters
+          for (_, panadapter) in self._api.radio!.panadapters where panadapter.clientHandle == client.handle {
+            self.showInObjectsTable("      Panadapter     \(panadapter.id.hex)  center = \(panadapter.center.hzToMhz)  bandwidth = \(panadapter.bandwidth.hzToMhz)")
             
-            // Audio Stream for this Slice
-            for (_, audioStream) in self._api.radio!.audioStreams {
-              if audioStream.slice?.id == slice.id {
-                self.showInObjectsTable("           DaxAudio       \(audioStream.id.hex) stream")
-              }
+            // Waterfall for this Panadapter
+            for (_, waterfall) in self._api.radio!.waterfalls where panadapter.id == waterfall.panadapterId {
+            self.showInObjectsTable("         Waterfall   \(waterfall.id.hex)  autoBlaclEnabled = \(waterfall.autoBlackEnabled),  colorGain = \(waterfall.colorGain),  blackLevel = \(waterfall.blackLevel),  duration = \(waterfall.lineDuration)")
             }
             
-            // sort the Meters for this Slice
-            for (_, meter) in self._api.radio!.meters.sorted(by: { $0.value.number < $1.value.number }) {
-              if meter.source == "slc" && meter.group == slice.id {
-              self.showInObjectsTable("           Meter \(("00" + meter.number).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
+            // IQ Streams for this Panadapter
+            for (_, iqStream) in self._api.radio!.iqStreams where panadapter.id == iqStream.pan {
+            self.showInObjectsTable("         DaxIq        \(iqStream.id.hex) stream")
+            }
+            
+            // Slices for this Panadapter
+            for (_, slice) in self._api.radio!.slices where panadapter.id == slice.panadapterId {
+            self.showInObjectsTable("         Slice       \(slice.id)  frequency = \(slice.frequency.hzToMhz)  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)")
+              
+              // Audio Stream for this Slice
+              for (_, audioStream) in self._api.radio!.audioStreams {
+                if audioStream.slice?.id == slice.id {
+                  self.showInObjectsTable("            DaxAudio       \(audioStream.id.hex) stream")
+                }
               }
-            }            
+              
+              // sort the Meters for this Slice
+              for (_, meter) in self._api.radio!.meters.sorted(by: { $0.value.number < $1.value.number }) {
+                if meter.source == "slc" && meter.group == slice.id {
+                  self.showInObjectsTable("            Meter \(("00" + meter.number).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
+                }
+              }
+            }
           }
+          self.showInObjectsTable("\n")
         }
         // Tx Audio Streams
         for (_, txAudioStream) in self._api.radio!.txAudioStreams {
@@ -643,34 +636,34 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         // Objects, get the text including Timestamp
         let rowText = _filteredObjects[row]
         
-        // get the text without the Timestamp
+        // get the text without the Timestamp and any leading spaces
         let msgText = String(rowText.dropFirst(9))
+        let textType = msgText.trimmingCharacters(in: .whitespaces)
         
         // determine the type of text, assign a background color
-        if msgText.hasPrefix("Radio") {
-          
-          // ADDED or REMOVED Radio messages
-          view.textField!.backgroundColor = NSColor.labelColor.withAlphaComponent(0.2)
+        if textType.hasPrefix("Radio") {
+          view.textField!.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.4)
 
-        } else if msgText.hasPrefix("STARTED") {
-          
-          // Subordinate messages
-          view.textField!.backgroundColor = NSColor.systemBrown.withAlphaComponent(0.2)
+        } else if textType.hasPrefix("Client") {
+          view.textField!.backgroundColor = NSColor.systemBrown.withAlphaComponent(0.4)
 
-        } else if msgText.hasSuffix("stream") {
+        } else if textType.hasPrefix("Panadapter")  {
+          view.textField!.backgroundColor = NSColor.systemRed.withAlphaComponent(0.4)
           
-          // Subordinate messages
-          view.textField!.backgroundColor = NSColor.systemBlue.withAlphaComponent(0.3)
+        } else if textType.hasPrefix("Waterfall") || textType.hasPrefix("Slice") {
+          view.textField!.backgroundColor = NSColor.systemBlue.withAlphaComponent(0.4)
 
-        } else if msgText.hasPrefix("    ") {
+        } else if textType.hasPrefix("DaxIq") || textType.hasPrefix("DaxAudio"){
+          view.textField!.backgroundColor = NSColor.systemPurple.withAlphaComponent(0.4)
+
+        } else if textType.hasPrefix("Meter") {
+          view.textField!.backgroundColor = NSColor.systemOrange.withAlphaComponent(0.4)
           
-          // Subordinate messages
-          view.textField!.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.2)
+        } else if textType.hasPrefix("\n") {
+          view.textField!.backgroundColor = NSColor.black
 
         } else {
-          
-          // Other messages
-          view.textField!.backgroundColor = NSColor.systemYellow.withAlphaComponent(0.2)
+          view.textField!.backgroundColor = NSColor.systemYellow.withAlphaComponent(0.4)
         }
         // set the font
         view.textField!.font = _font

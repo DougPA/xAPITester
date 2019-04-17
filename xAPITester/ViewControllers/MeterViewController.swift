@@ -61,6 +61,10 @@ class MeterViewController                     : NSViewController, NSTableViewDel
     addNotifications()
   }
   
+  override func viewWillAppear() {
+    view.window!.level = .floating
+  }
+  
   // ----------------------------------------------------------------------------
   // MARK: - Action Methods
   
@@ -158,10 +162,7 @@ class MeterViewController                     : NSViewController, NSTableViewDel
     
     if let radio = Api.sharedInstance.radio {
       _meters = Array(radio.meters.values).sorted(by: {Int($0.number, radix: 10) ?? 0 < Int($1.number, radix: 10) ?? 0})
-    }
-    
-    Swift.print("Meters count = \(_filteredMeters.count)")
-    
+    }    
     return _filteredMeters.count
   }
   
@@ -203,7 +204,6 @@ class MeterViewController                     : NSViewController, NSTableViewDel
     default:
       fatalError("Invalid column id - \(tableColumn!.identifier.rawValue)")
     }
-
     return view
   }
 }

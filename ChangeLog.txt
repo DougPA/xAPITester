@@ -1,5 +1,13 @@
 xAPITester Change Log
 
+v5.2.1 17-Apr-19
+
+**** Many changes to support v3 ****
+
+MeterViewController.swift - made Meters window "floating"
+Added GuiClientViewController.swift
+SplitViewController.swift - added code to show Client in objects table
+
 v5.2.0 10-Apr-2019
 
 xLib6000.framework - incorporated v3.0.0
