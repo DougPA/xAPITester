@@ -27,7 +27,7 @@ protocol RadioPickerDelegate: class {
   ///   - handle:             remote handle
   /// - Returns:              success / failure
   ///
-  func openRadio(_ radio: RadioParameters?, isWan: Bool, wanHandle: String) -> Bool
+  func openRadio(_ radio: DiscoveredRadio?, isWan: Bool, wanHandle: String) -> Bool
   
   /// Close the active Radio
   ///
@@ -118,9 +118,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     // set the window title
     title()
     
-    // color the text field to match the kMyHandleColor
-    _streamId.backgroundColor = NSColor.systemPink.withAlphaComponent(0.1)
-
     // get / create the Application Support folder
     _appFolderUrl = FileManager.appFolder
 
@@ -563,47 +560,47 @@ public final class ViewController             : NSViewController, RadioPickerDel
   /// Determine if the Default radio (if any) is present
   ///
   fileprivate func checkForDefaultRadio() {
-    var found = false
-    
-    // get the default Radio
-    let defaultRadioParameters = RadioParameters( Defaults[.defaultRadio] )
-    
-    // is it valid?
-    if defaultRadioParameters.publicIp != "" && defaultRadioParameters.port != 0 {
-      
-      // YES, allow time to hear the UDP broadcasts
-      sleep(kDelayForAvailableRadios)
-      
-      // has the default Radio been found?
-      for (_, foundRadioParameters) in _api.availableRadios.enumerated() where foundRadioParameters == defaultRadioParameters {
-        
-        // YES, Save it in case something changed
-        found = true
-        Defaults[.defaultRadio] = foundRadioParameters.dict
-        
-        // log it
-        os_log("%{public}@ @ %{public}@", log: self._log, type: .error, foundRadioParameters.nickname, foundRadioParameters.publicIp)
-      }
-      if found {
-        
-        // can the default radio be opened?
-        if !openRadio(defaultRadioParameters) {
-          _splitViewVC?.msg("Error opening default radio, \(defaultRadioParameters.nickname)")
-          
-          // NO, open the Radio Picker
-          openRadioPicker( self)
-        }
-        
-      } else {
-        
-        // NOT FOUND, open the Radio Picker
-        openRadioPicker( self)
-      }
-    
-    } else {
+//    var found = false
+//
+//    // get the default Radio
+//    let defaultRadioParameters = RadioParameters( Defaults[.defaultRadio] )
+//
+//    // is it valid?
+//    if defaultRadioParameters.publicIp != "" && defaultRadioParameters.port != 0 {
+//
+//      // YES, allow time to hear the UDP broadcasts
+//      sleep(kDelayForAvailableRadios)
+//
+//      // has the default Radio been found?
+//      for (_, foundRadioParameters) in _api.availableRadios.enumerated() where foundRadioParameters == defaultRadioParameters {
+//
+//        // YES, Save it in case something changed
+//        found = true
+//        Defaults[.defaultRadio] = foundRadioParameters.dict
+//
+//        // log it
+//        os_log("%{public}@ @ %{public}@", log: self._log, type: .error, foundRadioParameters.nickname, foundRadioParameters.publicIp)
+//      }
+//      if found {
+//
+//        // can the default radio be opened?
+//        if !openRadio(defaultRadioParameters) {
+//          _splitViewVC?.msg("Error opening default radio, \(defaultRadioParameters.nickname)")
+//
+//          // NO, open the Radio Picker
+//          openRadioPicker( self)
+//        }
+//
+//      } else {
+//
+//        // NOT FOUND, open the Radio Picker
+//        openRadioPicker( self)
+//      }
+//
+//    } else {
       // NOT VALID, open the Radio Picker
       openRadioPicker(self)
-    }
+//    }
   }
   /// Set the Window's title
   ///
@@ -653,7 +650,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   ///   - wanHandle:            Wan handle (if any)
   /// - Returns:                success / failure
   ///
-  func openRadio(_ radio: RadioParameters?, isWan: Bool = false, wanHandle: String = "") -> Bool {
+  func openRadio(_ radio: DiscoveredRadio?, isWan: Bool = false, wanHandle: String = "") -> Bool {
     
     // fail if no Radio selected
     guard let selectedRadio = radio else { return false }
@@ -679,11 +676,11 @@ public final class ViewController             : NSViewController, RadioPickerDel
     // if not a GUI connection, allow the Tester to see all stream objects
     _api.testerModeEnabled = !Defaults[.isGui]
 
+    _startTimestamp = Date()
+
     // attempt to connect to it
     if _api.connect(selectedRadio, clientName: kClientName, isGui: Defaults[.isGui]) {
-      
-      _startTimestamp = Date()
-      
+            
       self._connectButton.title = self.kDisconnect.rawValue
       self._connectButton.identifier = self.kDisconnect
       self._sendButton.isEnabled = true

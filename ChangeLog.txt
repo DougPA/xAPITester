@@ -1,5 +1,19 @@
 xAPITester Change Log
 
+v5.2.2 18-Apr-19
+
+incorporated xLib6000 v3.0.1
+Changes to use DiscoveredRadio in place of RadioParameters
+SplitViewController.swift - added ",command = <command text>" to all reply messages shown in the table
+LanRadioPickerViewController.swift - corrected table column identifiers
+WanRadioPickerViewController.swift - corrected table column identifiers
+GuiClientViewController.swift - in guiClientHasBeenAdded(_:) use dispatch to main queue
+GuiClientViewController.swift - in guiClientWillBeRemoved(_:) use dispatch to main queue
+SplitViewController.swift - in parseReply(_:) corrected logic
+SplitViewController.swift - in showInTable(_:) corrected timstamp logic
+ViewController.swift - in viewDidLoad() removed backgroundColor on connectionHandle text field
+
+
 v5.2.1 17-Apr-19
 
 **** Many changes to support v3 ****

@@ -159,14 +159,12 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   /// Refresh the TableView & make its last row visible
   ///
   internal func reloadTable() {
-    
     DispatchQueue.main.async { [unowned self] in
       // reload the table
       self._tableView.reloadData()
       
       // make sure the last row is visible
-      if self._tableView.numberOfRows > 0 {
-        
+      if self._tableView.numberOfRows > 0 {        
         self._tableView.scrollRowToVisible(self._tableView.numberOfRows - 1)
       }
     }
@@ -174,12 +172,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   /// Refresh the Objects TableView & make its last row visible
   ///
   internal func reloadObjectsTable() {
-    
     DispatchQueue.main.async { [unowned self] in
       // reload the table
       self._objectsTableView?.reloadData()
-      
-      // make sure the last row is visible
     }
   }
   
@@ -237,10 +232,10 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   private func showInTable(_ text: String) {
     
     // guard that a session has been started
-    guard let startTimestamp = self._parent!._startTimestamp else { return }
-    
+//    guard let startTimestamp = self._parent!._startTimestamp else { return }
+
     // add the Timestamp to the Text
-    let timeInterval = Date().timeIntervalSince(startTimestamp)
+    let timeInterval = Date().timeIntervalSince(self._parent!._startTimestamp!)
     messages.append( String( format: "%8.3f", timeInterval) + " " + text )
     
     reloadTable()
@@ -271,15 +266,12 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     // ignore incorrectly formatted replies
     if components.count < 2 {
-      
-//      _api.log.msg("Incomplete reply, c\(commandSuffix)", level: .error, function: #function, file: #file, line: #line)
-
       os_log("Incomplete reply, c%{public}@", log: self._log, type: .error, commandSuffix)
       return
     }
     
     // is there an Object expecting to be notified?
-    if let _ = replyHandlers[ components[0] ] {
+    if let replyTuple = replyHandlers[ components[0] ] {
       
       switch (Defaults[.showAllReplies], components[1], components[2]) {
         
@@ -287,13 +279,20 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       case (false, "0", _):   break
         
       // SHOW ALL, "0" response
-      case (true, "0", _):    showInTable("R\(commandSuffix)")
+      case (true, "0", _):
         
+        switch replyTuple.command {
+        case "ping":
+          if Defaults[.showPings] { showInTable("R\(commandSuffix),  command = \(replyTuple.command)") }
+        default:
+          showInTable("R\(commandSuffix),  command = \(replyTuple.command)")
+        }
+      
       // ANY, non-zero, no explanation
-      case (_, _, ""):        showInTable("R\(commandSuffix)\(flexErrorString(errorCode: components[1]))")
+      case (_, _, ""):        showInTable("R\(commandSuffix)\(flexErrorString(errorCode: components[1])),  command = \(replyTuple.command)")
         
       // ANY, non-zero, with explanation
-      case (_, _, _):         showInTable("R\(commandSuffix)")
+      case (_, _, _):         showInTable("R\(commandSuffix),  command = \(replyTuple.command)")
       }
       
     } else {

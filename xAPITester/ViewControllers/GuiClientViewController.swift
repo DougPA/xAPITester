@@ -49,14 +49,18 @@ class GuiClientViewController                   : NSViewController, NSTableViewD
   /// - Parameter note:       a Notification instance
   ///
   @objc private func guiClientHasBeenAdded(_ note: Notification) {
-    _tableView.reloadData()
+    DispatchQueue.main.async { [weak self] in
+      self?._tableView.reloadData()
+    }
   }
   /// Process guiClientWillBeRemoved Notification
   ///
   /// - Parameter note:       a Notification instance
   ///
   @objc private func guiClientWillBeRemoved(_ note: Notification) {
-    _tableView.reloadData()
+    DispatchQueue.main.async { [weak self] in
+      self?._tableView.reloadData()
+    }
   }
   
   // ----------------------------------------------------------------------------

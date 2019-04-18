@@ -37,7 +37,7 @@ extension DefaultsKeys {
   static let clearAtConnect                 = DefaultsKey<Bool>("clearAtConnect")
   static let clearOnSend                    = DefaultsKey<Bool>("clearOnSend")
 //  static let commandColor                   = DefaultsKey<NSColor>("commandColor")
-  static let defaultRadio                   = DefaultsKey<[String: Any]>("defaultRadio")
+  static let defaultRadioSerialNumber       = DefaultsKey<String>("defaultRadioSerialNumber")
   static let enablePinging                  = DefaultsKey<Bool>("enablePinging")
   static let filter                         = DefaultsKey<String>("filter")
   static let filterByTag                    = DefaultsKey<Int>("filterByTag")

@@ -98,10 +98,8 @@ class MeterViewController                     : NSViewController, NSTableViewDel
   
   /// Refresh the TableView & make its last row visible
   ///
-  internal func reloadMetersTable() {
-    
+  internal func reloadMetersTable() {    
     DispatchQueue.main.async { [unowned self] in
-
       self.filterMetersText.stringValue = Defaults[.filterMeters]
 
       // reload the table
@@ -128,7 +126,6 @@ class MeterViewController                     : NSViewController, NSTableViewDel
   /// - Parameter note:       a Notification instance
   ///
   @objc private func meterAddedRemoved(_ note: Notification) {
-  
     DispatchQueue.main.async { [weak self] in
       self?._tableView.reloadData()
     }

@@ -34,7 +34,7 @@ protocol LANRadioPickerDelegate: class {
   ///   - handle:         remote handle
   /// - Returns:          success / failure
   ///
-  func openRadio(_ radio: RadioParameters?, remote: Bool, handle: String ) -> Bool
+  func openRadio(_ radio: DiscoveredRadio?, remote: Bool, handle: String ) -> Bool
   
   /// Close the active Radio
   ///
@@ -67,7 +67,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   
   private var _api                          = Api.sharedInstance
   private let _log                          = OSLog(subsystem: Api.kDomainId + "." + kClientName, category: "LANRadioPickerVC")
-  private var _selectedRadio                : RadioParameters?            // Radio in selected row
+  private var _selectedRadio                : DiscoveredRadio?            // Radio in selected row
   private var _parentVc                     : NSViewController!
   
   private weak var _delegate                : RadioPickerDelegate? {
@@ -134,11 +134,11 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     // Clear / Set the Default
     if sender.title == kClearDefault {
       
-      Defaults[.defaultRadio] = RadioParameters().dict
+      Defaults[.defaultRadioSerialNumber] = ""
       
     } else {
       
-      Defaults[.defaultRadio] = _api.availableRadios[selectedRow].dict
+      Defaults[.defaultRadioSerialNumber] = _api.discoveredRadios[selectedRow].serialNumber
     }
     
     // to display the Default status
@@ -234,8 +234,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   @objc private func radiosAvailable(_ note: Notification) {
     
-    DispatchQueue.main.async { [unowned self] in
-      
+    DispatchQueue.main.async { [unowned self] in      
       self._radioTableView.reloadData()
     }
   }
@@ -251,7 +250,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   func numberOfRows(in aTableView: NSTableView) -> Int {
     
     // get the number of rows
-    return _api.availableRadios.count
+    return _api.discoveredRadios.count
   }
   
   // ----------------------------------------------------------------------------
@@ -271,30 +270,29 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     let cellView = tableView.makeView(withIdentifier: tableColumn!.identifier, owner:self) as! NSTableCellView
     
     // is this the default row?
-    let isDefaultRow = RadioParameters( Defaults[.defaultRadio] ) == _api.availableRadios[row]
+    let isDefaultRow = Defaults[.defaultRadioSerialNumber]  == _api.discoveredRadios[row].serialNumber
     
-    // default field?
-    if tableColumn!.identifier.rawValue == kColumnIdentifierDefaultRadio {
-      
-      // YES
-      cellView.textField!.stringValue = (isDefaultRow ? kDefaultFlag : "")
-      
-    } else {
-      
-      // NO, all other fields, set the stringValue of the cell's text field to the appropriate field
-      cellView.textField!.stringValue = _api.availableRadios[row].valueForName(tableColumn!.identifier.rawValue)
+    // set the stringValue of the cell's text field to the appropriate field
+    switch tableColumn!.identifier.rawValue {
+    case "model":
+      cellView.textField!.stringValue = _api.discoveredRadios[row].model
+    case "nickname":
+      cellView.textField!.stringValue = _api.discoveredRadios[row].nickname
+    case "status":
+      cellView.textField!.stringValue = _api.discoveredRadios[row].status
+    case "publicIp":
+      cellView.textField!.stringValue = _api.discoveredRadios[row].publicIp
+    default:
+      break
     }
     
-    cellView.wantsLayer = true
     // color the default row
+    cellView.wantsLayer = true
     if isDefaultRow {
       cellView.layer!.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.2).cgColor
     } else {
       cellView.layer!.backgroundColor = NSColor.clear.cgColor
     }
-    
-    // make the discovery fields a tooltip
-    cellView.toolTip = _api.availableRadios[row].description
     return cellView
   }
   /// Tableview selection change delegate method
@@ -308,23 +306,19 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     _defaultButton.isEnabled = (_radioTableView.selectedRow >= 0)
     
     if _radioTableView.selectedRow >= 0 {
-      
       // a row is selected
-      _selectedRadio = _api.availableRadios[_radioTableView.selectedRow]
-      
-      // set "default button" title appropriately
-      let defaultRadio = RadioParameters( Defaults[.defaultRadio] )
+      _selectedRadio = _api.discoveredRadios[_radioTableView.selectedRow]
       
       // set the "select button" title appropriately
       var isActive = false
       if let activeRadio = _api.activeRadio {
-        isActive = ( activeRadio == _api.availableRadios[_radioTableView.selectedRow] )
+        isActive = ( activeRadio == _api.discoveredRadios[_radioTableView.selectedRow] )
       }
-      _defaultButton.title = (defaultRadio == _api.availableRadios[_radioTableView.selectedRow] ? kClearDefault : kSetAsDefault)
+      // set "default button" title appropriately
+      _defaultButton.title = (Defaults[.defaultRadioSerialNumber] == _api.discoveredRadios[_radioTableView.selectedRow].serialNumber ? kClearDefault : kSetAsDefault)
       _selectButton.title = (isActive ? kDisconnectTitle : kConnectTitle)
       
     } else {
-      
       // no row is selected, set the button titles
       _defaultButton.title = kSetAsDefault
       _selectButton.title = kConnectTitle
