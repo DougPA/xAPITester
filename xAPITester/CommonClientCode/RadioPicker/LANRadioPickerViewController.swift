@@ -268,22 +268,19 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     
     // get a view for the cell
     let cellView = tableView.makeView(withIdentifier: tableColumn!.identifier, owner:self) as! NSTableCellView
-    
+    cellView.toolTip = _api.discoveredRadios[row].description
+
     // is this the default row?
     let isDefaultRow = Defaults[.defaultRadioSerialNumber]  == _api.discoveredRadios[row].serialNumber
     
     // set the stringValue of the cell's text field to the appropriate field
     switch tableColumn!.identifier.rawValue {
-    case "model":
-      cellView.textField!.stringValue = _api.discoveredRadios[row].model
-    case "nickname":
-      cellView.textField!.stringValue = _api.discoveredRadios[row].nickname
-    case "status":
-      cellView.textField!.stringValue = _api.discoveredRadios[row].status
-    case "publicIp":
-      cellView.textField!.stringValue = _api.discoveredRadios[row].publicIp
-    default:
-      break
+      
+    case "model":     cellView.textField!.stringValue = _api.discoveredRadios[row].model
+    case "nickname":  cellView.textField!.stringValue = _api.discoveredRadios[row].nickname
+    case "status":    cellView.textField!.stringValue = _api.discoveredRadios[row].status
+    case "publicIp":  cellView.textField!.stringValue = _api.discoveredRadios[row].publicIp
+    default:          fatalError()
     }
     
     // color the default row

@@ -668,19 +668,15 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     
     // get a view for the cell
     let cellView = tableView.makeView(withIdentifier: tableColumn!.identifier, owner:self) as! NSTableCellView
-    
+    cellView.toolTip = _api.discoveredRadios[row].description
+
     // set the stringValue of the cell's text field to the appropriate field
     switch tableColumn!.identifier.rawValue {
-    case "model":
-      cellView.textField!.stringValue = _availableRemoteRadios[row].model
-    case "nickname":
-      cellView.textField!.stringValue = _availableRemoteRadios[row].nickname
-    case "status":
-      cellView.textField!.stringValue = _availableRemoteRadios[row].status
-    case "publicIp":
-      cellView.textField!.stringValue = _availableRemoteRadios[row].publicIp
-    default:
-      break
+    case "model":     cellView.textField!.stringValue = _availableRemoteRadios[row].model
+    case "nickname":  cellView.textField!.stringValue = _availableRemoteRadios[row].nickname
+    case "status":    cellView.textField!.stringValue = _availableRemoteRadios[row].status
+    case "publicIp":  cellView.textField!.stringValue = _availableRemoteRadios[row].publicIp
+    default:          fatalError()
     }
     return cellView
   }

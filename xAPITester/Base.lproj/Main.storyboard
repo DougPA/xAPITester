@@ -36,7 +36,7 @@
                                                 <segue destination="O7A-Nr-J4z" kind="show" id="DmM-Mh-L4H"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="GUI Clients" id="O1B-2l-VEa">
+                                        <menuItem title="Connected Clients" id="O1B-2l-VEa">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <segue destination="sB1-03-vvl" kind="show" id="DBV-0J-Yck"/>
@@ -1838,7 +1838,7 @@ Gw
                                                             <rect key="frame" x="157" y="1" width="125" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <textField toolTip="A different tooltip" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Wk1-Ph-6Hm">
+                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Wk1-Ph-6Hm">
                                                                     <rect key="frame" x="0.0" y="0.0" width="125" height="17"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="left" title="Table View Cell" id="WHK-S1-ROE">
                                                                         <font key="font" metaFont="system"/>
@@ -2341,21 +2341,21 @@ Gw
             </objects>
             <point key="canvasLocation" x="295" y="1824"/>
         </scene>
-        <!--GuiClients-->
+        <!--Connected Clients-->
         <scene sceneID="aMU-GO-0gr">
             <objects>
-                <viewController title="GuiClients" storyboardIdentifier="GuiClients" showSeguePresentationStyle="single" id="sB1-03-vvl" customClass="GuiClientViewController" customModule="xAPITester" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Connected Clients" storyboardIdentifier="GuiClients" showSeguePresentationStyle="single" id="sB1-03-vvl" customClass="GuiClientViewController" customModule="xAPITester" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="Vlo-cK-toF">
                         <rect key="frame" x="0.0" y="0.0" width="922" height="352"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <scrollView autohidesScrollers="YES" horizontalLineScroll="44" horizontalPageScroll="10" verticalLineScroll="44" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PVj-FF-EtV">
+                            <scrollView autohidesScrollers="YES" horizontalLineScroll="23" horizontalPageScroll="10" verticalLineScroll="23" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PVj-FF-EtV">
                                 <rect key="frame" x="20" y="20" width="882" height="292"/>
                                 <clipView key="contentView" id="1PH-xO-xFp">
                                     <rect key="frame" x="1" y="0.0" width="880" height="291"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="42" rowSizeStyle="automatic" headerView="JHx-uE-3QR" viewBased="YES" id="jKk-ki-8bD">
+                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="21" rowSizeStyle="automatic" headerView="JHx-uE-3QR" viewBased="YES" id="jKk-ki-8bD">
                                             <rect key="frame" x="0.0" y="0.0" width="880" height="266"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
@@ -2376,11 +2376,11 @@ Gw
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="CqA-DU-rK2">
-                                                            <rect key="frame" x="1" y="1" width="125" height="42"/>
+                                                            <rect key="frame" x="1" y="1" width="125" height="21"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1yO-B1-sCh">
-                                                                    <rect key="frame" x="0.0" y="13" width="125" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="2" width="125" height="17"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="left" title="Table View Cell" id="yDU-6X-yfm">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -2389,9 +2389,13 @@ Gw
                                                                 </textField>
                                                             </subviews>
                                                             <constraints>
+                                                                <constraint firstItem="1yO-B1-sCh" firstAttribute="top" secondItem="CqA-DU-rK2" secondAttribute="top" constant="2" id="FwQ-hu-uiU"/>
+                                                                <constraint firstAttribute="trailing" secondItem="1yO-B1-sCh" secondAttribute="trailing" constant="2" id="O33-Nv-Z9k"/>
+                                                                <constraint firstItem="1yO-B1-sCh" firstAttribute="leading" secondItem="CqA-DU-rK2" secondAttribute="leading" constant="2" id="XdP-DV-Wcd"/>
                                                                 <constraint firstItem="1yO-B1-sCh" firstAttribute="centerX" secondItem="CqA-DU-rK2" secondAttribute="centerX" id="dUr-uv-8Fm"/>
                                                                 <constraint firstItem="1yO-B1-sCh" firstAttribute="centerY" secondItem="CqA-DU-rK2" secondAttribute="centerY" id="dak-zY-bnP"/>
                                                                 <constraint firstItem="1yO-B1-sCh" firstAttribute="leading" secondItem="CqA-DU-rK2" secondAttribute="leading" constant="2" id="gml-hR-kAO"/>
+                                                                <constraint firstAttribute="bottom" secondItem="1yO-B1-sCh" secondAttribute="bottom" constant="2" id="sKY-RW-u3m"/>
                                                             </constraints>
                                                             <connections>
                                                                 <outlet property="textField" destination="1yO-B1-sCh" id="t5H-1d-pvv"/>
@@ -2413,11 +2417,11 @@ Gw
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="O1O-mG-KhL">
-                                                            <rect key="frame" x="129" y="1" width="200" height="42"/>
+                                                            <rect key="frame" x="129" y="1" width="200" height="21"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="l98-53-hIn">
-                                                                    <rect key="frame" x="0.0" y="13" width="200" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="2" width="200" height="17"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="left" title="Table View Cell" id="8Ll-E1-Ztf">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -2426,8 +2430,12 @@ Gw
                                                                 </textField>
                                                             </subviews>
                                                             <constraints>
+                                                                <constraint firstItem="l98-53-hIn" firstAttribute="top" secondItem="O1O-mG-KhL" secondAttribute="top" constant="2" id="76X-2Q-SgX"/>
                                                                 <constraint firstItem="l98-53-hIn" firstAttribute="centerX" secondItem="O1O-mG-KhL" secondAttribute="centerX" id="MTe-Pe-UcY"/>
+                                                                <constraint firstAttribute="trailing" secondItem="l98-53-hIn" secondAttribute="trailing" constant="2" id="ORs-rI-2Tu"/>
                                                                 <constraint firstItem="l98-53-hIn" firstAttribute="centerY" secondItem="O1O-mG-KhL" secondAttribute="centerY" id="Y8R-WH-ohu"/>
+                                                                <constraint firstAttribute="bottom" secondItem="l98-53-hIn" secondAttribute="bottom" constant="2" id="fnl-NN-CZY"/>
+                                                                <constraint firstItem="l98-53-hIn" firstAttribute="leading" secondItem="O1O-mG-KhL" secondAttribute="leading" constant="2" id="lVF-tr-xhJ"/>
                                                                 <constraint firstItem="l98-53-hIn" firstAttribute="leading" secondItem="O1O-mG-KhL" secondAttribute="leading" constant="2" id="ydN-5b-F9s"/>
                                                             </constraints>
                                                             <connections>
@@ -2450,11 +2458,11 @@ Gw
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="ZhC-kn-XXB">
-                                                            <rect key="frame" x="332" y="1" width="200" height="42"/>
+                                                            <rect key="frame" x="332" y="1" width="200" height="21"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <textField toolTip="A different tooltip" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ifC-Yi-W5I">
-                                                                    <rect key="frame" x="0.0" y="13" width="200" height="17"/>
+                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ifC-Yi-W5I">
+                                                                    <rect key="frame" x="0.0" y="2" width="200" height="17"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="left" title="Table View Cell" id="267-U0-p6Q">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -2464,8 +2472,12 @@ Gw
                                                             </subviews>
                                                             <constraints>
                                                                 <constraint firstItem="ifC-Yi-W5I" firstAttribute="centerX" secondItem="ZhC-kn-XXB" secondAttribute="centerX" id="GsG-Ga-iHL"/>
+                                                                <constraint firstAttribute="trailing" secondItem="ifC-Yi-W5I" secondAttribute="trailing" constant="2" id="IIr-cG-KG1"/>
+                                                                <constraint firstAttribute="bottom" secondItem="ifC-Yi-W5I" secondAttribute="bottom" constant="2" id="X8P-xg-RxH"/>
                                                                 <constraint firstItem="ifC-Yi-W5I" firstAttribute="leading" secondItem="ZhC-kn-XXB" secondAttribute="leading" constant="2" id="dfH-O3-DqU"/>
+                                                                <constraint firstItem="ifC-Yi-W5I" firstAttribute="top" secondItem="ZhC-kn-XXB" secondAttribute="top" constant="2" id="lFk-ac-LnD"/>
                                                                 <constraint firstItem="ifC-Yi-W5I" firstAttribute="centerY" secondItem="ZhC-kn-XXB" secondAttribute="centerY" id="voR-Fh-0ao"/>
+                                                                <constraint firstItem="ifC-Yi-W5I" firstAttribute="leading" secondItem="ZhC-kn-XXB" secondAttribute="leading" constant="2" id="wvp-H4-fBS"/>
                                                             </constraints>
                                                             <connections>
                                                                 <outlet property="textField" destination="ifC-Yi-W5I" id="7tU-lZ-w4N"/>
@@ -2487,11 +2499,11 @@ Gw
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="518-4a-dzP">
-                                                            <rect key="frame" x="535" y="1" width="340" height="42"/>
+                                                            <rect key="frame" x="535" y="1" width="340" height="21"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="b7d-tT-9JV">
-                                                                    <rect key="frame" x="0.0" y="13" width="340" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="2" width="340" height="17"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="left" title="Table View Cell" id="NvU-yo-xt3">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -2500,6 +2512,10 @@ Gw
                                                                 </textField>
                                                             </subviews>
                                                             <constraints>
+                                                                <constraint firstAttribute="trailing" secondItem="b7d-tT-9JV" secondAttribute="trailing" constant="2" id="270-6t-gcW"/>
+                                                                <constraint firstItem="b7d-tT-9JV" firstAttribute="top" secondItem="518-4a-dzP" secondAttribute="top" constant="2" id="2sL-Mc-Y6x"/>
+                                                                <constraint firstItem="b7d-tT-9JV" firstAttribute="leading" secondItem="518-4a-dzP" secondAttribute="leading" constant="2" id="NXF-K7-Ije"/>
+                                                                <constraint firstAttribute="bottom" secondItem="b7d-tT-9JV" secondAttribute="bottom" constant="2" id="Rsk-YV-pb4"/>
                                                                 <constraint firstItem="b7d-tT-9JV" firstAttribute="leading" secondItem="518-4a-dzP" secondAttribute="leading" constant="2" id="Xrw-BR-LaF"/>
                                                                 <constraint firstItem="b7d-tT-9JV" firstAttribute="centerY" secondItem="518-4a-dzP" secondAttribute="centerY" id="eU7-VH-bov"/>
                                                                 <constraint firstItem="b7d-tT-9JV" firstAttribute="centerX" secondItem="518-4a-dzP" secondAttribute="centerX" id="rMi-lW-hrS"/>

@@ -1,5 +1,11 @@
 xAPITester Change Log
 
+v5.2.3 22-Apr-2019
+
+incorporated xLib6000 v3.0.2
+changes throughout to use guiClients collection now on Api
+
+
 v5.2.2 18-Apr-19
 
 incorporated xLib6000 v3.0.1

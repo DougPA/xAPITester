@@ -16,7 +16,9 @@ class GuiClientViewController                   : NSViewController, NSTableViewD
   
   @IBOutlet private weak var _tableView         : NSTableView!
   
-  private var _clients                          = [GuiClient]()
+  private var _clients                          : [GuiClient] {
+    return Array(Api.sharedInstance.guiClients.values)
+  }
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden Methods
@@ -38,26 +40,17 @@ class GuiClientViewController                   : NSViewController, NSTableViewD
   ///     (as of 10.11, subscriptions are automatically removed on deinit when using the Selector-based approach)
   ///
   private func addNotifications() {
-    
-    NC.makeObserver(self, with: #selector(guiClientHasBeenAdded(_:)), of: .guiClientHasBeenAdded)
-    
-    NC.makeObserver(self, with: #selector(guiClientWillBeRemoved(_:)), of: .guiClientWillBeRemoved)
-    
+
+    NC.makeObserver(self, with: #selector(guiClientsChanged(_:)), of: .guiClientHasBeenAdded)
+
+    NC.makeObserver(self, with: #selector(guiClientsChanged(_:)), of: .guiClientWillBeRemoved)
   }
-  /// Process guiClientHasBeenAdded or meterWillBeRemoved Notification
+  /// Process guiClientHasBeenAdded or guiClientWillBeRemoved Notification
   ///
   /// - Parameter note:       a Notification instance
   ///
-  @objc private func guiClientHasBeenAdded(_ note: Notification) {
-    DispatchQueue.main.async { [weak self] in
-      self?._tableView.reloadData()
-    }
-  }
-  /// Process guiClientWillBeRemoved Notification
-  ///
-  /// - Parameter note:       a Notification instance
-  ///
-  @objc private func guiClientWillBeRemoved(_ note: Notification) {
+  @objc private func guiClientsChanged(_ note: Notification) {
+
     DispatchQueue.main.async { [weak self] in
       self?._tableView.reloadData()
     }
@@ -73,9 +66,6 @@ class GuiClientViewController                   : NSViewController, NSTableViewD
   ///
   public func numberOfRows(in aTableView: NSTableView) -> Int {
     
-    if let radio = Api.sharedInstance.radio {
-      _clients = Array(radio.guiClients.values).sorted(by: { $0.handle < $1.handle} )
-    }
     return _clients.count
   }
   
@@ -94,6 +84,11 @@ class GuiClientViewController                   : NSViewController, NSTableViewD
     
     // get a view for the cell
     let view = tableView.makeView(withIdentifier: tableColumn!.identifier, owner:self) as! NSTableCellView
+    view.toolTip =
+    """
+    Host:\t\t\(_clients[row].host)
+    Ip:\t\t\(_clients[row].ip)
+    """
     
     // set the text
     switch tableColumn!.identifier.rawValue {
@@ -105,7 +100,7 @@ class GuiClientViewController                   : NSViewController, NSTableViewD
     case "Program":
       view.textField!.stringValue = _clients[row].program
     case "Id":
-      view.textField!.stringValue = _clients[row].id?.uuidString ?? ""
+      view.textField!.stringValue = _clients[row].id?.uuidString ?? "Non-Gui"
     default:
       fatalError("Invalid column id - \(tableColumn!.identifier.rawValue)")
     }

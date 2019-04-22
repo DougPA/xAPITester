@@ -322,10 +322,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
         self.showInObjectsTable("\n")
 
-        for client in Api.sharedInstance.radio!.guiClients.values {
-          
-          self.showInObjectsTable("   Client  handle = \(client.handle.hex)  program = \(client.program)  station = \(client.station), id = \(client.id?.uuidString ?? "")")
-          
+        for client in Api.sharedInstance.guiClients.values {
+        
+          self.showInObjectsTable("   \(client.id == nil ? "Non-Gui Client" : "Gui Client")  handle = \(client.handle.hex)  program = \(client.program)  station = \(client.station)" +
+            "\(client.id == nil ? "" : ", id = \(client.id!.uuidString)"), host =  \(client.host), ip =  \(client.ip)")
+        
           // Panadapters
           for (_, panadapter) in self._api.radio!.panadapters where panadapter.clientHandle == client.handle {
             self.showInObjectsTable("      Panadapter     \(panadapter.id.hex)  center = \(panadapter.center.hzToMhz)  bandwidth = \(panadapter.bandwidth.hzToMhz)")
@@ -643,9 +644,12 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         if textType.hasPrefix("Radio") {
           view.textField!.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.4)
 
-        } else if textType.hasPrefix("Client") {
+        } else if textType.hasPrefix("Gui Client") {
           view.textField!.backgroundColor = NSColor.systemBrown.withAlphaComponent(0.4)
 
+        } else if textType.hasPrefix("Non-Gui Client") {
+          view.textField!.backgroundColor = NSColor.systemBrown.withAlphaComponent(0.1)
+          
         } else if textType.hasPrefix("Panadapter")  {
           view.textField!.backgroundColor = NSColor.systemRed.withAlphaComponent(0.4)
           
