@@ -38,7 +38,7 @@ protocol RadioPickerDelegate: class {
 // MARK: - ViewController Class implementation
 // ------------------------------------------------------------------------------
 
-public final class ViewController             : NSViewController, RadioPickerDelegate,  NSTextFieldDelegate {
+public final class ViewController             : NSViewController, RadioPickerDelegate,  NSTextFieldDelegate, LogHandler {
   
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
@@ -101,6 +101,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
   
   public override func viewDidLoad() {
     super.viewDidLoad()
+    
+    _api.log.delegate = self
     
     _filterBy.selectItem(withTag: Defaults[.filterByTag])
     _filterObjectsBy.selectItem(withTag: Defaults[.filterObjectsByTag])
@@ -526,7 +528,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     // force a redraw
     _splitViewVC?.reloadObjectsTable()
   }
-  
+
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
@@ -560,47 +562,44 @@ public final class ViewController             : NSViewController, RadioPickerDel
   /// Determine if the Default radio (if any) is present
   ///
   fileprivate func checkForDefaultRadio() {
-//    var found = false
-//
-//    // get the default Radio
-//    let defaultRadioParameters = RadioParameters( Defaults[.defaultRadio] )
-//
-//    // is it valid?
-//    if defaultRadioParameters.publicIp != "" && defaultRadioParameters.port != 0 {
-//
-//      // YES, allow time to hear the UDP broadcasts
-//      sleep(kDelayForAvailableRadios)
-//
-//      // has the default Radio been found?
-//      for (_, foundRadioParameters) in _api.availableRadios.enumerated() where foundRadioParameters == defaultRadioParameters {
-//
-//        // YES, Save it in case something changed
-//        found = true
-//        Defaults[.defaultRadio] = foundRadioParameters.dict
-//
-//        // log it
-//        os_log("%{public}@ @ %{public}@", log: self._log, type: .error, foundRadioParameters.nickname, foundRadioParameters.publicIp)
-//      }
-//      if found {
-//
-//        // can the default radio be opened?
-//        if !openRadio(defaultRadioParameters) {
-//          _splitViewVC?.msg("Error opening default radio, \(defaultRadioParameters.nickname)")
-//
-//          // NO, open the Radio Picker
-//          openRadioPicker( self)
-//        }
-//
-//      } else {
-//
-//        // NOT FOUND, open the Radio Picker
-//        openRadioPicker( self)
-//      }
-//
-//    } else {
+    var found = false
+    
+    // get the default Radio
+    let defaultRadioSerialNumber = Defaults[.defaultRadioSerialNumber]
+    
+    // is it valid?
+    if defaultRadioSerialNumber != "" {
+      
+      // YES, allow time to hear the UDP broadcasts
+      sleep(kDelayForAvailableRadios)
+      
+      // has the default Radio been found?
+      for radio in _api.discoveredRadios  {
+        
+        // is it the default radio?
+        if radio.serialNumber == defaultRadioSerialNumber {
+          
+          // YES, can the default radio be opened?
+          if openRadio(radio) {
+            found = true
+          } else {
+            _splitViewVC?.msg("Error opening default radio, \(radio.nickname)")
+            
+            // NO, open the Radio Picker
+            openRadioPicker( self)
+          }
+        }
+      }
+      if found == false {
+        
+        // NOT FOUND, open the Radio Picker
+        openRadioPicker( self)
+      }
+      
+    } else {
       // NOT VALID, open the Radio Picker
       openRadioPicker(self)
-//    }
+    }
   }
   /// Set the Window's title
   ///
@@ -612,7 +611,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
       _versions = versionInfo(framework: Api.kBundleIdentifier)
       
       // log them
-      os_log("%{public}@ v%{public}@, %{public}@ v%{public}@", log: self._log, type: .error, kClientName, _versions!.app, Api.kId, _versions!.api)
+//      os_log("%{public}@ v%{public}@, %{public}@ v%{public}@", log: self._log, type: .error, kClientName, _versions!.app, Api.kId, _versions!.api)
+      msg( "\(kClientName) v\(_versions!.app), \(Api.kId) v\(_versions!.api)", level: .info, function: #function, file: #file, line: #line)
     }
     
     // format and set the window title
@@ -786,6 +786,30 @@ public final class ViewController             : NSViewController, RadioPickerDel
     }
     // return true if the action was handled; otherwise false
     return false
+  }
+
+  // ----------------------------------------------------------------------------
+  // MARK: - LogHandler Protocol method
+  
+  public func msg(_ msg: String, level: Api.Level, function: String, file: String, line: Int, source: String = "xApiTester") {
+    
+    // remove all but the name of the file
+    let file = URL(fileURLWithPath: file).lastPathComponent.dropLast(6)
+    let libMsg = "[\(source), \(file)] [\(level.rawValue)] \(msg)"
+    
+    #if DEBUG
+    Swift.print(libMsg)
+    
+    #else
+    let log = OSLog(subsystem: "net.k3tzr.xAPITester", category: source)
+    
+    switch level {
+    case .debug:    os_log("%{public}@", log: log, type: .debug, msg)
+    case .info:     os_log("%{public}@", log: log, type: .info, msg)
+    case .warning:  os_log("%{public}@", log: log, type: .default, msg)
+    case .error:    os_log("%{public}@", log: log, type: .error, msg)
+    }
+    #endif
   }
 }
 

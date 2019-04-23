@@ -1,5 +1,11 @@
 xAPITester Change Log
 
+v5.2.4 23-Apr-2019
+
+incorporated xLib6000 v3.0.3 - using older LogHandler approach
+ViewController.swift - added use of LogHandler protocol and default "source="xAPITester""
+
+
 v5.2.3 22-Apr-2019
 
 incorporated xLib6000 v3.0.2
