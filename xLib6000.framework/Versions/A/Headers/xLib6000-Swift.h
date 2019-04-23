@@ -351,6 +351,13 @@ SWIFT_CLASS("_TtC8xLib60003Cwx")
 @end
 
 
+SWIFT_CLASS("_TtC8xLib600016DiscoveredClient")
+@interface DiscoveredClient : NSObject
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
 /// Equalizer Class implementation
 /// \code
 ///  creates an Equalizer instance to be used by a Client to support the
@@ -429,8 +436,10 @@ SWIFT_CLASS("_TtC8xLib60009GuiClient")
 
 
 @interface GuiClient (SWIFT_EXTENSION(xLib6000))
+@property (nonatomic, readonly, copy) NSString * _Nonnull host;
 @property (nonatomic, readonly, copy) NSUUID * _Nullable id;
-@property (nonatomic, readonly) BOOL localPtt;
+@property (nonatomic, readonly, copy) NSString * _Nonnull ip;
+@property (nonatomic, readonly) BOOL localPttEnabled;
 @property (nonatomic, readonly, copy) NSString * _Nonnull program;
 @property (nonatomic, readonly, copy) NSString * _Nonnull station;
 @end
@@ -781,7 +790,7 @@ SWIFT_CLASS("_TtC8xLib60005Radio")
 @property (nonatomic) BOOL headphoneMute;
 @property (nonatomic) NSInteger lineoutGain;
 @property (nonatomic) BOOL lineoutMute;
-@property (nonatomic) BOOL localPtt;
+@property (nonatomic) BOOL localPttEnabled;
 @property (nonatomic) BOOL mox;
 @property (nonatomic) BOOL muteLocalAudio;
 @property (nonatomic, copy) NSString * _Nonnull nickname;
