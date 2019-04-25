@@ -1,5 +1,11 @@
 xAPITester Change Log
 
+v5.2.5 25-Apr-2019
+
+incorporated xLib6000 v3.0.4  (stream updates for v3)
+SplitViewController.swift - renamed streams
+
+
 v5.2.4 23-Apr-2019
 
 incorporated xLib6000 v3.0.3 - using older LogHandler approach
