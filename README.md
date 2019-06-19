@@ -2,12 +2,12 @@
 ## API Explorer for the FlexRadio (TM) 6000 series software defined radios.
 
 ### Built on:
-*  macOS 10.14.4 (Deployment Target of macOS 10.12)
-*  Xcode 10.2(10E1001)
+*  macOS 10.14.5 (Deployment Target of macOS 10.12)
+*  Xcode 10.2.1(10E1001)
 *  Swift 5.0
 
 
-**This version supports SmartLink (TM).**
+*Works with all Radios with Version 2.5.1 or more ( i.e. >=2.5.1.x and 3.x.x )
 
 
 ## Usage
