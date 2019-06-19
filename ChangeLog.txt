@@ -1,5 +1,32 @@
 xAPITester Change Log
 
+v2.5.1.20190619
+
+Changed version numbering to coincide with Flex version numbers
+  major.Minor.build.date
+  date (YYYYMMDD) will be updated whenever a new instance is pushed to the GitHub repo
+Changed bundle version to 2.5.1
+
+Turned on signing & sandboxing
+
+Added XCGLogger.framework & ObjcExceptionBridging.framework
+AppDelegate.swift - added code to support use of XCGLogger
+
+ViewController.swift - modified logging to use XCGLogger
+SplitViewController.swift - modified logging to use XCGLogger
+Macros.swift - modified logging to use XCGLogger
+Auth0ViewController.swift - modified logging to use XCGLogger
+WanRadioPickerViewController.swift - modified logging to use XCGLogger
+LanRadioPickerViewController.swift - modified logging to use XCGLogger
+
+Defaults.plist - added clientId key
+AppExtensions.swift - added clientId Defaults key
+ViewController.swift - added generation & storage of a Client Id (UUID)
+ViewController.swift - updated title() to use new Versions struct
+ViewController.swift - incorporated new connect func signature w/clientId,clientName & clientStation
+ViewController.swift - removed LogHandler protocol method (logging now done through AppDelegate)
+ViewController.swift - removed checkForDefaultRadio(), connection now requires pressing Connect button
+
 v5.2.5 25-Apr-2019
 
 incorporated xLib6000 v3.0.4  (stream updates for v3)

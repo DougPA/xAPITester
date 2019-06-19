@@ -17,6 +17,10 @@
 		9102C2192066C10300F4B655 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9102C2172066C10300F4B655 /* Defaults.plist */; };
 		9102C21C2066C27A00F4B655 /* SwiftyUserDefaults.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		9102C21D2066C27A00F4B655 /* SwiftyUserDefaults.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9103D9F422B95B68002AB99F /* XCGLogger.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9103D9F222B95B68002AB99F /* XCGLogger.framework */; };
+		9103D9F522B95B68002AB99F /* XCGLogger.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9103D9F222B95B68002AB99F /* XCGLogger.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9103D9F622B95B68002AB99F /* ObjcExceptionBridging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9103D9F322B95B68002AB99F /* ObjcExceptionBridging.framework */; };
+		9103D9F722B95B68002AB99F /* ObjcExceptionBridging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9103D9F322B95B68002AB99F /* ObjcExceptionBridging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		913660EF223C3283005907E5 /* MeterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 913660EE223C3283005907E5 /* MeterViewController.swift */; };
 		913F7EB52066C8BB00F35E9B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 913F7EB42066C8BB00F35E9B /* Assets.xcassets */; };
 		91596733225ECF4F00B99D1F /* GuiClientViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91596732225ECF4F00B99D1F /* GuiClientViewController.swift */; };
@@ -47,6 +51,8 @@
 			files = (
 				9102C21D2066C27A00F4B655 /* SwiftyUserDefaults.framework in Embed Frameworks */,
 				91FDF1C5206BD6FE00C75CE7 /* xLib6000.framework in Embed Frameworks */,
+				9103D9F722B95B68002AB99F /* ObjcExceptionBridging.framework in Embed Frameworks */,
+				9103D9F522B95B68002AB99F /* XCGLogger.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -65,6 +71,9 @@
 		9102C2172066C10300F4B655 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
 		9102C2182066C10300F4B655 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SwiftyUserDefaults.framework; sourceTree = "<group>"; };
+		9103D9F222B95B68002AB99F /* XCGLogger.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = XCGLogger.framework; sourceTree = "<group>"; };
+		9103D9F322B95B68002AB99F /* ObjcExceptionBridging.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ObjcExceptionBridging.framework; sourceTree = "<group>"; };
+		9103D9FE22B9BBB0002AB99F /* xAPITester.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = xAPITester.entitlements; sourceTree = "<group>"; };
 		913660EE223C3283005907E5 /* MeterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeterViewController.swift; sourceTree = "<group>"; };
 		913F7EB42066C8BB00F35E9B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		91596732225ECF4F00B99D1F /* GuiClientViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuiClientViewController.swift; sourceTree = "<group>"; };
@@ -92,6 +101,8 @@
 			files = (
 				9102C21C2066C27A00F4B655 /* SwiftyUserDefaults.framework in Frameworks */,
 				91FDF1C4206BD6FE00C75CE7 /* xLib6000.framework in Frameworks */,
+				9103D9F622B95B68002AB99F /* ObjcExceptionBridging.framework in Frameworks */,
+				9103D9F422B95B68002AB99F /* XCGLogger.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -101,6 +112,8 @@
 		9102C1A22066BE0700F4B655 = {
 			isa = PBXGroup;
 			children = (
+				9103D9F322B95B68002AB99F /* ObjcExceptionBridging.framework */,
+				9103D9F222B95B68002AB99F /* XCGLogger.framework */,
 				91FDF1C3206BD6FE00C75CE7 /* xLib6000.framework */,
 				9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */,
 				91A2D8DC2069481000676728 /* ChangeLog.txt */,
@@ -121,6 +134,7 @@
 		9102C1AD2066BE0700F4B655 /* xAPITester */ = {
 			isa = PBXGroup;
 			children = (
+				9103D9FE22B9BBB0002AB99F /* xAPITester.entitlements */,
 				913F7EB42066C8BB00F35E9B /* Assets.xcassets */,
 				9102C2172066C10300F4B655 /* Defaults.plist */,
 				9102C2182066C10300F4B655 /* Info.plist */,
@@ -247,6 +261,11 @@
 					9102C1AA2066BE0700F4B655 = {
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Sandbox = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -443,9 +462,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_ENTITLEMENTS = xAPITester/xAPITester.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
-				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = EE5B8TYXGA;
@@ -467,9 +486,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_ENTITLEMENTS = xAPITester/xAPITester.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
-				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = EE5B8TYXGA;

@@ -36,6 +36,7 @@ extension DefaultsKeys {
   static let auth0Email                     = DefaultsKey<String>("auth0Email")
   static let clearAtConnect                 = DefaultsKey<Bool>("clearAtConnect")
   static let clearOnSend                    = DefaultsKey<Bool>("clearOnSend")
+  static let clientId                       = DefaultsKey<String?>("clientId")
 //  static let commandColor                   = DefaultsKey<NSColor>("commandColor")
   static let defaultRadioSerialNumber       = DefaultsKey<String>("defaultRadioSerialNumber")
   static let enablePinging                  = DefaultsKey<Bool>("enablePinging")

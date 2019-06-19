@@ -7,7 +7,6 @@
 //
 
 import Cocoa
-import os.log
 import xLib6000
 import SwiftyUserDefaults
 
@@ -90,7 +89,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   // MARK: - Private properties
   
   private var _api                            = Api.sharedInstance          // Api to the Radio
-  private let _log                            = OSLog(subsystem: "net.k3tzr.xAPITester", category: "SplitVC")
+  private let _log                            = (NSApp.delegate as! AppDelegate)
   internal weak var _parent                   : ViewController?
   internal let _objectQ                       = DispatchQueue(label: kClientName + ".objectQ", attributes: [.concurrent])
   
@@ -117,15 +116,12 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     _api.testerDelegate = self
     
-//    // give the Log object (in the API) access to our logger
-//    Log.sharedInstance.delegate = self
-    
     // setup the font
     _font = NSFont(name: Defaults[.fontName], size: CGFloat(Defaults[.fontSize] ))!
     _tableView.rowHeight = _font.capHeight * 1.7
     
     // setup & start the Objects table timer
-    setupTimer()
+    setupTimer()    
   }
 
   deinit {
@@ -210,7 +206,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   /// Setup & start the Objects table timer
   ///
   private func setupTimer() {
-    // create a timer to periodically redraw the objetcs table
+    // create a timer to periodically redraw the objects table
     _timeoutTimer = DispatchSource.makeTimerSource(flags: [.strict], queue: _timerQ)
     
     // Set timer with 100 millisecond leeway
@@ -266,7 +262,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     // ignore incorrectly formatted replies
     if components.count < 2 {
-      os_log("Incomplete reply, c%{public}@", log: self._log, type: .error, commandSuffix)
+      _log.msg("Incomplete reply, c\(commandSuffix)", level: MessageLevel.error, function: #function, file: #file, line: #line)
       return
     }
     
@@ -406,7 +402,6 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
             ( $0.value.source[0..<3], Int($0.value.group.suffix(3), radix: 10)!, $0.value.number.suffix(3) ) <
             ( $1.value.source[0..<3], Int($1.value.group.suffix(3), radix: 10)!, $1.value.number.suffix(3) )
         })
-//        for (_, meter) in sortedMeters where !meter.source.hasPrefix("slc") {
         for (_, meter) in sortedMeters where !meter.source.hasPrefix("slc") {
           self.showInObjectsTable("Meter          source = \(meter.source[0..<3])  group = \(("00" + meter.group).suffix(3))  number = \(("00" + meter.number).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
         }
@@ -485,7 +480,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     default:    // Unknown Type
 //      _api.log.msg("Unexpected Message Type from radio, \(text[text.startIndex])", level: .error, function: #function, file: #file, line: #line)
 
-      os_log("Unexpected Message Type from radio, %{public}@", log: self._log, type: .error, text[text.startIndex] as! CVarArg)
+      _log.msg("Unexpected Message Type from radio, \(text[text.startIndex] as! CVarArg))", level: MessageLevel.error, function: #function, file: #file, line: #line)
     }
   }
   /// Add a Reply Handler for a specific Sequence/Command

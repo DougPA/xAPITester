@@ -28,9 +28,6 @@ class MeterViewController                     : NSViewController, NSTableViewDel
   
   internal var _filteredMeters                : [Meter] {
     get {
-
-      Swift.print("FilterMetersByTag = \(Defaults[.filterMetersByTag])")
-      
       switch MetersFilters(rawValue: Defaults[.filterMetersByTag]) ?? .none {
       
       case .none:     return _meters

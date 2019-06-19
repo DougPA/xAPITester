@@ -7,7 +7,6 @@
 //
 
 import Cocoa
-import os.log
 import xLib6000
 import SwiftyUserDefaults
 
@@ -38,14 +37,15 @@ protocol RadioPickerDelegate: class {
 // MARK: - ViewController Class implementation
 // ------------------------------------------------------------------------------
 
-public final class ViewController             : NSViewController, RadioPickerDelegate,  NSTextFieldDelegate, LogHandler {
+public final class ViewController             : NSViewController, RadioPickerDelegate,  NSTextFieldDelegate {
   
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
   private var _api                            = Api.sharedInstance          // Api to the Radio
-  private let _log                            = OSLog(subsystem: "net.k3tzr.xAPITester", category: "ViewController")
+  private let _log                            = (NSApp.delegate as! AppDelegate)
   
+  @IBOutlet weak internal var _containerView  : NSView!
   @IBOutlet weak internal var _command        : NSTextField!
   @IBOutlet weak internal var _connectButton  : NSButton!
   @IBOutlet weak internal var _sendButton     : NSButton!
@@ -69,7 +69,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private var _splitViewVC                    : SplitViewController?
   private var _appFolderUrl                   : URL!
   private var _macros                         : Macros!
-  private var _versions                       : (api: String, app: String)?
+  private var _clientId                       : UUID?
 
   // constants
   private let _dateFormatter                  = DateFormatter()
@@ -102,8 +102,12 @@ public final class ViewController             : NSViewController, RadioPickerDel
   public override func viewDidLoad() {
     super.viewDidLoad()
     
-    _api.log.delegate = self
+    // give the Api access to our logger
+    Log.sharedInstance.delegate = _log
     
+    // get/create a Client Id (if a Gui)
+    _clientId = Defaults[.isGui] ? clientId(from: Defaults[.clientId]) : nil
+
     _filterBy.selectItem(withTag: Defaults[.filterByTag])
     _filterObjectsBy.selectItem(withTag: Defaults[.filterObjectsByTag])
 
@@ -122,9 +126,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     
     // get / create the Application Support folder
     _appFolderUrl = FileManager.appFolder
-
-    // open the Default Radio (if any), otherwise open the Picker
-    checkForDefaultRadio()
   }
   override public func viewWillAppear() {
     
@@ -141,17 +142,19 @@ public final class ViewController             : NSViewController, RadioPickerDel
   }
 
   public override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
-    
+
     if segue.identifier! == kSWI_SplitView {
       _splitViewVC = segue.destinationController as? SplitViewController
       _splitViewVC!._parent = self
-      
+
       _splitViewVC?.view.translatesAutoresizingMaskIntoConstraints = false
       _api.testerDelegate = _splitViewVC
-      
+
       _macros = Macros()
     }
   }
+  
+  
   
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
@@ -376,9 +379,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
         
         // write it to the File
         if let error = savePanel.url!.writeArray( self._splitViewVC!._filteredMessages ) {
-//          self._api.log.msg(error, level: .error, function: #function, file: #file, line: #line)
-
-          os_log("%{public}@", log: self._log, type: .error, error)
+          self._log.msg("\(error)", level: MessageLevel.error, function: #function, file: #file, line: #line)
         }
       }
     }
@@ -402,9 +403,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
         
         // write it to the File
         if let error = savePanel.url!.writeArray( self._commandsArray ) {
-//          self._api.log.msg(error, level: .error, function: #function, file: #file, line: #line)
-
-          os_log("%{public}@", log: self._log, type: .error, error)
+          self._log.msg("\(error)", level: .error, function: #function, file: #file, line: #line)
         }
       }
     }
@@ -434,16 +433,12 @@ public final class ViewController             : NSViewController, RadioPickerDel
         
         // was the condition was satisfied?
         if evaluatedCommand.active {
-          
           // YES, send the command
           let _ = _api.send( _macros.evaluateValues(command: evaluatedCommand.cmd) )
         
         } else {
-          
           // NO, log it
-//          _api.log.msg("Condition false : \(evaluatedCommand.condition)", level: .error, function: #function, file: #file, line: #line)
-
-          os_log("Condition false: %{public}@", log: self._log, type: .error, evaluatedCommand.condition)
+          _log.msg("Condition false: \(evaluatedCommand.condition)", level: .error, function: #function, file: #file, line: #line)
         }
       
       } else {
@@ -532,6 +527,18 @@ public final class ViewController             : NSViewController, RadioPickerDel
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
+  /// Produce a UUID
+  ///
+  /// - Parameter idString:     a saved UUID string
+  /// - Returns:                a UUID
+  ///
+  func clientId(from idString: String? = nil) -> UUID {
+    // none supplied, create the UUID
+    guard let id = idString else { return UUID() }
+    
+    // String to a UUID (if possible) else create a UUID
+    return UUID(uuidString: id) ?? UUID()
+  }
   /// Copy selected rows from the array backing a table
   ///
   /// - Parameters:
@@ -582,6 +589,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
           // YES, can the default radio be opened?
           if openRadio(radio) {
             found = true
+          
           } else {
             _splitViewVC?.msg("Error opening default radio, \(radio.nickname)")
             
@@ -605,20 +613,16 @@ public final class ViewController             : NSViewController, RadioPickerDel
   ///
   private func title() {
     
-    // have the versions been captured?
-    if _versions == nil {
-      // NO, get the versions
-      _versions = versionInfo(framework: Api.kBundleIdentifier)
-      
-      // log them
-//      os_log("%{public}@ v%{public}@, %{public}@ v%{public}@", log: self._log, type: .error, kClientName, _versions!.app, Api.kId, _versions!.api)
-      msg( "\(kClientName) v\(_versions!.app), \(Api.kId) v\(_versions!.api)", level: .info, function: #function, file: #file, line: #line)
-    }
-    
     // format and set the window title
-    let title = (_api.activeRadio == nil ? "" : "- Connected to \(_api.activeRadio!.nickname) @ \(_api.activeRadio!.publicIp)")
+    let title = (_api.activeRadio == nil ? "" : "Connected to \(_api.activeRadio!.nickname) @ \(_api.activeRadio!.publicIp)")
+
+    // log it (before connected)
+    if _api.activeRadio == nil {
+      self._log.msg( "\(kClientName) v\(AppDelegate.appVersion.string), \(Api.kId) v\(self._api.apiVersion.string)", level: .info, function: #function, file: #file, line: #line)
+    }
+    // set the title bar
     DispatchQueue.main.async {
-      self.view.window?.title = "\(kClientName) v\(self._versions!.app), \(Api.kId) v\(self._versions!.api) \(title)"
+      self.view.window?.title = "\(kClientName) v\(AppDelegate.appVersion.string)     \(Api.kId) v\(self._api.apiVersion.string)     \(title)"
     }
   }
 
@@ -679,7 +683,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _startTimestamp = Date()
 
     // attempt to connect to it
-    if _api.connect(selectedRadio, clientName: kClientName, isGui: Defaults[.isGui]) {
+    let station = (Host.current().localizedName ?? "Mac").replacingSpaces(with: "_")
+    if _api.connect(selectedRadio, clientStation: station ,clientName: kClientName, clientId: _clientId, isGui: Defaults[.isGui]) {
             
       self._connectButton.title = self.kDisconnect.rawValue
       self._connectButton.identifier = self.kDisconnect
@@ -786,30 +791,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     }
     // return true if the action was handled; otherwise false
     return false
-  }
-
-  // ----------------------------------------------------------------------------
-  // MARK: - LogHandler Protocol method
-  
-  public func msg(_ msg: String, level: Api.Level, function: String, file: String, line: Int, source: String = "xApiTester") {
-    
-    // remove all but the name of the file
-    let file = URL(fileURLWithPath: file).lastPathComponent.dropLast(6)
-    let libMsg = "[\(source), \(file)] [\(level.rawValue)] \(msg)"
-    
-    #if DEBUG
-    Swift.print(libMsg)
-    
-    #else
-    let log = OSLog(subsystem: "net.k3tzr.xAPITester", category: source)
-    
-    switch level {
-    case .debug:    os_log("%{public}@", log: log, type: .debug, msg)
-    case .info:     os_log("%{public}@", log: log, type: .info, msg)
-    case .warning:  os_log("%{public}@", log: log, type: .default, msg)
-    case .error:    os_log("%{public}@", log: log, type: .error, msg)
-    }
-    #endif
   }
 }
 
