@@ -1,20 +1,44 @@
 xLib6000 Change Log
 
-v3.0.0
+v2.4.9.20190620
 
-RadioParameters.swift - added new v3 parameters
-Vita.swift - in class parseDiscovery(_:) added new v3 parameters
-Modified all "Unknown token" messages to display <token = value>
-Radio.swift - added RadioTokens daxIqCapacity & daxIqAvailable & code to process them
-Radio.swift - added properties localPtt, clientId, station & program & code to process them
-Interlock.swift - added Token txClientHandle, added code to process it
-InterlockCommands.swift - added txClientHandle property & code to process it
-Api.swift - updated kApiFirmwareSupport to 3.0.18.x
-Api.swift - changes to the timing & content of the Primary, Secondary & Subscription command sets
+reconcile Api.swift differences with v2.5.1.20190618
 
-v2.5.1
 
-Vita.swift - in class parseDiscovery(_:), added printing of kv.value for unknown token
+v2.4.9.20190618
+
+Log.swift - removed LogHandler protocol definition
+Protocols.swift - added corrected LogHandler protocol definition
+Api.swift - revised checkFirmware() to only show "shortString" for apiVersion
+
+
+v2.4.9.20190617
+
+Changed version numbering to coincide with Flex version numbers
+  Vmajor.Minor.build.date
+  date (YYYYMMDD) will be updated whenever a new instance is pushed to the GitHub repo
+
+AppExtensions.swift - added Version struct & accompannying functions, added hexDump() func
+Opus.swift - refactored vitaProcessor(_:)
+Api.swift - made udpReceiveQ higher priority (.userInteractive)
+Api.swift - refactored checkFirmware() to use Version struct
+Api.swift - renamed _apiState to apiState and made it public
+Meter.swift - added additional information to log message for unknown units
+UdpManager.swift - put streamQ closer to source of UDP packets, made it higher priority (.userInteractive)
+Frames.swift - revised log messages in Panadapter & Waterfall frames, refactored OpusFrame
+AppExtensions.swift - added Version struct, added hexDump() func
+Opus.swift - refactored vitaProcessor(_:)
+Vita.swift - changed desc() to use hexDump()
+Notifications.swift - removed "updateRequired", added "radioFirmwareDowngradeRequired"
+
+v2.5.1 11-Jun-2019
+
+Reverted to previous logging strategy (Log delegate, logging provided by the client)
+Radio.swift - eliminated use of GCD queue "streamQ"
+Panadapter.swift - renamed "expectedIndex" to "packetFrame"
+Waterfall.swift - renamed "expectedIndex" to "packetFrame"
+Frames.swift - refactored invalid frame detection and reporting
+FlexErrors.swift - changed flexErrorLevel(errorCode:) to return MessageLevel intead of String
 
 
 v2.5.0 27-Mar-2019
