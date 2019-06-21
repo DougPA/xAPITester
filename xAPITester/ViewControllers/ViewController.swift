@@ -105,9 +105,9 @@ public final class ViewController             : NSViewController, RadioPickerDel
     // give the Api access to our logger
     Log.sharedInstance.delegate = _log
     
-    // get/create a Client Id (if a Gui)
-    _clientId = Defaults[.isGui] ? clientId(from: Defaults[.clientId]) : nil
-
+    // get/create a Client Id
+    _clientId = clientId()
+    
     _filterBy.selectItem(withTag: Defaults[.filterByTag])
     _filterObjectsBy.selectItem(withTag: Defaults[.filterObjectsByTag])
 
@@ -527,19 +527,24 @@ public final class ViewController             : NSViewController, RadioPickerDel
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
-  /// Produce a UUID
+  /// Produce a Client Id (UUID)
   ///
-  /// - Parameter idString:     a saved UUID string
   /// - Returns:                a UUID
   ///
-  func clientId(from idString: String? = nil) -> UUID {
-    // none supplied, create the UUID
-    guard let id = idString else { return UUID() }
-    
-    // String to a UUID (if possible) else create a UUID
-    return UUID(uuidString: id) ?? UUID()
-  }
-  /// Copy selected rows from the array backing a table
+  private func clientId() -> UUID {
+    var uuid : UUID
+    if let string = Defaults[.clientId] {
+      // use the stored string to create a UUID (if possible) else create a new UUID
+      uuid = UUID(uuidString: string) ?? UUID()
+    } else {
+      // none stored, create a new UUID
+      uuid = UUID()
+      Defaults[.clientId] = uuid.uuidString
+    }
+    // store the string for later use
+    Defaults[.clientId] = uuid.uuidString
+    return uuid
+  }  /// Copy selected rows from the array backing a table
   ///
   /// - Parameters:
   ///   - table:                        an NStableView instance
@@ -618,11 +623,11 @@ public final class ViewController             : NSViewController, RadioPickerDel
 
     // log it (before connected)
     if _api.activeRadio == nil {
-      self._log.msg( "\(kClientName) v\(AppDelegate.appVersion.string), \(Api.kId) v\(self._api.apiVersion.string)", level: .info, function: #function, file: #file, line: #line)
+      self._log.msg( "\(AppDelegate.kAppName) v\(AppDelegate.kAppVersion.string), \(Api.kId) v\(self._api.apiVersion.string)", level: .info, function: #function, file: #file, line: #line)
     }
     // set the title bar
     DispatchQueue.main.async {
-      self.view.window?.title = "\(kClientName) v\(AppDelegate.appVersion.string)     \(Api.kId) v\(self._api.apiVersion.string)     \(title)"
+      self.view.window?.title = "\(AppDelegate.kAppName) v\(AppDelegate.kAppVersion.string)     \(Api.kId) v\(self._api.apiVersion.string)     \(title)"
     }
   }
 
@@ -684,7 +689,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
 
     // attempt to connect to it
     let station = (Host.current().localizedName ?? "Mac").replacingSpaces(with: "_")
-    if _api.connect(selectedRadio, clientStation: station ,clientName: kClientName, clientId: _clientId, isGui: Defaults[.isGui]) {
+    if _api.connect(selectedRadio, clientStation: station ,clientName: AppDelegate.kAppName, clientId: _clientId, isGui: Defaults[.isGui]) {
             
       self._connectButton.title = self.kDisconnect.rawValue
       self._connectButton.identifier = self.kDisconnect

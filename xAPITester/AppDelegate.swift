@@ -10,36 +10,39 @@ import Cocoa
 import xLib6000
 import XCGLogger
 
-let kClientName = "xAPITester"
-
 @NSApplicationMain
 final class AppDelegate                     : NSObject, NSApplicationDelegate , LogHandler {
   
-  static let appVersion                     = Version("2.5.1.20190619" )
+  // App parameters
+  static let kAppName                       = "xAPITester"
+  static let kAppVersion                    = Version("2.5.1.20190621" )
   
-  // Name of the base Log file
-  static let kLogFile                       = "xSDR6000.log"
+  // Log parameters
+  static let kLoggerName                    = AppDelegate.kAppName
+  static let kLogFile                       = AppDelegate.kLoggerName + ".log"
+  static let kMaxLogFiles                   : UInt8 = 5
+  static let kMaxFileSize                   : UInt64 = 1_048_576                     // 2^20
   
   // lazy setup of the XCGLogger
   let log: XCGLogger = {
     
     // Create a logger object with no destinations
-    let log = XCGLogger(identifier: "advancedLogger", includeDefaultDestinations: false)
+    let log = XCGLogger(identifier: AppDelegate.kLoggerName, includeDefaultDestinations: false)
     
     #if DEBUG
     
     // for DEBUG only
     // Create a destination for the system console log (via NSLog)
-    let systemDestination = AppleSystemLogDestination(identifier: "advancedLogger.systemDestination")
+    let systemDestination = AppleSystemLogDestination(identifier: AppDelegate.kLoggerName + ".systemDestination")
     
     // Optionally set some configuration options
     systemDestination.outputLevel = .info
     systemDestination.showLogIdentifier = false
-    systemDestination.showFunctionName = true
+    systemDestination.showFileName = true
+    systemDestination.showFunctionName = false
     systemDestination.showThreadName = false
     systemDestination.showLevel = true
     systemDestination.showLineNumber = false
-    systemDestination.showDate = false                              // AppleSystemLogDestination always adds a datetime
     
     // Add the destination to the logger
     log.add(destination: systemDestination)
@@ -47,11 +50,11 @@ final class AppDelegate                     : NSObject, NSApplicationDelegate , 
     #endif
     
     // Create a file log destination
-    let fileDestination = AutoRotatingFileDestination(writeToFile: FileManager.appFolder.appendingPathComponent(AppDelegate.kLogFile), identifier: "advancedLogger.autoRotatingFileDestination")
+    let fileDestination = AutoRotatingFileDestination(writeToFile: FileManager.appFolder.appendingPathComponent(AppDelegate.kLogFile), identifier: AppDelegate.kLoggerName + ".autoRotatingFileDestination")
     
     // Optionally set some configuration options
-    fileDestination.targetMaxFileSize       = 1_048_576                     // 2^20
-    fileDestination.targetMaxLogFiles       = 5
+    fileDestination.targetMaxFileSize       = AppDelegate.kMaxFileSize
+    fileDestination.targetMaxLogFiles       = AppDelegate.kMaxLogFiles
     fileDestination.outputLevel             = .info
     fileDestination.showLogIdentifier       = false
     fileDestination.showFunctionName        = true
