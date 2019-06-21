@@ -33,6 +33,10 @@
 		9185B0C320867E3B004D4C40 /* LANRadioPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9185B0B820867E3B004D4C40 /* LANRadioPickerViewController.swift */; };
 		91A2D8DD2069481000676728 /* ChangeLog.txt in Resources */ = {isa = PBXBuildFile; fileRef = 91A2D8DC2069481000676728 /* ChangeLog.txt */; };
 		91B4C08E206D477200897398 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91B4C08D206D477200897398 /* SplitViewController.swift */; };
+		91D9F91F22BD4527007451C4 /* ObjcExceptionBridging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91D9F91D22BD4527007451C4 /* ObjcExceptionBridging.framework */; };
+		91D9F92022BD4527007451C4 /* ObjcExceptionBridging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91D9F91D22BD4527007451C4 /* ObjcExceptionBridging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		91D9F92122BD4527007451C4 /* XCGLogger.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91D9F91E22BD4527007451C4 /* XCGLogger.framework */; };
+		91D9F92222BD4527007451C4 /* XCGLogger.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91D9F91E22BD4527007451C4 /* XCGLogger.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		91FDF1C4206BD6FE00C75CE7 /* xLib6000.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91FDF1C3206BD6FE00C75CE7 /* xLib6000.framework */; };
 		91FDF1C5206BD6FE00C75CE7 /* xLib6000.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91FDF1C3206BD6FE00C75CE7 /* xLib6000.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -45,7 +49,9 @@
 			dstSubfolderSpec = 10;
 			files = (
 				9102C21D2066C27A00F4B655 /* SwiftyUserDefaults.framework in Embed Frameworks */,
+				91D9F92222BD4527007451C4 /* XCGLogger.framework in Embed Frameworks */,
 				91FDF1C5206BD6FE00C75CE7 /* xLib6000.framework in Embed Frameworks */,
+				91D9F92022BD4527007451C4 /* ObjcExceptionBridging.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -80,6 +86,8 @@
 		9185B0B820867E3B004D4C40 /* LANRadioPickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LANRadioPickerViewController.swift; sourceTree = "<group>"; };
 		91A2D8DC2069481000676728 /* ChangeLog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ChangeLog.txt; sourceTree = "<group>"; };
 		91B4C08D206D477200897398 /* SplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
+		91D9F91D22BD4527007451C4 /* ObjcExceptionBridging.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ObjcExceptionBridging.framework; sourceTree = "<group>"; };
+		91D9F91E22BD4527007451C4 /* XCGLogger.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = XCGLogger.framework; sourceTree = "<group>"; };
 		91FDF1C3206BD6FE00C75CE7 /* xLib6000.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = xLib6000.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -89,7 +97,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				9102C21C2066C27A00F4B655 /* SwiftyUserDefaults.framework in Frameworks */,
+				91D9F92122BD4527007451C4 /* XCGLogger.framework in Frameworks */,
 				91FDF1C4206BD6FE00C75CE7 /* xLib6000.framework in Frameworks */,
+				91D9F91F22BD4527007451C4 /* ObjcExceptionBridging.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,6 +109,8 @@
 		9102C1A22066BE0700F4B655 = {
 			isa = PBXGroup;
 			children = (
+				91D9F91D22BD4527007451C4 /* ObjcExceptionBridging.framework */,
+				91D9F91E22BD4527007451C4 /* XCGLogger.framework */,
 				91FDF1C3206BD6FE00C75CE7 /* xLib6000.framework */,
 				9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */,
 				91A2D8DC2069481000676728 /* ChangeLog.txt */,

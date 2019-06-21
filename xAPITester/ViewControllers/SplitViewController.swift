@@ -7,7 +7,6 @@
 //
 
 import Cocoa
-import os.log
 import xLib6000
 import SwiftyUserDefaults
 
@@ -90,9 +89,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   // MARK: - Private properties
   
   private var _api                            = Api.sharedInstance          // Api to the Radio
-  private let _log                            = OSLog(subsystem: "net.k3tzr.xAPITester", category: "SplitVC")
+  private let _log                            = (NSApp.delegate as! AppDelegate)
   internal weak var _parent                   : ViewController?
-  internal let _objectQ                       = DispatchQueue(label: kClientName + ".objectQ", attributes: [.concurrent])
+  internal let _objectQ                       = DispatchQueue(label: AppDelegate.kAppName + ".objectQ", attributes: [.concurrent])
   
   private var _font                           : NSFont!                     // font for table entries
   
@@ -104,7 +103,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   private var _timeoutTimer                   : DispatchSourceTimer!          // timer fired every "checkInterval"
   private var _timerQ                         = DispatchQueue(label: "xAPITester" + ".timerQ")
 
-  private let kAutosaveName                   = NSSplitView.AutosaveName(kClientName + "SplitView")
+  private let kAutosaveName                   = NSSplitView.AutosaveName(AppDelegate.kAppName + "SplitView")
   private let checkInterval                   : TimeInterval = 1.0
   
   // ----------------------------------------------------------------------------
@@ -274,7 +273,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       
 //      _api.log.msg("Incomplete reply, c\(commandSuffix)", level: .error, function: #function, file: #file, line: #line)
 
-      os_log("Incomplete reply, c%{public}@", log: self._log, type: .error, commandSuffix)
+      _log.msg("Incomplete reply, c\(commandSuffix)", level: .error, function: #function, file: #file, line: #line)
       return
     }
     
@@ -492,7 +491,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     default:    // Unknown Type
 //      _api.log.msg("Unexpected Message Type from radio, \(text[text.startIndex])", level: .error, function: #function, file: #file, line: #line)
 
-      os_log("Unexpected Message Type from radio, %{public}@", log: self._log, type: .error, text[text.startIndex] as! CVarArg)
+      _log.msg("Unexpected Message Type from radio, \(text[text.startIndex] as! CVarArg)", level: .error, function: #function, file: #file, line: #line)
     }
   }
   /// Add a Reply Handler for a specific Sequence/Command

@@ -10,7 +10,6 @@
 import Cocoa
 import xLib6000
 import SwiftyUserDefaults
-import os.log
 
 //#if XSDR6000
 //  import xLib6000
@@ -66,7 +65,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   @IBOutlet private var _defaultButton      : NSButton!                   // Set as default
   
   private var _api                          = Api.sharedInstance
-  private let _log                          = OSLog(subsystem: Api.kDomainId + "." + kClientName, category: "LANRadioPickerVC")
+  private let _log                          = (NSApp.delegate as! AppDelegate)
   private var _selectedRadio                : RadioParameters?            // Radio in selected row
   private var _parentVc                     : NSViewController!
   
@@ -117,7 +116,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     _api.shutdown(reason: .normal)
     
     DispatchQueue.main.async {
-      os_log("Application closed by user", log: self._log, type: .info)
+      self._log.msg("Application closed by user", level: .error, function: #function, file: #file, line: #line)
 
       NSApp.terminate(self)
     }

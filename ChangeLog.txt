@@ -1,5 +1,13 @@
 xAPITester Change Log
 
+v2.4.9.20190621
+
+added XCGLogger & ObjcExceptionBridging frameworks
+AppDelegate.swift - conform to xSDR6000 format & log usage
+Logging throughout updated
+Defaults.plist - added clientId
+AppExtensions.swift - added clientId
+
 v5.2.0 10-Apr-2019
 
 xLib6000.framework - incorporated v3.0.0

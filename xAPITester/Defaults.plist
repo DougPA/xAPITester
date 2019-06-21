@@ -60,5 +60,7 @@
 	<true/>
 	<key>showTimestamps</key>
 	<false/>
+	<key>clientId</key>
+	<string></string>
 </dict>
 </plist>

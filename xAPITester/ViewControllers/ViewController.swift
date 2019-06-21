@@ -7,7 +7,6 @@
 //
 
 import Cocoa
-import os.log
 import xLib6000
 import SwiftyUserDefaults
 
@@ -44,8 +43,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
   // MARK: - Private properties
   
   private var _api                            = Api.sharedInstance          // Api to the Radio
-  private let _log                            = OSLog(subsystem: "net.k3tzr.xAPITester", category: "ViewController")
-  
+  private let _log                            = (NSApp.delegate as! AppDelegate)
+
   @IBOutlet weak internal var _command        : NSTextField!
   @IBOutlet weak internal var _connectButton  : NSButton!
   @IBOutlet weak internal var _sendButton     : NSButton!
@@ -70,6 +69,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private var _appFolderUrl                   : URL!
   private var _macros                         : Macros!
   private var _versions                       : (api: String, app: String)?
+  private var _clientId                       : UUID?
 
   // constants
   private let _dateFormatter                  = DateFormatter()
@@ -102,6 +102,12 @@ public final class ViewController             : NSViewController, RadioPickerDel
   public override func viewDidLoad() {
     super.viewDidLoad()
     
+    // give the Api access to our logger
+    Log.sharedInstance.delegate = _log
+    
+    // get/create a Client Id
+    _clientId = clientId()
+    
     _filterBy.selectItem(withTag: Defaults[.filterByTag])
     _filterObjectsBy.selectItem(withTag: Defaults[.filterObjectsByTag])
 
@@ -123,9 +129,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
 
     // get / create the Application Support folder
     _appFolderUrl = FileManager.appFolder
-
-    // open the Default Radio (if any), otherwise open the Picker
-    checkForDefaultRadio()
   }
   override public func viewWillAppear() {
     
@@ -377,9 +380,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
         
         // write it to the File
         if let error = savePanel.url!.writeArray( self._splitViewVC!._filteredMessages ) {
-//          self._api.log.msg(error, level: .error, function: #function, file: #file, line: #line)
-
-          os_log("%{public}@", log: self._log, type: .error, error)
+         self._log.msg("\(error)", level: .error, function: #function, file: #file, line: #line)
         }
       }
     }
@@ -403,9 +404,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
         
         // write it to the File
         if let error = savePanel.url!.writeArray( self._commandsArray ) {
-//          self._api.log.msg(error, level: .error, function: #function, file: #file, line: #line)
-
-          os_log("%{public}@", log: self._log, type: .error, error)
+          self._log.msg("\(error)", level: .error, function: #function, file: #file, line: #line)
         }
       }
     }
@@ -442,9 +441,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
         } else {
           
           // NO, log it
-//          _api.log.msg("Condition false : \(evaluatedCommand.condition)", level: .error, function: #function, file: #file, line: #line)
-
-          os_log("Condition false: %{public}@", log: self._log, type: .error, evaluatedCommand.condition)
+          _log.msg("Condition false: \(evaluatedCommand.condition)", level: .error, function: #function, file: #file, line: #line)
         }
       
       } else {
@@ -533,6 +530,24 @@ public final class ViewController             : NSViewController, RadioPickerDel
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
+  /// Produce a Client Id (UUID)
+  ///
+  /// - Returns:                a UUID
+  ///
+  private func clientId() -> UUID {
+    var uuid : UUID
+    if let string = Defaults[.clientId] {
+      // use the stored string to create a UUID (if possible) else create a new UUID
+      uuid = UUID(uuidString: string) ?? UUID()
+    } else {
+      // none stored, create a new UUID
+      uuid = UUID()
+      Defaults[.clientId] = uuid.uuidString
+    }
+    // store the string for later use
+    Defaults[.clientId] = uuid.uuidString
+    return uuid
+  }
   /// Copy selected rows from the array backing a table
   ///
   /// - Parameters:
@@ -582,7 +597,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
         Defaults[.defaultRadio] = foundRadioParameters.dict
         
         // log it
-        os_log("%{public}@ @ %{public}@", log: self._log, type: .error, foundRadioParameters.nickname, foundRadioParameters.publicIp)
+        _log.msg("Default radio found: \(foundRadioParameters.nickname) @ \(foundRadioParameters.publicIp)", level: .info, function: #function, file: #file, line: #line)
       }
       if found {
         
@@ -615,13 +630,13 @@ public final class ViewController             : NSViewController, RadioPickerDel
       _versions = versionInfo(framework: Api.kBundleIdentifier)
       
       // log them
-      os_log("%{public}@ v%{public}@, %{public}@ v%{public}@", log: self._log, type: .error, kClientName, _versions!.app, Api.kId, _versions!.api)
+      _log.msg("\(AppDelegate.kAppName) v\(_versions!.app), \(Api.kFrameworkName) v\(_versions!.api)", level: .info, function: #function, file: #file, line: #line)
     }
     
     // format and set the window title
     let title = (_api.activeRadio == nil ? "" : "- Connected to \(_api.activeRadio!.nickname) @ \(_api.activeRadio!.publicIp)")
     DispatchQueue.main.async {
-      self.view.window?.title = "\(kClientName) v\(self._versions!.app), \(Api.kId) v\(self._versions!.api) \(title)"
+      self.view.window?.title = "\(AppDelegate.kAppName) v\(self._versions!.app), \(Api.kFrameworkName) v\(self._versions!.api) \(title)"
     }
   }
 
@@ -680,7 +695,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _api.testerModeEnabled = !Defaults[.isGui]
 
     // attempt to connect to it
-    if _api.connect(selectedRadio, clientName: kClientName, isGui: Defaults[.isGui]) {
+    if _api.connect(selectedRadio, clientName: AppDelegate.kAppName, isGui: Defaults[.isGui]) {
       
       _startTimestamp = Date()
       
