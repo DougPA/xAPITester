@@ -624,19 +624,16 @@ public final class ViewController             : NSViewController, RadioPickerDel
   ///
   private func title() {
     
-    // have the versions been captured?
-    if _versions == nil {
-      // NO, get the versions
-      _versions = versionInfo(framework: Api.kBundleIdentifier)
-      
-      // log them
-      _log.msg("\(AppDelegate.kAppName) v\(_versions!.app), \(Api.kFrameworkName) v\(_versions!.api)", level: .info, function: #function, file: #file, line: #line)
-    }
-    
     // format and set the window title
-    let title = (_api.activeRadio == nil ? "" : "- Connected to \(_api.activeRadio!.nickname) @ \(_api.activeRadio!.publicIp)")
+    let title = (_api.activeRadio == nil ? "" : "Connected to \(_api.activeRadio!.nickname) @ \(_api.activeRadio!.publicIp)")
+    
+    // log it (before connected)
+    if _api.activeRadio == nil {
+      self._log.msg( "\(AppDelegate.kName) v\(AppDelegate.kVersion.string), \(Api.kName) v\(Api.kVersion.string)", level: .info, function: #function, file: #file, line: #line)
+    }
+    // set the title bar
     DispatchQueue.main.async {
-      self.view.window?.title = "\(AppDelegate.kAppName) v\(self._versions!.app), \(Api.kFrameworkName) v\(self._versions!.api) \(title)"
+      self.view.window?.title = "\(AppDelegate.kName) v\(AppDelegate.kVersion.string)     \(Api.kName) v\(Api.kVersion.string)     \(title)"
     }
   }
 
@@ -695,7 +692,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _api.testerModeEnabled = !Defaults[.isGui]
 
     // attempt to connect to it
-    if _api.connect(selectedRadio, clientName: AppDelegate.kAppName, isGui: Defaults[.isGui]) {
+    if _api.connect(selectedRadio, clientName: AppDelegate.kName, isGui: Defaults[.isGui]) {
       
       _startTimestamp = Date()
       

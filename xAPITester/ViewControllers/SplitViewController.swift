@@ -91,7 +91,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   private var _api                            = Api.sharedInstance          // Api to the Radio
   private let _log                            = (NSApp.delegate as! AppDelegate)
   internal weak var _parent                   : ViewController?
-  internal let _objectQ                       = DispatchQueue(label: AppDelegate.kAppName + ".objectQ", attributes: [.concurrent])
+  internal let _objectQ                       = DispatchQueue(label: AppDelegate.kName + ".objectQ", attributes: [.concurrent])
   
   private var _font                           : NSFont!                     // font for table entries
   
@@ -103,7 +103,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   private var _timeoutTimer                   : DispatchSourceTimer!          // timer fired every "checkInterval"
   private var _timerQ                         = DispatchQueue(label: "xAPITester" + ".timerQ")
 
-  private let kAutosaveName                   = NSSplitView.AutosaveName(AppDelegate.kAppName + "SplitView")
+  private let kAutosaveName                   = NSSplitView.AutosaveName(AppDelegate.kName + "SplitView")
   private let checkInterval                   : TimeInterval = 1.0
   
   // ----------------------------------------------------------------------------

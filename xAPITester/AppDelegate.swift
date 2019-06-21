@@ -20,11 +20,11 @@ final class AppDelegate                     : NSObject, NSApplicationDelegate, L
     
   
   // App parameters
-  static let kAppName                       = "xAPITester"
-  static let kAppVersion                    = Version("2.4.9.20190621" )
+  static let kName                          = "xAPITester"
+  static let kVersion                       = Version("2.4.9.2019_06_21" )
   
   // Log parameters
-  static let kLoggerName                    = AppDelegate.kAppName
+  static let kLoggerName                    = AppDelegate.kName
   static let kLogFile                       = AppDelegate.kLoggerName + ".log"
   static let kMaxLogFiles                   : UInt8 = 5
   static let kMaxFileSize                   : UInt64 = 1_048_576                     // 2^20
