@@ -1,6 +1,6 @@
 xAPITester Change Log
 
-v2.5.1.20190621
+v2.5.1.2019_06_21
 
 ViewController.swift - refactored Client() & its usage
 AppDelegate.swift - conformed to xSDR6000 format, corrected kClientName usage in other files
