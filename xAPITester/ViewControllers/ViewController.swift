@@ -544,7 +544,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
     // store the string for later use
     Defaults[.clientId] = uuid.uuidString
     return uuid
-  }  /// Copy selected rows from the array backing a table
+  }
+  /// Copy selected rows from the array backing a table
   ///
   /// - Parameters:
   ///   - table:                        an NStableView instance
@@ -623,11 +624,11 @@ public final class ViewController             : NSViewController, RadioPickerDel
 
     // log it (before connected)
     if _api.activeRadio == nil {
-      self._log.msg( "\(AppDelegate.kAppName) v\(AppDelegate.kAppVersion.string), \(Api.kId) v\(self._api.apiVersion.string)", level: .info, function: #function, file: #file, line: #line)
+      self._log.msg( "\(AppDelegate.kName) v\(AppDelegate.kVersion.string), \(Api.kName) v\(Api.kVersion.string)", level: .info, function: #function, file: #file, line: #line)
     }
     // set the title bar
     DispatchQueue.main.async {
-      self.view.window?.title = "\(AppDelegate.kAppName) v\(AppDelegate.kAppVersion.string)     \(Api.kId) v\(self._api.apiVersion.string)     \(title)"
+      self.view.window?.title = "\(AppDelegate.kName) v\(AppDelegate.kVersion.string)     \(Api.kName) v\(Api.kVersion.string)     \(title)"
     }
   }
 
@@ -689,7 +690,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
 
     // attempt to connect to it
     let station = (Host.current().localizedName ?? "Mac").replacingSpaces(with: "_")
-    if _api.connect(selectedRadio, clientStation: station ,clientName: AppDelegate.kAppName, clientId: _clientId, isGui: Defaults[.isGui]) {
+    if _api.connect(selectedRadio, clientStation: station ,clientName: AppDelegate.kName, clientId: _clientId, isGui: Defaults[.isGui]) {
             
       self._connectButton.title = self.kDisconnect.rawValue
       self._connectButton.identifier = self.kDisconnect

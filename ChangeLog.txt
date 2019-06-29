@@ -4,6 +4,8 @@ v2.5.1.20190621
 
 ViewController.swift - refactored Client() & its usage
 AppDelegate.swift - conformed to xSDR6000 format, corrected kClientName usage in other files
+AppDelegate.swift - changed statics kAppName & kAppVersion to kName & kVersion
+Added underscores to version for readability
 
 
 v2.5.1.20190619
