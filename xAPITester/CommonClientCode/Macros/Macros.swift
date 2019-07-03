@@ -375,7 +375,7 @@ final public class Macros {
       
       switch p.lowercased() {
       case "id":
-        return panadapter.id.hex
+        return panadapter.streamId.hex
         
       case "bw":
         return String(panadapter.bandwidth)

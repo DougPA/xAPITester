@@ -325,20 +325,20 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
           // Panadapters
           for (_, panadapter) in self._api.radio!.panadapters where panadapter.clientHandle == client.handle {
-            self.showInObjectsTable("      Panadapter     \(panadapter.id.hex)  center = \(panadapter.center.hzToMhz)  bandwidth = \(panadapter.bandwidth.hzToMhz)")
+            self.showInObjectsTable("      Panadapter     \(panadapter.streamId.hex)  center = \(panadapter.center.hzToMhz)  bandwidth = \(panadapter.bandwidth.hzToMhz)")
             
             // Waterfall for this Panadapter
-            for (_, waterfall) in self._api.radio!.waterfalls where panadapter.id == waterfall.panadapterId {
-            self.showInObjectsTable("         Waterfall   \(waterfall.id.hex)  autoBlaclEnabled = \(waterfall.autoBlackEnabled),  colorGain = \(waterfall.colorGain),  blackLevel = \(waterfall.blackLevel),  duration = \(waterfall.lineDuration)")
+            for (_, waterfall) in self._api.radio!.waterfalls where panadapter.streamId == waterfall.panadapterId {
+            self.showInObjectsTable("         Waterfall   \(waterfall.streamId.hex)  autoBlaclEnabled = \(waterfall.autoBlackEnabled),  colorGain = \(waterfall.colorGain),  blackLevel = \(waterfall.blackLevel),  duration = \(waterfall.lineDuration)")
             }
             
             // IQ Streams for this Panadapter
-            for (_, iqStream) in self._api.radio!.daxIqStreams where panadapter.id == iqStream.pan {
+            for (_, iqStream) in self._api.radio!.daxIqStreams where panadapter.streamId == iqStream.pan {
             self.showInObjectsTable("         DaxIq        \(iqStream.streamId.hex) stream")
             }
             
             // Slices for this Panadapter
-            for (_, slice) in self._api.radio!.slices where panadapter.id == slice.panadapterId {
+            for (_, slice) in self._api.radio!.slices where panadapter.streamId == slice.panadapterId {
             self.showInObjectsTable("         Slice       \(slice.id)  frequency = \(slice.frequency.hzToMhz)  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)")
               
               // DaxRxAudioStream for this Slice
@@ -365,7 +365,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
         // Opus Streams
         for (_, opusStream) in self._api.radio!.opusStreams {
-          self.showInObjectsTable("Opus           \(opusStream.id.hex) stream, rx = \(opusStream.rxEnabled), rx stopped = \(opusStream.rxStopped), tx = \(opusStream.txEnabled)")
+          self.showInObjectsTable("Opus           \(opusStream.streamId.hex) stream, rx = \(opusStream.rxEnabled), rx stopped = \(opusStream.rxStopped), tx = \(opusStream.txEnabled)")
         }
         
         // DaxIqStreams without a Panadapter

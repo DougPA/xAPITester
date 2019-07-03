@@ -1,5 +1,10 @@
 xAPITester Change Log
 
+v2.5.1.2019_07_03
+
+xLib6000.framework - updated to v2.5.1.2019_07_03
+
+
 v2.5.1.2019_06_21
 
 ViewController.swift - refactored Client() & its usage
