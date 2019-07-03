@@ -1,5 +1,11 @@
 xAPITester Change Log
 
+v2.4.9.2019_07_02
+
+xLib6000.framework - incorporated v2.4.9.2019_07_02
+reduced Deployment Target to 10.11
+
+
 v2.4.9.2019_06_21
 
 added XCGLogger & ObjcExceptionBridging frameworks
