@@ -15,7 +15,7 @@ final class AppDelegate                     : NSObject, NSApplicationDelegate , 
   
   // App parameters
   static let kName                          = "xAPITester"
-  static let kVersion                       = Version("2.5.1.2019_07_03" )
+  static let kVersion                       = Version("2.5.1.2019_07_08" )
   
   // Log parameters
   static let kLoggerName                    = AppDelegate.kName
@@ -23,8 +23,31 @@ final class AppDelegate                     : NSObject, NSApplicationDelegate , 
   static let kMaxLogFiles                   : UInt8 = 5
   static let kMaxFileSize                   : UInt64 = 1_048_576                     // 2^20
   
+  // ----------------------------------------------------------------------------
+  // MARK: - Internal properties
+  
+  var logLevel : XCGLogger.Level {
+    // first parameter is complete executable path, second parameter is the logDebug flag (if present)
+    if CommandLine.arguments.count >= 2 {
+      switch CommandLine.arguments[1].lowercased() {
+      case "-logdebug":
+        return .debug
+      case "-loginfo":
+        return .info
+      case "-logwarning":
+        return .warning
+      case "-logerror":
+        return .error
+      default:
+        return .warning
+      }
+    } else {
+      return .warning
+    }
+  }
+  
   // lazy setup of the XCGLogger
-  let log: XCGLogger = {
+  lazy var log: XCGLogger = {
     
     // Create a logger object with no destinations
     let log = XCGLogger(identifier: AppDelegate.kLoggerName, includeDefaultDestinations: false)
@@ -36,7 +59,7 @@ final class AppDelegate                     : NSObject, NSApplicationDelegate , 
     let systemDestination = AppleSystemLogDestination(identifier: AppDelegate.kLoggerName + ".systemDestination")
     
     // Optionally set some configuration options
-    systemDestination.outputLevel = .info
+    systemDestination.outputLevel = logLevel
     systemDestination.showLogIdentifier = false
     systemDestination.showFileName = true
     systemDestination.showFunctionName = false
@@ -55,7 +78,7 @@ final class AppDelegate                     : NSObject, NSApplicationDelegate , 
     // Optionally set some configuration options
     fileDestination.targetMaxFileSize       = AppDelegate.kMaxFileSize
     fileDestination.targetMaxLogFiles       = AppDelegate.kMaxLogFiles
-    fileDestination.outputLevel             = .info
+    fileDestination.outputLevel             = logLevel
     fileDestination.showLogIdentifier       = false
     fileDestination.showFunctionName        = true
     fileDestination.showThreadName          = true
@@ -70,7 +93,6 @@ final class AppDelegate                     : NSObject, NSApplicationDelegate , 
     // Add the destination to the logger
     log.add(destination: fileDestination)
     
-    
     // Add basic app info, version info etc, to the start of the logs
     log.logAppDetails()
     
@@ -82,7 +104,7 @@ final class AppDelegate                     : NSObject, NSApplicationDelegate , 
     
     return log
   }()
-  
+
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
     return true
   }

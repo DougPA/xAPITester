@@ -329,7 +329,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
             
             // Waterfall for this Panadapter
             for (_, waterfall) in self._api.radio!.waterfalls where panadapter.streamId == waterfall.panadapterId {
-            self.showInObjectsTable("         Waterfall   \(waterfall.streamId.hex)  autoBlaclEnabled = \(waterfall.autoBlackEnabled),  colorGain = \(waterfall.colorGain),  blackLevel = \(waterfall.blackLevel),  duration = \(waterfall.lineDuration)")
+            self.showInObjectsTable("         Waterfall   \(waterfall.streamId.hex)  autoBlackEnabled = \(waterfall.autoBlackEnabled),  colorGain = \(waterfall.colorGain),  blackLevel = \(waterfall.blackLevel),  duration = \(waterfall.lineDuration)")
             }
             
             // IQ Streams for this Panadapter
