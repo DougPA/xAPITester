@@ -1,4 +1,13 @@
-xAPITester Change Log
+xAPITester V2 Change Log
+
+v2.4.9.2019_07_08
+
+ViewController.swift - added addNotifications() & code for version check
+SplitViewController.swift - updated Waterfall properties shown in view
+SplitViewController.swift - updated "id" to "streamId"
+Macros.swift - updated "id" to "streamId"
+AppDelegate.swift - updated log to include commandline params
+
 
 v2.4.9.2019_07_02
 
