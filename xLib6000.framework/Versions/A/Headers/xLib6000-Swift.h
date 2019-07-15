@@ -491,31 +491,6 @@ SWIFT_CLASS("_TtC8xLib60003Gps")
 @end
 
 
-/// GuiClient Class implementation
-/// \code
-///  creates a GuiClient instance to be used by a Client to support the
-///  processing of the connected Gui Clients. GuiClient objects are added, removed and
-///  updated by the incoming TCP messages. They are collected in the guiClients
-///  collection on the Radio object.
-///
-/// \endcode
-SWIFT_CLASS("_TtC8xLib60009GuiClient")
-@interface GuiClient : NSObject
-- (nonnull instancetype)init SWIFT_UNAVAILABLE;
-+ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
-@end
-
-
-@interface GuiClient (SWIFT_EXTENSION(xLib6000))
-@property (nonatomic, readonly, copy) NSString * _Nonnull host;
-@property (nonatomic, readonly, copy) NSUUID * _Nullable id;
-@property (nonatomic, readonly, copy) NSString * _Nonnull ip;
-@property (nonatomic, readonly) BOOL localPttEnabled;
-@property (nonatomic, readonly, copy) NSString * _Nonnull program;
-@property (nonatomic, readonly, copy) NSString * _Nonnull station;
-@end
-
-
 /// Interlock Class implementation
 /// \code
 ///  creates an Interlock instance to be used by a Client to support the
