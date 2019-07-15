@@ -1,5 +1,11 @@
 xAPITester V3 Change Log
 
+v2.5.1.2019_07_15
+
+Various - to support guiCLient display
+xLib6000.framework - updated to v2.5.1.2019_07_15
+
+
 v2.5.1.2019_07_08
 
 ViewController.swift - added addNotifications() & code for version check

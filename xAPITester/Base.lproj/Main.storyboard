@@ -33,13 +33,13 @@
                                         <menuItem title="Meters" id="XOe-8c-keT">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <segue destination="O7A-Nr-J4z" kind="show" id="DmM-Mh-L4H"/>
+                                                <segue destination="O7A-Nr-J4z" kind="show" identifier="Meters" id="DmM-Mh-L4H"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Connected Clients" id="O1B-2l-VEa">
+                                        <menuItem title="Gui Clients" id="O1B-2l-VEa">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <segue destination="sB1-03-vvl" kind="show" id="DBV-0J-Yck"/>
+                                                <segue destination="sB1-03-vvl" kind="show" identifier="GuiClients" id="DBV-0J-Yck"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
@@ -547,7 +547,7 @@
                                         <menuItem title="xAPITester Help" keyEquivalent="?" id="FKE-Sm-Kum">
                                             <connections>
                                                 <action selector="showHelp:" target="Ady-hI-5gd" id="y7X-2Q-9no"/>
-                                                <segue destination="aDi-aR-Pxf" kind="show" id="upi-K4-zmj"/>
+                                                <segue destination="aDi-aR-Pxf" kind="show" identifier="Help" id="upi-K4-zmj"/>
                                             </connections>
                                         </menuItem>
                                     </items>
@@ -562,7 +562,7 @@
                 <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="xAPITester" customModuleProvider="target"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="75" y="0.0"/>
+            <point key="canvasLocation" x="107" y="-811"/>
         </scene>
         <!--Window Controller-->
         <scene sceneID="R2V-B0-nI4">
@@ -1100,7 +1100,7 @@
                 </viewController>
                 <customObject id="Vsh-qF-uYp" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1208" y="27"/>
+            <point key="canvasLocation" x="82" y="-464"/>
         </scene>
         <!--Tab View Controller-->
         <scene sceneID="2Ph-pU-SoN">
@@ -2172,7 +2172,7 @@ Gw
                 <customObject id="sEL-1s-W0c" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <userDefaultsController id="2Zk-09-reC"/>
             </objects>
-            <point key="canvasLocation" x="1444" y="-381"/>
+            <point key="canvasLocation" x="905" y="-438"/>
         </scene>
         <!--Split View Controller-->
         <scene sceneID="XVh-vR-xYr">
@@ -2341,10 +2341,10 @@ Gw
             </objects>
             <point key="canvasLocation" x="295" y="1824"/>
         </scene>
-        <!--Connected Clients-->
+        <!--GUI Clients-->
         <scene sceneID="aMU-GO-0gr">
             <objects>
-                <viewController title="Connected Clients" storyboardIdentifier="GuiClients" showSeguePresentationStyle="single" id="sB1-03-vvl" customClass="GuiClientViewController" customModule="xAPITester" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="GUI Clients" storyboardIdentifier="GuiClients" showSeguePresentationStyle="single" id="sB1-03-vvl" customClass="GuiClientViewController" customModule="xAPITester" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="Vlo-cK-toF">
                         <rect key="frame" x="0.0" y="0.0" width="922" height="352"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -2362,49 +2362,8 @@ Gw
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                             <tableColumns>
-                                                <tableColumn identifier="Handle" width="125" minWidth="40" maxWidth="1000" id="qFi-CK-Kvb">
+                                                <tableColumn identifier="Handle" width="146" minWidth="40" maxWidth="1000" id="huC-15-HHG">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Handle">
-                                                        <font key="font" metaFont="smallSystem"/>
-                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
-                                                    </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="center" title="Text Cell" id="7YZ-9d-KVu">
-                                                        <font key="font" metaFont="system"/>
-                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                                    <prototypeCellViews>
-                                                        <tableCellView id="CqA-DU-rK2">
-                                                            <rect key="frame" x="1" y="1" width="125" height="21"/>
-                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                            <subviews>
-                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1yO-B1-sCh">
-                                                                    <rect key="frame" x="0.0" y="2" width="125" height="17"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="left" title="Table View Cell" id="yDU-6X-yfm">
-                                                                        <font key="font" metaFont="system"/>
-                                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                                    </textFieldCell>
-                                                                </textField>
-                                                            </subviews>
-                                                            <constraints>
-                                                                <constraint firstItem="1yO-B1-sCh" firstAttribute="top" secondItem="CqA-DU-rK2" secondAttribute="top" constant="2" id="FwQ-hu-uiU"/>
-                                                                <constraint firstAttribute="trailing" secondItem="1yO-B1-sCh" secondAttribute="trailing" constant="2" id="O33-Nv-Z9k"/>
-                                                                <constraint firstItem="1yO-B1-sCh" firstAttribute="leading" secondItem="CqA-DU-rK2" secondAttribute="leading" constant="2" id="XdP-DV-Wcd"/>
-                                                                <constraint firstItem="1yO-B1-sCh" firstAttribute="centerX" secondItem="CqA-DU-rK2" secondAttribute="centerX" id="dUr-uv-8Fm"/>
-                                                                <constraint firstItem="1yO-B1-sCh" firstAttribute="centerY" secondItem="CqA-DU-rK2" secondAttribute="centerY" id="dak-zY-bnP"/>
-                                                                <constraint firstItem="1yO-B1-sCh" firstAttribute="leading" secondItem="CqA-DU-rK2" secondAttribute="leading" constant="2" id="gml-hR-kAO"/>
-                                                                <constraint firstAttribute="bottom" secondItem="1yO-B1-sCh" secondAttribute="bottom" constant="2" id="sKY-RW-u3m"/>
-                                                            </constraints>
-                                                            <connections>
-                                                                <outlet property="textField" destination="1yO-B1-sCh" id="t5H-1d-pvv"/>
-                                                            </connections>
-                                                        </tableCellView>
-                                                    </prototypeCellViews>
-                                                </tableColumn>
-                                                <tableColumn identifier="Station" width="200" minWidth="40" maxWidth="1000" id="huC-15-HHG">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Station">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -2417,11 +2376,11 @@ Gw
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="O1O-mG-KhL">
-                                                            <rect key="frame" x="129" y="1" width="200" height="21"/>
+                                                            <rect key="frame" x="1" y="1" width="146" height="21"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="l98-53-hIn">
-                                                                    <rect key="frame" x="0.0" y="2" width="200" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="2" width="146" height="17"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="left" title="Table View Cell" id="8Ll-E1-Ztf">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -2444,8 +2403,8 @@ Gw
                                                         </tableCellView>
                                                     </prototypeCellViews>
                                                 </tableColumn>
-                                                <tableColumn identifier="Program" width="200" minWidth="10" maxWidth="3.4028234663852886e+38" id="sD0-Tn-hQg">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Program">
+                                                <tableColumn identifier="Station" width="196" minWidth="10" maxWidth="3.4028234663852886e+38" id="sD0-Tn-hQg">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Station">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -2458,11 +2417,11 @@ Gw
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="ZhC-kn-XXB">
-                                                            <rect key="frame" x="332" y="1" width="200" height="21"/>
+                                                            <rect key="frame" x="150" y="1" width="196" height="21"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ifC-Yi-W5I">
-                                                                    <rect key="frame" x="0.0" y="2" width="200" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="2" width="196" height="17"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="left" title="Table View Cell" id="267-U0-p6Q">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -2485,8 +2444,8 @@ Gw
                                                         </tableCellView>
                                                     </prototypeCellViews>
                                                 </tableColumn>
-                                                <tableColumn identifier="Id" width="340" minWidth="10" maxWidth="3.4028234663852886e+38" id="zPb-sE-5Ry">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Client ID">
+                                                <tableColumn identifier="Program" width="202" minWidth="10" maxWidth="3.4028234663852886e+38" id="zPb-sE-5Ry">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Program">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -2499,11 +2458,11 @@ Gw
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="518-4a-dzP">
-                                                            <rect key="frame" x="535" y="1" width="340" height="21"/>
+                                                            <rect key="frame" x="349" y="1" width="202" height="21"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="b7d-tT-9JV">
-                                                                    <rect key="frame" x="0.0" y="2" width="340" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="2" width="202" height="17"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="left" title="Table View Cell" id="NvU-yo-xt3">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -2522,6 +2481,39 @@ Gw
                                                             </constraints>
                                                             <connections>
                                                                 <outlet property="textField" destination="b7d-tT-9JV" id="dHp-Fe-VrP"/>
+                                                            </connections>
+                                                        </tableCellView>
+                                                    </prototypeCellViews>
+                                                </tableColumn>
+                                                <tableColumn identifier="ClientId" width="324" minWidth="10" maxWidth="3.4028234663852886e+38" id="AkD-92-6Wa">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Client Id">
+                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    </tableHeaderCell>
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="caH-qp-lXW">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <prototypeCellViews>
+                                                        <tableCellView id="rkD-v0-b84">
+                                                            <rect key="frame" x="554" y="1" width="324" height="17"/>
+                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                            <subviews>
+                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Wj8-aT-c6d">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="324" height="17"/>
+                                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="B1Y-tR-b1x">
+                                                                        <font key="font" metaFont="system"/>
+                                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                    </textFieldCell>
+                                                                </textField>
+                                                            </subviews>
+                                                            <connections>
+                                                                <outlet property="textField" destination="Wj8-aT-c6d" id="Ddr-df-kYa"/>
                                                             </connections>
                                                         </tableCellView>
                                                     </prototypeCellViews>
@@ -2562,7 +2554,7 @@ Gw
                 <customObject id="F94-GF-E3m" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <userDefaultsController id="Jw7-qF-1Hb"/>
             </objects>
-            <point key="canvasLocation" x="1444" y="-811"/>
+            <point key="canvasLocation" x="905" y="-976"/>
         </scene>
     </scenes>
 </document>

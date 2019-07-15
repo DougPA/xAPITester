@@ -45,7 +45,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   
   @IBOutlet internal var _tableView           : NSTableView!
   @IBOutlet internal var _objectsTableView    : NSTableView!
-  
+
   public var myHandle: String {
     get { return _objectQ.sync { _myHandle } }
     set { _objectQ.sync(flags: .barrier) { _myHandle = newValue } } }
@@ -102,6 +102,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
 
   private var _timeoutTimer                   : DispatchSourceTimer!          // timer fired every "checkInterval"
   private var _timerQ                         = DispatchQueue(label: "xAPITester" + ".timerQ")
+  private var _guiClients                     = [GuiClient]()
 
   private let kAutosaveName                   = NSSplitView.AutosaveName(AppDelegate.kName + "SplitView")
   private let checkInterval                   : TimeInterval = 1.0
@@ -121,7 +122,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     _tableView.rowHeight = _font.capHeight * 1.7
     
     // setup & start the Objects table timer
-    setupTimer()    
+    setupTimer()
+    
+    addNotifications()
   }
 
   deinit {
@@ -172,6 +175,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       // reload the table
       self._objectsTableView?.reloadData()
     }
+  }
+  
+  internal func removeApiTester() {
+    
+    _guiClients = _guiClients.filter { $0.program != AppDelegate.kName }
   }
   
   // ----------------------------------------------------------------------------
@@ -242,13 +250,14 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   ///
   func showInObjectsTable(_ text: String) {
     
-    // guard that a session has been started
-    guard let startTimestamp = self._parent!._startTimestamp else { return }
-    
+//    // guard that a session has been started
+//    guard let startTimestamp = self._parent!._startTimestamp else { return }
+//
     // add the Timestamp to the Text
-    let timeInterval = Date().timeIntervalSince(startTimestamp)
-    objects.append( String( format: "%8.3f", timeInterval) + " " + text )
-    
+//    let timeInterval = Date().timeIntervalSince(startTimestamp)
+//    objects.append( String( format: "%8.3f", timeInterval) + " " + text )
+    objects.append( text )
+
     reloadObjectsTable()
   }
   /// Parse a Reply message. format: <sequenceNumber>|<hexResponse>|<message>[|<debugOutput>]
@@ -308,38 +317,39 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     DispatchQueue.main.async { [unowned self] in
       self.objects.removeAll()
+      self.reloadObjectsTable()
       
-      // Radio
+      // ApiTester
       if let radio = Api.sharedInstance.activeRadio {
-        
-        self.showInObjectsTable("Radio  name = \(radio.nickname)  model = \(radio.model), version = \(radio.firmwareVersion)" +
-          ", atu = \(Api.sharedInstance.radio!.atuPresent ? "Yes" : "No"), gps = \(Api.sharedInstance.radio!.gpsPresent ? "Yes" : "No")" +
-          ", scu's = \(Api.sharedInstance.radio!.numberOfScus)")
+        self.showInObjectsTable("xAPITester  \(Defaults[.isGui] ? "Gui Client:    " : "NON-Gui Client:")  handle->\(self._api.connectionHandle!.hex)  program->\(self._api.clientProgram)  station->\(self._api.clientStation)  name->\(radio.nickname)  model->\(radio.model), version->\(radio.firmwareVersion)" +
+          ", atu->\(Api.sharedInstance.radio!.atuPresent ? "Yes" : "No"), gps->\(Api.sharedInstance.radio!.gpsPresent ? "Yes" : "No")" +
+          ", scu's->\(Api.sharedInstance.radio!.numberOfScus)")
         
         self.showInObjectsTable("\n")
-
-        for client in Api.sharedInstance.guiClients.values {
-        
-          self.showInObjectsTable("   \(client.id == nil ? "Non-Gui Client" : "Gui Client")  handle = \(client.handle.hex)  program = \(client.program)  station = \(client.station)" +
-            "\(client.id == nil ? "" : ", id = \(client.id!.uuidString)"), host =  \(client.host), ip =  \(client.ip)")
-        
+      }
+      // Gui Clients
+      for client in self._guiClients {
+        self.showInObjectsTable("DISCOVERED  Gui-Client:      handle->\(client.handle.hex)  program->\(client.program)  station->\(client.station)" +
+          " id->\(client.clientId?.uuidString == nil ? "" : client.clientId!.uuidString)")
+      
+        if let _ = Api.sharedInstance.activeRadio {
           // Panadapters
           for (_, panadapter) in self._api.radio!.panadapters where panadapter.clientHandle == client.handle {
-            self.showInObjectsTable("      Panadapter     \(panadapter.streamId.hex)  center = \(panadapter.center.hzToMhz)  bandwidth = \(panadapter.bandwidth.hzToMhz)")
-            
+            self.showInObjectsTable("      Panadapter     \(panadapter.streamId.hex)  center->\(panadapter.center.hzToMhz)  bandwidth->\(panadapter.bandwidth.hzToMhz)")
+
             // Waterfall for this Panadapter
             for (_, waterfall) in self._api.radio!.waterfalls where panadapter.streamId == waterfall.panadapterId {
-            self.showInObjectsTable("         Waterfall   \(waterfall.streamId.hex)  autoBlackEnabled = \(waterfall.autoBlackEnabled),  colorGain = \(waterfall.colorGain),  blackLevel = \(waterfall.blackLevel),  duration = \(waterfall.lineDuration)")
+              self.showInObjectsTable("         Waterfall   \(waterfall.streamId.hex)  autoBlackEnabled->\(waterfall.autoBlackEnabled),  colorGain->\(waterfall.colorGain),  blackLevel->\(waterfall.blackLevel),  duration->\(waterfall.lineDuration)")
             }
             
             // IQ Streams for this Panadapter
             for (_, iqStream) in self._api.radio!.daxIqStreams where panadapter.streamId == iqStream.pan {
-            self.showInObjectsTable("         DaxIq        \(iqStream.streamId.hex) stream")
+              self.showInObjectsTable("         DaxIq        \(iqStream.streamId.hex) stream")
             }
             
             // Slices for this Panadapter
             for (_, slice) in self._api.radio!.slices where panadapter.streamId == slice.panadapterId {
-            self.showInObjectsTable("         Slice       \(slice.id)  frequency = \(slice.frequency.hzToMhz)  filterLow = \(slice.filterLow)  filterHigh = \(slice.filterHigh)  active = \(slice.active)  locked = \(slice.locked)")
+              self.showInObjectsTable("         Slice       \(slice.id)  frequency->\(slice.frequency.hzToMhz)  filterLow->\(slice.filterLow)  filterHigh->\(slice.filterHigh)  active->\(slice.active)  locked->\(slice.locked)")
               
               // DaxRxAudioStream for this Slice
               for (_, audioStream) in self._api.radio!.daxRxAudioStreams {
@@ -351,63 +361,67 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
               // sort the Meters for this Slice
               for (_, meter) in self._api.radio!.meters.sorted(by: { $0.value.number < $1.value.number }) {
                 if meter.source == "slc" && meter.group == slice.id {
-                  self.showInObjectsTable("            Meter \(("00" + meter.number).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
+                  self.showInObjectsTable("            Meter \(("00" + meter.number).suffix(3))  name->\(meter.name)  desc->\(meter.desc)  units->\(meter.units)  low ->\(meter.low)  high ->\(meter.high)  fps->\(meter.fps)")
                 }
               }
             }
           }
           self.showInObjectsTable("\n")
         }
+      }
+      // Items not connected to a Client
+      if let _ = Api.sharedInstance.activeRadio {
+        
         // DaxTxAudioStreams
-        for (_, txAudioStream) in self._api.radio!.daxTxAudioStreams {
-          self.showInObjectsTable("DaxTx Audio       \(txAudioStream.streamId.hex) stream")
+        for (_, stream) in self._api.radio!.daxTxAudioStreams {
+          self.showInObjectsTable("DaxTx Audio:       \(stream.streamId.hex) stream")
         }
         
         // Opus Streams
-        for (_, opusStream) in self._api.radio!.opusStreams {
-          self.showInObjectsTable("Opus           \(opusStream.streamId.hex) stream, rx = \(opusStream.rxEnabled), rx stopped = \(opusStream.rxStopped), tx = \(opusStream.txEnabled)")
+        for (_, stream) in self._api.radio!.opusStreams {
+          self.showInObjectsTable("Opus:           \(stream.streamId.hex) stream  rx->\(stream.rxEnabled)  rx stopped->\(stream.rxStopped)  tx->\(stream.txEnabled)")
         }
         
         // DaxIqStreams without a Panadapter
-        for (_, iqStream) in self._api.radio!.daxIqStreams where iqStream.pan == 0 {
-          self.showInObjectsTable("DaxIq          \(iqStream.streamId.hex) stream,  panadapter = -not assigned-")
+        for (_, stream) in self._api.radio!.daxIqStreams where stream.pan == 0 {
+          self.showInObjectsTable("DaxIq:          \(stream.streamId.hex) stream  panadapter-> -not assigned-")
         }
         
         // DaxRxAudioStream without a Slice
-        for (_, audioStream) in self._api.radio!.daxRxAudioStreams where audioStream.slice == nil {
-          self.showInObjectsTable("DaxAudio       \(audioStream.streamId.hex) stream,  slice = -not assigned-")
+        for (_, stream) in self._api.radio!.daxRxAudioStreams where stream.slice == nil {
+          self.showInObjectsTable("DaxAudio:       \(stream.streamId.hex) stream,  slice-> -not assigned-")
         }
         // Tnfs
         for (_, tnf) in self._api.radio!.tnfs {
-          self.showInObjectsTable("Tnf            \(tnf.id)  frequency = \(tnf.frequency)  width = \(tnf.width)  depth = \(tnf.depth)  permanent = \(tnf.permanent)")
+          self.showInObjectsTable("Tnf:            \(tnf.id)  frequency->\(tnf.frequency)  width->\(tnf.width)  depth->\(tnf.depth)  permanent->\(tnf.permanent)")
         }
         // Amplifiers
         for (_, amplifier) in self._api.radio!.amplifiers {
-          self.showInObjectsTable("Amplifier      \(amplifier.id)")
+          self.showInObjectsTable("Amplifier:      \(amplifier.id)")
         }
         // Memories
         for (_, memory) in self._api.radio!.memories {
-          self.showInObjectsTable("Memory         \(memory.id)")
+          self.showInObjectsTable("Memory:         \(memory.id)")
         }
         // USB Cables
         for (_, usbCable) in self._api.radio!.usbCables {
-          self.showInObjectsTable("UsbCable       \(usbCable.id)")
+          self.showInObjectsTable("UsbCable:       \(usbCable.id)")
         }
         // Xvtrs
         for (_, xvtr) in self._api.radio!.xvtrs {
-          self.showInObjectsTable("Xvtr           \(xvtr.id)")
+          self.showInObjectsTable("Xvtr:           \(xvtr.id)")
         }
         // Meters (not for a Slice)
         let sortedMeters = self._api.radio!.meters.sorted(by: {
-            ( $0.value.source[0..<3], Int($0.value.group.suffix(3), radix: 10)!, $0.value.number.suffix(3) ) <
+          ( $0.value.source[0..<3], Int($0.value.group.suffix(3), radix: 10)!, $0.value.number.suffix(3) ) <
             ( $1.value.source[0..<3], Int($1.value.group.suffix(3), radix: 10)!, $1.value.number.suffix(3) )
         })
         for (_, meter) in sortedMeters where !meter.source.hasPrefix("slc") {
-          self.showInObjectsTable("Meter          source = \(meter.source[0..<3])  group = \(("00" + meter.group).suffix(3))  number = \(("00" + meter.number).suffix(3))  name = \(meter.name)  desc = \(meter.desc)  units = \(meter.units)  low = \(meter.low)  high = \(meter.high)  fps = \(meter.fps)")
+          self.showInObjectsTable("Meter:  source->\(meter.source[0..<3])  group->\(("00" + meter.group).suffix(3))  number->\(("00" + meter.number).suffix(3))  name->\(meter.name)  desc->\(meter.desc)  units->\(meter.units)  low->\(meter.low)  high->\(meter.high)  fps->\(meter.fps)")
         }
         // DaxMicAudioStream
-        for (_, micAudioStream) in self._api.radio!.daxMicAudioStreams {
-          self.showInObjectsTable("DaxMicAudio    \(micAudioStream.streamId.hex) stream")
+        for (_, stream) in self._api.radio!.daxMicAudioStreams {
+          self.showInObjectsTable("DaxMicAudio:    \(stream.streamId.hex) stream")
         }
       }
     }
@@ -417,7 +431,55 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     Api.sharedInstance.radio!.opusStreams.removeAll()
   }
+
   
+  // ----------------------------------------------------------------------------
+  // MARK: - Notification Methods
+  
+  /// Add subsciptions to Notifications
+  ///     (as of 10.11, subscriptions are automatically removed on deinit when using the Selector-based approach)
+  ///
+  private func addNotifications() {
+    
+    NC.makeObserver(self, with: #selector(guiClientHasBeenAdded(_:)), of: .guiClientHasBeenAdded)
+    NC.makeObserver(self, with: #selector(guiClientHasBeenUpdated(_:)), of: .guiClientHasBeenUpdated)
+    NC.makeObserver(self, with: #selector(guiClientHasBeenRemoved(_:)), of: .guiClientHasBeenRemoved)
+  }
+  /// Process guiClientHasBeenAdded Notification
+  ///
+  /// - Parameter note:       a Notification instance
+  ///
+  @objc private func guiClientHasBeenAdded(_ note: Notification) {
+    
+    if let guiClient = note.object as? GuiClient {
+      _guiClients.append(guiClient)
+    }
+  }
+  /// Process guiClientHasBeenUpdated Notification
+  ///
+  /// - Parameter note:       a Notification instance
+  ///
+  @objc private func guiClientHasBeenUpdated(_ note: Notification) {
+    
+    if let guiClient = note.object as? GuiClient {
+      if let index = _guiClients.firstIndex(of: guiClient) {
+        _guiClients[index] = guiClient
+      }
+    }
+  }
+  /// Process guiClientHasBeenRemoved Notification
+  ///
+  /// - Parameter note:       a Notification instance
+  ///
+  @objc private func guiClientHasBeenRemoved(_ note: Notification) {
+    
+    if let guiClient = note.object as? GuiClient {
+      if let index = _guiClients.firstIndex(of: guiClient) {
+        _guiClients.remove(at: index)
+      }
+    }
+  }
+
   // ----------------------------------------------------------------------------
   // MARK: - Api Delegate methods
   
@@ -630,32 +692,27 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         
         // Objects, get the text including Timestamp
         let rowText = _filteredObjects[row]
-        
-        // get the text without the Timestamp and any leading spaces
-        let msgText = String(rowText.dropFirst(9))
-        let textType = msgText.trimmingCharacters(in: .whitespaces)
+        // get the text without any leading spaces
+        let textType = rowText.trimmingCharacters(in: .whitespaces)
         
         // determine the type of text, assign a background color
-        if textType.hasPrefix("Radio") {
-          view.textField!.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.4)
-
-        } else if textType.hasPrefix("Gui Client") {
-          view.textField!.backgroundColor = NSColor.systemBrown.withAlphaComponent(0.4)
-
-        } else if textType.hasPrefix("Non-Gui Client") {
-          view.textField!.backgroundColor = NSColor.systemBrown.withAlphaComponent(0.1)
-          
-        } else if textType.hasPrefix("Panadapter")  {
+        if textType.hasPrefix("xAPITester") {
           view.textField!.backgroundColor = NSColor.systemRed.withAlphaComponent(0.4)
-          
-        } else if textType.hasPrefix("Waterfall") || textType.hasPrefix("Slice") {
-          view.textField!.backgroundColor = NSColor.systemBlue.withAlphaComponent(0.4)
 
+        } else if textType.hasPrefix("DISCOVERED") {
+          view.textField!.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.4)
+          
+        } else if textType.hasPrefix("Panadapter") || textType.hasPrefix("Waterfall") || textType.hasPrefix("Slice") {
+          view.textField!.backgroundColor = NSColor.systemBlue.withAlphaComponent(0.4)
+          
         } else if textType.hasPrefix("DaxIq") || textType.hasPrefix("DaxAudio"){
           view.textField!.backgroundColor = NSColor.systemPurple.withAlphaComponent(0.4)
 
-        } else if textType.hasPrefix("Meter") {
-          view.textField!.backgroundColor = NSColor.systemOrange.withAlphaComponent(0.4)
+        } else if textType.hasPrefix("Meter:") {
+          view.textField!.backgroundColor = NSColor.systemBrown.withAlphaComponent(0.4)
+          
+        } else if textType.hasPrefix("Meter ") {
+          view.textField!.backgroundColor = NSColor.systemBlue.withAlphaComponent(0.4)
           
         } else if textType.hasPrefix("\n") {
           view.textField!.backgroundColor = NSColor.black
@@ -667,7 +724,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         view.textField!.font = _font
         
         // set the text
-        view.textField!.stringValue = msgText
+        view.textField!.stringValue = rowText
       }
     }
     return view

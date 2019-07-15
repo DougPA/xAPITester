@@ -67,9 +67,10 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private var _commandsArray                  = [String]()                  // commands history
   private var _radioPickerTabViewController   : NSTabViewController?
   private var _splitViewVC                    : SplitViewController?
+  private var _guiClientsVC                   : NSViewController?
   private var _appFolderUrl                   : URL!
   private var _macros                         : Macros!
-  private var _clientId                       : UUID?
+  private var _myClientId                     : UUID?                       // Client Id of this App
 
   // constants
   private let _dateFormatter                  = DateFormatter()
@@ -91,6 +92,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private let kMacroFileExt                   = "macro"
   private let kDefaultsFile                   = "Defaults.plist"
   private let kSWI_SplitView                  = "SplitView"
+  private let kSegueGuiClients                = "GuiClients"
 
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
@@ -107,8 +109,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
     
     addNotifications()
     
-    // get/create a Client Id
-    _clientId = clientId()
+    // get/create a Client Id for this App (used when connected as a Gui)
+    _myClientId = clientId()
     
     _filterBy.selectItem(withTag: Defaults[.filterByTag])
     _filterObjectsBy.selectItem(withTag: Defaults[.filterObjectsByTag])
@@ -188,6 +190,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
       checkForDefaultRadio()
       
     case kDisconnect:
+      
+      _splitViewVC?.removeApiTester()
       
       // close the active Radio
       closeRadio()
@@ -753,7 +757,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
 
     // attempt to connect to it
     let station = (Host.current().localizedName ?? "Mac").replacingSpaces(with: "_")
-    if _api.connect(selectedRadio, clientStation: station ,clientName: AppDelegate.kName, clientId: _clientId, isGui: Defaults[.isGui]) {
+    
+    if _api.connect(selectedRadio, clientStation: station ,clientProgram: AppDelegate.kName, clientId: Defaults[.isGui] ? _myClientId : nil, isGui: Defaults[.isGui]) {
             
       self._connectButton.title = self.kDisconnect.rawValue
       self._connectButton.identifier = self.kDisconnect
