@@ -68,7 +68,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private var _radioPickerTabViewController   : NSTabViewController?
   private var _splitViewVC                    : SplitViewController?
   private var _guiClientsVC                   : NSViewController?
-  private var _appFolderUrl                   : URL!
+//  private var _appFolderUrl                   : URL!
   private var _macros                         : Macros!
   private var _myClientId                     : UUID?                       // Client Id of this App
 
@@ -93,6 +93,8 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private let kDefaultsFile                   = "Defaults.plist"
   private let kSWI_SplitView                  = "SplitView"
   private let kSegueGuiClients                = "GuiClients"
+  
+  private let kMacrosFolder                   = "Macros"
 
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
@@ -127,9 +129,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     
     // set the window title
     title()
-    
-    // get / create the Application Support folder
-    _appFolderUrl = FileManager.appFolder
   }
   override public func viewWillAppear() {
     
@@ -261,7 +260,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     
     let openPanel = NSOpenPanel()
     openPanel.allowedFileTypes = [kCommandsRepliesFileExt]
-    openPanel.directoryURL = _appFolderUrl
+    openPanel.directoryURL = URL.macros
 
     // open an Open Dialog
     openPanel.beginSheetModal(for: self.view.window!) { [unowned self] (result: NSApplication.ModalResponse) in
@@ -302,7 +301,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     let openPanel = NSOpenPanel()
     openPanel.allowedFileTypes = [kMacroFileExt]
     openPanel.nameFieldStringValue = kMacroFileName
-    openPanel.directoryURL = _appFolderUrl
+    openPanel.directoryURL = URL.macros
     
     // open an Open Dialog
     openPanel.beginSheetModal(for: self.view.window!) { [unowned self] (result: NSApplication.ModalResponse) in
@@ -362,7 +361,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   ///
   @IBAction func runMacro(_ sender: NSButton) {
 
-    _macros.runMacro("", window: view.window!, appFolderUrl: _appFolderUrl)
+    _macros.runMacro("", window: view.window!, appFolderUrl: URL.macros)
   }
   /// Respond to the Save button (in the Commands & Replies box)
   ///
@@ -373,7 +372,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     let savePanel = NSSavePanel()
     savePanel.allowedFileTypes = [kCommandsRepliesFileExt]
     savePanel.nameFieldStringValue = kCommandsRepliesFileName
-    savePanel.directoryURL = _appFolderUrl
+    savePanel.directoryURL = URL.macros
     
     // open a Save Dialog
     savePanel.beginSheetModal(for: self.view.window!) { [unowned self] (result: NSApplication.ModalResponse) in
@@ -397,7 +396,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     let savePanel = NSSavePanel()
     savePanel.allowedFileTypes = [kMacroFileExt]
     savePanel.nameFieldStringValue = kMacroFileName
-    savePanel.directoryURL = _appFolderUrl
+    savePanel.directoryURL = URL.macros
     
     // open a Save Dialog
     savePanel.beginSheetModal(for: self.view.window!) { [unowned self] (result: NSApplication.ModalResponse) in
@@ -428,7 +427,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
       if cmd.first! == Macros.kMacroPrefix {
         
         // the command is a macro file name
-        _macros.runMacro(String(cmd.dropFirst()), window: view.window!, appFolderUrl: _appFolderUrl, choose: false)
+        _macros.runMacro(String(cmd.dropFirst()), window: view.window!, appFolderUrl: URL.macros, choose: false)
 
       } else if cmd.first! == Macros.kConditionPrefix {
       

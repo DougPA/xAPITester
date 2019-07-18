@@ -46,7 +46,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   @IBOutlet internal var _tableView           : NSTableView!
   @IBOutlet internal var _objectsTableView    : NSTableView!
 
-  public var myHandle: String {
+  public var myHandle: UInt32? {
     get { return _objectQ.sync { _myHandle } }
     set { _objectQ.sync(flags: .barrier) { _myHandle = newValue } } }
   
@@ -70,7 +70,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       case .prefix:     return messages.filter { $0.contains("|" + Defaults[.filter]) }
       case .contains:   return messages.filter { $0.contains(Defaults[.filter]) }
       case .exclude:    return messages.filter { !$0.contains(Defaults[.filter]) }
-      case .myHandle:   return messages.filter { $0.dropFirst(9).hasPrefix("S" + myHandle) }
+      case .myHandle:   return messages.filter { $0.dropFirst(9).hasPrefix("S" + myHandle!.toHex("%08X")) }
       case .handle:     return messages.filter { $0.dropFirst(9).hasPrefix("S" + Defaults[.filter]) }
       }
     }}
@@ -95,7 +95,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   
   private var _font                           : NSFont!                     // font for table entries
   
-  private var _myHandle                       = ""
+  private var _myHandle                       : Handle?
   private var _replyHandlers                  = [SequenceId: ReplyTuple]()  // Dictionary of pending replies
   private var _messages                       = [String]()                  // backing storage for the table
   private var _objects                        = [String]()                  // backing storage for the objects table
@@ -333,6 +333,15 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
           " id->\(client.clientId?.uuidString == nil ? "" : client.clientId!.uuidString)")
       
         if let _ = Api.sharedInstance.activeRadio {
+          for stream in self._api.radio!.remoteRxAudioStreams.values where stream.clientHandle == client.handle {
+            self.showInObjectsTable("      RemoteRxAudioStream  \(stream.streamId.hex):  clientHandle->\(stream.clientHandle.hex)  compression->\(stream.compression)  ip->\(stream.ip)")
+          }
+          
+          // RemoteTxAudioStreams
+          for (_, stream) in self._api.radio!.remoteTxAudioStreams where stream.clientHandle == client.handle {
+            self.showInObjectsTable("      RemoteTxAudioStream  \(stream.streamId.hex):  clientHandle->\(stream.clientHandle.hex)  compression->\(stream.compression)  ip->\(stream.ip)")
+          }
+
           // Panadapters
           for (_, panadapter) in self._api.radio!.panadapters where panadapter.clientHandle == client.handle {
             self.showInObjectsTable("      Panadapter     \(panadapter.streamId.hex)  center->\(panadapter.center.hzToMhz)  bandwidth->\(panadapter.bandwidth.hzToMhz)")
@@ -342,9 +351,10 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
               self.showInObjectsTable("         Waterfall   \(waterfall.streamId.hex)  autoBlackEnabled->\(waterfall.autoBlackEnabled),  colorGain->\(waterfall.colorGain),  blackLevel->\(waterfall.blackLevel),  duration->\(waterfall.lineDuration)")
             }
             
+           
             // IQ Streams for this Panadapter
-            for (_, iqStream) in self._api.radio!.daxIqStreams where panadapter.streamId == iqStream.pan {
-              self.showInObjectsTable("         DaxIq        \(iqStream.streamId.hex) stream")
+            for (_, stream) in self._api.radio!.daxIqStreams where stream.clientHandle == client.handle && panadapter.streamId == stream.pan {
+              self.showInObjectsTable("         DaxIq        \(stream.streamId.hex) stream")
             }
             
             // Slices for this Panadapter
@@ -352,9 +362,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
               self.showInObjectsTable("         Slice       \(slice.id)  frequency->\(slice.frequency.hzToMhz)  filterLow->\(slice.filterLow)  filterHigh->\(slice.filterHigh)  active->\(slice.active)  locked->\(slice.locked)")
               
               // DaxRxAudioStream for this Slice
-              for (_, audioStream) in self._api.radio!.daxRxAudioStreams {
-                if audioStream.slice?.id == slice.id {
-                  self.showInObjectsTable("            DaxAudio       \(audioStream.streamId.hex) stream")
+              for (_, stream) in self._api.radio!.daxRxAudioStreams {
+                if stream.slice?.id == slice.id {
+                  self.showInObjectsTable("            DaxAudio       \(stream.streamId.hex) stream")
                 }
               }
               
@@ -369,46 +379,47 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
           self.showInObjectsTable("\n")
         }
       }
+      
+      // FIXME: parse by Handle
+      // FIXME: add RemoteRxAudioStream & RemoteTxAudioStream
+      
       // Items not connected to a Client
       if let _ = Api.sharedInstance.activeRadio {
         
+        // DaxIqStreams
+        for stream in self._api.radio!.daxIqStreams.values where stream.pan == 0 {
+          self.showInObjectsTable("DaxIqStream          \(stream.streamId.hex):  panadapter-> -not assigned-")
+        }
+        // DaxMicAudioStream
+        for stream in self._api.radio!.daxMicAudioStreams.values {
+          self.showInObjectsTable("DaxMicAudio:    \(stream.streamId.hex) stream")
+        }
+        // DaxRxAudioStreams
+        for stream in self._api.radio!.daxRxAudioStreams.values where stream.slice == nil {
+          self.showInObjectsTable("DaxRxAudioStream     \(stream.streamId.hex):  slice-> -not assigned-")
+        }
         // DaxTxAudioStreams
-        for (_, stream) in self._api.radio!.daxTxAudioStreams {
-          self.showInObjectsTable("DaxTx Audio:       \(stream.streamId.hex) stream")
-        }
-        
-        // Opus Streams
-        for (_, stream) in self._api.radio!.opusStreams {
-          self.showInObjectsTable("Opus:           \(stream.streamId.hex) stream  rx->\(stream.rxEnabled)  rx stopped->\(stream.rxStopped)  tx->\(stream.txEnabled)")
-        }
-        
-        // DaxIqStreams without a Panadapter
-        for (_, stream) in self._api.radio!.daxIqStreams where stream.pan == 0 {
-          self.showInObjectsTable("DaxIq:          \(stream.streamId.hex) stream  panadapter-> -not assigned-")
-        }
-        
-        // DaxRxAudioStream without a Slice
-        for (_, stream) in self._api.radio!.daxRxAudioStreams where stream.slice == nil {
-          self.showInObjectsTable("DaxAudio:       \(stream.streamId.hex) stream,  slice-> -not assigned-")
+        for stream in self._api.radio!.daxTxAudioStreams.values {
+          self.showInObjectsTable("DaxTxAudioStream:    \(stream.streamId.hex)")
         }
         // Tnfs
-        for (_, tnf) in self._api.radio!.tnfs {
+        for tnf in self._api.radio!.tnfs.values {
           self.showInObjectsTable("Tnf:            \(tnf.id)  frequency->\(tnf.frequency)  width->\(tnf.width)  depth->\(tnf.depth)  permanent->\(tnf.permanent)")
         }
         // Amplifiers
-        for (_, amplifier) in self._api.radio!.amplifiers {
+        for amplifier in self._api.radio!.amplifiers.values {
           self.showInObjectsTable("Amplifier:      \(amplifier.id)")
         }
         // Memories
-        for (_, memory) in self._api.radio!.memories {
+        for memory in self._api.radio!.memories.values {
           self.showInObjectsTable("Memory:         \(memory.id)")
         }
         // USB Cables
-        for (_, usbCable) in self._api.radio!.usbCables {
+        for usbCable in self._api.radio!.usbCables.values {
           self.showInObjectsTable("UsbCable:       \(usbCable.id)")
         }
         // Xvtrs
-        for (_, xvtr) in self._api.radio!.xvtrs {
+        for xvtr in self._api.radio!.xvtrs.values {
           self.showInObjectsTable("Xvtr:           \(xvtr.id)")
         }
         // Meters (not for a Slice)
@@ -417,11 +428,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
             ( $1.value.source[0..<3], Int($1.value.group.suffix(3), radix: 10)!, $1.value.number.suffix(3) )
         })
         for (_, meter) in sortedMeters where !meter.source.hasPrefix("slc") {
-          self.showInObjectsTable("Meter:  source->\(meter.source[0..<3])  group->\(("00" + meter.group).suffix(3))  number->\(("00" + meter.number).suffix(3))  name->\(meter.name)  desc->\(meter.desc)  units->\(meter.units)  low->\(meter.low)  high->\(meter.high)  fps->\(meter.fps)")
-        }
-        // DaxMicAudioStream
-        for (_, stream) in self._api.radio!.daxMicAudioStreams {
-          self.showInObjectsTable("DaxMicAudio:    \(stream.streamId.hex) stream")
+          self.showInObjectsTable("Meter:          source->\(meter.source[0..<3])  group->\(("00" + meter.group).suffix(3))  number->\(("00" + meter.number).suffix(3))  name->\(meter.name)  desc->\(meter.desc)  units->\(meter.units)  low->\(meter.low)  high->\(meter.high)  fps->\(meter.fps)")
         }
       }
     }
@@ -429,7 +436,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
 
   private func removeAllStreams() {
     
-    Api.sharedInstance.radio!.opusStreams.removeAll()
+//    Api.sharedInstance.radio!.opusStreams.removeAll()
   }
 
   
@@ -461,9 +468,17 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   ///
   @objc private func guiClientHasBeenUpdated(_ note: Notification) {
     
+    // the updated notification may be the first notification received
+    // due to the arrival of UDP Discovery packets concurrent with the
+    // arrival of TCP client status packets
+
     if let guiClient = note.object as? GuiClient {
       if let index = _guiClients.firstIndex(of: guiClient) {
+        // a guiClientHasBeenAdded was received earlier, update it
         _guiClients[index] = guiClient
+      } else {
+        // the guiClientHasBeenUpdated arrived without a prior guiClientHasBeenAdded, add it
+        _guiClients.append(guiClient)
       }
     }
   }
@@ -509,12 +524,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       showInTable(text)
       
     case "H":   // Handle type
-      // convert to drop leading zero (if any)
-      let numericHandle = Int( String(suffix), radix: 16 )
-      myHandle = String(format: "%X", numericHandle!)
+      // convert to UInt32
+      myHandle = suffix.handle ?? 0
       
       DispatchQueue.main.async { [unowned self] in
-        self._parent!._streamId.stringValue = self.myHandle
+        self._parent!._streamId.stringValue = self.myHandle!.toHex("%08X")
       }
       
       showInTable(text)
@@ -645,37 +659,26 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
         let msgText = String(rowText.dropFirst(9))
         
         // determine the type of text, assign a background color
-        if msgText.hasPrefix("-----") {                                         // application messages
-          
-          // application messages from this app
+        if msgText.hasPrefix("-----") {                                                   // messages (black)
           view.textField!.backgroundColor = NSColor.black
 
-        } else if msgText.hasPrefix("c") || msgText.hasPrefix("C") {
-          
-          // commands sent by this app
-          view.textField!.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.3)
-
-        } else if msgText.hasPrefix("r") || msgText.hasPrefix("R") {
-          
-          // reply messages
-          view.textField!.backgroundColor = NSColor.lightGray.withAlphaComponent(0.3)
-
-        } else if msgText.hasPrefix("v") || msgText.hasPrefix("V") ||
-          msgText.hasPrefix("h") || msgText.hasPrefix("H") ||
-          msgText.hasPrefix("m") || msgText.hasPrefix("M") {
-          
-          // messages not directed to a specific client
-          view.textField!.backgroundColor = NSColor.systemYellow.withAlphaComponent(0.3)
-
-        } else if msgText.hasPrefix("s" + myHandle) || msgText.hasPrefix("S" + myHandle) {
-          
-          // status sent to myHandle
+        } else if msgText.lowercased().hasPrefix("c") {                                   // Commands (red)
           view.textField!.backgroundColor = NSColor.systemRed.withAlphaComponent(0.3)
 
-        } else {
-          
-          // status sent to a handle other than mine
-          view.textField!.backgroundColor = NSColor.systemRed.withAlphaComponent(0.5)
+        } else if msgText.lowercased().hasPrefix("r") {                                   // Replies (lightGray)
+          view.textField!.backgroundColor = NSColor.lightGray.withAlphaComponent(0.3)
+
+        } else if msgText.lowercased().hasPrefix("s0") {                                  // S0 (purple)
+          view.textField!.backgroundColor = NSColor.systemPurple.withAlphaComponent(0.5)
+
+        } else if msgText.lowercased().hasPrefix("s" + myHandle!.toHex("%08x")) {         // My Status (red)
+          view.textField!.backgroundColor = NSColor.systemRed.withAlphaComponent(0.3)
+
+        } else if msgText.lowercased().hasPrefix("s") {                                   // Other Status (green)
+          view.textField!.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.3)
+
+        } else {                                                                          // Other (brown)
+          view.textField!.backgroundColor = NSColor.systemBrown.withAlphaComponent(0.3)
         }
         // set the font
         view.textField!.font = _font

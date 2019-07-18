@@ -17,6 +17,7 @@ class GuiClientViewController                   : NSViewController, NSTableViewD
   @IBOutlet private weak var _tableView         : NSTableView!
   
   private var _api                              = Api.sharedInstance
+  private let _log                              = (NSApp.delegate as! AppDelegate)
   private var _guiClients                       = [GuiClient]()
   
   // ----------------------------------------------------------------------------
@@ -137,7 +138,7 @@ class GuiClientViewController                   : NSViewController, NSTableViewD
     case "ClientId":
       view.textField!.stringValue = _guiClients[row].clientId?.uuidString ?? ""
     default:
-      fatalError("Invalid column id - \(tableColumn!.identifier.rawValue)")
+      _log.msg("Unknown table column: \(tableColumn!.identifier.rawValue)", level: .error, function: #function, file: #file, line: #line)
     }
     return view
   }

@@ -671,11 +671,12 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
 
     // set the stringValue of the cell's text field to the appropriate field
     switch tableColumn!.identifier.rawValue {
+    
     case "model":     cellView.textField!.stringValue = _availableRemoteRadios[row].model
     case "nickname":  cellView.textField!.stringValue = _availableRemoteRadios[row].nickname
     case "status":    cellView.textField!.stringValue = _availableRemoteRadios[row].status
     case "publicIp":  cellView.textField!.stringValue = _availableRemoteRadios[row].publicIp
-    default:          fatalError()
+    default:          _log.msg("Unknown table column: \(tableColumn!.identifier.rawValue)", level: .error, function: #function, file: #file, line: #line)
     }
     return cellView
   }

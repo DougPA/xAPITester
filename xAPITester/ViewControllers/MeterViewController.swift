@@ -47,6 +47,7 @@ class MeterViewController                     : NSViewController, NSTableViewDel
   @IBOutlet private weak var _meterValue       : NSTextField!
   @IBOutlet private weak var _meterUnits       : NSTextField!
   
+  private let _log                             = (NSApp.delegate as! AppDelegate)
   private var _meters                          = [Meter]()
   
   // ----------------------------------------------------------------------------
@@ -196,7 +197,7 @@ class MeterViewController                     : NSViewController, NSTableViewDel
     case "Description":
       view.textField!.stringValue = _filteredMeters[row].desc
     default:
-      fatalError("Invalid column id - \(tableColumn!.identifier.rawValue)")
+      _log.msg("Unknown table column: \(tableColumn!.identifier.rawValue)", level: .error, function: #function, file: #file, line: #line)
     }
     return view
   }

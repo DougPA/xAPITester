@@ -1,5 +1,19 @@
 xAPITester V3 Change Log
 
+v2.5.1.2019_07_17
+
+SplitViewController.swift - color changes for clarity
+SplitViewController.swift - changed myHandle from String to UInt32
+SplitViewController.swift - in guiClientHasBeenUpdated(_:) fixed a bug that caused client creation to be missed
+AppDelegate.swift - adjustments to logging settings
+AppExtensions.swift - refactor "static var appFolder : URL"
+MeterViewController.swift - changed fatalError() to _log.msg(...)
+GuiClientViewController.swift - changed fatalError() to _log.msg(...)
+WANRadioPickerViewController.swift - changed fatalError() to _log.msg(...)
+LANRadioPickerViewController.swift - changed fatalError() to _log.msg(...)
+AppExtensions.swift - removed FileManager extension, added URL vars for appFolder, logFolder & macroFolder
+
+
 v2.5.1.2019_07_15
 
 Various - to support guiCLient display
@@ -13,8 +27,6 @@ SplitViewController.swift - updated Waterfall properties shown in view
 SplitViewController.swift - updated "id" to "streamId"
 Macros.swift - updated "id" to "streamId"
 AppDelegate.swift - updated log to include commandline params
-
-
 
 
 v2.5.1.2019_07_03

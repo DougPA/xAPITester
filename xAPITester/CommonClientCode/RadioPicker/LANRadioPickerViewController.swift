@@ -275,7 +275,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     case "nickname":  cellView.textField!.stringValue = _api.discoveredRadios[row].nickname
     case "status":    cellView.textField!.stringValue = _api.discoveredRadios[row].status
     case "publicIp":  cellView.textField!.stringValue = _api.discoveredRadios[row].publicIp
-    default:          fatalError()
+    default:          _log.msg("Unknown table column: \(tableColumn!.identifier.rawValue)", level: .error, function: #function, file: #file, line: #line)
     }
     
     // color the default row

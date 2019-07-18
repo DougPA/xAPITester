@@ -60,11 +60,8 @@ final public class Macros {
             usleep(Macros.kPauseBetweenMacroCommands)
           }
         }
-      } catch {
-        
+      } catch {        
         // something bad happened!
-//        _log.msg("Error reading file", level: .error, function: #function, file: #file, line: #line)
-
         _log.msg("Error reading file", level: MessageLevel.error, function: #function, file: #file, line: #line)
       }
     }
