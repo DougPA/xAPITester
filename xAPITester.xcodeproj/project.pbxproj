@@ -17,7 +17,7 @@
 		9102C2192066C10300F4B655 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9102C2172066C10300F4B655 /* Defaults.plist */; };
 		9102C21C2066C27A00F4B655 /* SwiftyUserDefaults.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		9102C21D2066C27A00F4B655 /* SwiftyUserDefaults.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9102C21B2066C27A00F4B655 /* SwiftyUserDefaults.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		9103D9F422B95B68002AB99F /* XCGLogger.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9103D9F222B95B68002AB99F /* XCGLogger.framework */; };
+		9103D9F422B95B68002AB99F /* XCGLogger.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9103D9F222B95B68002AB99F /* XCGLogger.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		9103D9F522B95B68002AB99F /* XCGLogger.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9103D9F222B95B68002AB99F /* XCGLogger.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9103D9F622B95B68002AB99F /* ObjcExceptionBridging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9103D9F322B95B68002AB99F /* ObjcExceptionBridging.framework */; };
 		9103D9F722B95B68002AB99F /* ObjcExceptionBridging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9103D9F322B95B68002AB99F /* ObjcExceptionBridging.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -255,7 +255,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0920;
-				LastUpgradeCheck = 1020;
+				LastUpgradeCheck = 1030;
 				ORGANIZATIONNAME = "Douglas Adams";
 				TargetAttributes = {
 					9102C1AA2066BE0700F4B655 = {
