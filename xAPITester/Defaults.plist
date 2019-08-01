@@ -58,6 +58,12 @@
 	<false/>
 	<key>isGui</key>
 	<true/>
+	<key>isBound</key>
+	<false/>
+	<key>boundClientId</key>
+	<string></string>
+	<key>myClientId</key>
+	<string></string>
 	<key>showTimestamps</key>
 	<false/>
 </dict>

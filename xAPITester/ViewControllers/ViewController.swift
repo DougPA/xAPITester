@@ -42,17 +42,17 @@ public final class ViewController             : NSViewController, RadioPickerDel
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  private var _api                            = Api.sharedInstance          // Api to the Radio
+  private var _api                            = Api.sharedInstance
   private let _log                            = (NSApp.delegate as! AppDelegate)
   
-  @IBOutlet weak internal var _containerView  : NSView!
-  @IBOutlet weak internal var _command        : NSTextField!
-  @IBOutlet weak internal var _connectButton  : NSButton!
-  @IBOutlet weak internal var _sendButton     : NSButton!
-  @IBOutlet weak internal var _filterBy       : NSPopUpButton!
-  @IBOutlet weak internal var _filterObjectsBy: NSPopUpButton!
-  @IBOutlet weak internal var _streamId       : NSTextField!
-  @IBOutlet weak internal var _localRemote    : NSTextField!
+  @IBOutlet weak internal var _commandTextField         : NSTextField!
+  @IBOutlet weak internal var _connectButton            : NSButton!
+  @IBOutlet weak internal var _sendButton               : NSButton!
+  @IBOutlet weak internal var _filterByPopUp            : NSPopUpButton!
+  @IBOutlet weak internal var _filterObjectsByPopUp     : NSPopUpButton!
+  @IBOutlet weak internal var _streamIdTextField        : NSTextField!
+  @IBOutlet weak internal var _localRemoteTextField     : NSTextField!
+  @IBOutlet weak internal var _boundCheckBox            : NSButton!
   
   // ----------------------------------------------------------------------------
   // MARK: - Internal properties
@@ -68,9 +68,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   private var _radioPickerTabViewController   : NSTabViewController?
   private var _splitViewVC                    : SplitViewController?
   private var _guiClientsVC                   : NSViewController?
-//  private var _appFolderUrl                   : URL!
   private var _macros                         : Macros!
-  private var _myClientId                     : UUID?                       // Client Id of this App
 
   // constants
   private let _dateFormatter                  = DateFormatter()
@@ -99,37 +97,36 @@ public final class ViewController             : NSViewController, RadioPickerDel
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
 
-  public func NSLocalizedString(_ key: String) -> String {
-    return Foundation.NSLocalizedString(key, comment: "")
-  }
-  
   public override func viewDidLoad() {
     super.viewDidLoad()
     
     // give the Api access to our logger
     Log.sharedInstance.delegate = _log
     
-    addNotifications()
+    // add Notifications subscriptions
+    notificationsAdd()
     
-    // get/create a Client Id for this App (used when connected as a Gui)
-    _myClientId = clientId()
-    
-    _filterBy.selectItem(withTag: Defaults[.filterByTag])
-    _filterObjectsBy.selectItem(withTag: Defaults[.filterObjectsByTag])
+    // setup filters
+    _filterByPopUp.selectItem(withTag: Defaults[.filterByTag])
+    _filterObjectsByPopUp.selectItem(withTag: Defaults[.filterObjectsByTag])
 
+    // set datestamp format
     _dateFormatter.timeZone = NSTimeZone.local
     _dateFormatter.dateFormat = "mm:ss.SSS"
     
-    _command.delegate = self
+    // set self as delegate for the command textfield
+    _commandTextField.delegate = self
     
+    // disable sending
     _sendButton.isEnabled = false
     
-    // setup & register Defaults
-    defaults(from: kDefaultsFile)
+    // setup Defaults
+    defaultsSetup(from: kDefaultsFile)
     
     // set the window title
-    title()
+    titleSet()
   }
+  
   override public func viewWillAppear() {
     
     super.viewWillAppear()
@@ -191,6 +188,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     case kDisconnect:
       
       _splitViewVC?.removeApiTester()
+      _splitViewVC?.removeAllGuiClients()
       
       // close the active Radio
       closeRadio()
@@ -198,14 +196,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
     default:    // should never happen
       break
     }
-  }
-  /// The Connect as Gui checkbox changed
-  ///
-  /// - Parameter sender:     the checkbox
-  ///
-  @IBAction func connectAsGui(_ sender: NSButton) {
-    
-    Defaults[.isGui] = (sender.state == NSControl.StateValue.on)
   }
   /// Respond to the Copy button (in the Commands & Replies box)
   ///
@@ -227,7 +217,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func copyToCmd(_ sender: Any) {
     
     // paste the text into the command line
-    _command.stringValue = copyRows(_splitViewVC!._tableView, from: _splitViewVC!._filteredMessages, stopOnFirst: true)
+    _commandTextField.stringValue = copyRows(_splitViewVC!._tableView, from: _splitViewVC!._filteredMessages, stopOnFirst: true)
   }
   /// Respond to the Copy Handle button
   ///
@@ -323,7 +313,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
           self._commandsArray.removeLast()
           
           // show the first command (if any)
-          if self._commandsArray.count > 0 { self._command.stringValue = self._commandsArray[0] }
+          if self._commandsArray.count > 0 { self._commandTextField.stringValue = self._commandsArray[0] }
           
         } catch {
           
@@ -419,7 +409,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   @IBAction func send(_ sender: NSButton) {
     
     // get the command
-    let cmd = _command.stringValue
+    let cmd = _commandTextField.stringValue
     
     // if the field isn't blank
     if cmd != "" {
@@ -455,7 +445,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
         _commandsIndex = _commandsArray.count - 1
         
         // optionally clear the Command field
-        if Defaults[.clearOnSend] { _command.stringValue = "" }
+        if Defaults[.clearOnSend] { _commandTextField.stringValue = "" }
       }
     }
   }
@@ -480,7 +470,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     
     _sendButton.isEnabled = false
     _connectButton.title = kConnect.rawValue
-    _localRemote.stringValue = ""
+    _localRemoteTextField.stringValue = ""
     
     NSApp.terminate(self)
   }
@@ -530,24 +520,6 @@ public final class ViewController             : NSViewController, RadioPickerDel
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
-  /// Produce a Client Id (UUID)
-  ///
-  /// - Returns:                a UUID
-  ///
-  private func clientId() -> UUID {
-    var uuid : UUID
-    if let string = Defaults[.clientId] {
-      // use the stored string to create a UUID (if possible) else create a new UUID
-      uuid = UUID(uuidString: string) ?? UUID()
-    } else {
-      // none stored, create a new UUID
-      uuid = UUID()
-      Defaults[.clientId] = uuid.uuidString
-    }
-    // store the string for later use
-    Defaults[.clientId] = uuid.uuidString
-    return uuid
-  }
   /// Copy selected rows from the array backing a table
   ///
   /// - Parameters:
@@ -590,17 +562,17 @@ public final class ViewController             : NSViewController, RadioPickerDel
       sleep(kDelayForAvailableRadios)
       
       // has the default Radio been found?
-      for radio in _api.discoveredRadios  {
+      for discoveredRadio in Discovery.sharedInstance.discoveredRadios  {
         
         // is it the default radio?
-        if radio.serialNumber == defaultRadioSerialNumber {
+        if discoveredRadio.serialNumber == defaultRadioSerialNumber {
           
           // YES, can the default radio be opened?
-          if openRadio(radio) {
+          if openRadio(discoveredRadio) {
             found = true
           
           } else {
-            _splitViewVC?.msg("Error opening default radio, \(radio.nickname)")
+            _splitViewVC?.msg("Error opening default radio, \(discoveredRadio.nickname)")
             
             // NO, open the Radio Picker
             openRadioPicker( self)
@@ -620,7 +592,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   }
   /// Set the Window's title
   ///
-  private func title() {
+  private func titleSet() {
     
     // format and set the window title
     let title = (_api.activeRadio == nil ? "" : "Connected to \(_api.activeRadio!.nickname) @ \(_api.activeRadio!.publicIp)")
@@ -638,9 +610,9 @@ public final class ViewController             : NSViewController, RadioPickerDel
   // ----------------------------------------------------------------------------
   // MARK: - Notification Methods
   
-  /// Add subscriptions to Notifications
+  /// Add Notifications subscriptions
   ///
-  private func addNotifications() {
+  private func notificationsAdd() {
     
     NC.makeObserver(self, with: #selector(radioDowngradeRequired(_:)), of: .radioDowngradeRequired)
     
@@ -697,27 +669,12 @@ public final class ViewController             : NSViewController, RadioPickerDel
       alert.beginSheetModal(for: self.view.window!, completionHandler: { (response) in  NSApp.terminate(self) })
     }
   }
-  
+
   // ----------------------------------------------------------------------------
   // MARK: - RadioPickerDelegate methods
   
   var token: Token?
   
-//  /// Close the RadioPicker sheet
-//  ///
-//  func closeRadioPicker() {
-//
-//    // close the RadioPicker
-//    if _radioPickerTabViewController != nil {
-//
-//      // get the current tab & and set the default
-//      let selectedIndex = _radioPickerTabViewController?.selectedTabViewItemIndex
-//      Defaults[.showRemoteTabView] = ( selectedIndex == kRemoteTab ? true : false )
-//
-//      dismiss(_radioPickerTabViewController!)
-//    }
-//    _radioPickerTabViewController = nil
-//  }
   /// Connect the selected Radio
   ///
   /// - Parameters:
@@ -740,11 +697,11 @@ public final class ViewController             : NSViewController, RadioPickerDel
 
     // WAN connect
     if isWan {
-      _localRemote.stringValue = kRemote
+      _localRemoteTextField.stringValue = kRemote
       _api.isWan = true
       _api.wanConnectionHandle = wanHandle
     } else {
-      _localRemote.stringValue = kLocal
+      _localRemoteTextField.stringValue = kLocal
       _api.isWan = false
       _api.wanConnectionHandle = ""
     }
@@ -756,18 +713,22 @@ public final class ViewController             : NSViewController, RadioPickerDel
 
     // attempt to connect to it
     let station = (Host.current().localizedName ?? "Mac").replacingSpaces(with: "_")
-    
-    if _api.connect(selectedRadio, clientStation: station ,clientProgram: AppDelegate.kName, clientId: Defaults[.isGui] ? _myClientId : nil, isGui: Defaults[.isGui]) {
+    let clientId = Defaults[.isGui] ? UUID(uuidString: Defaults[.myClientId] ?? "") : UUID(uuidString: Defaults[.boundClientId] ?? "")
+    if _api.connect(selectedRadio,
+                    clientStation:  station,
+                    clientProgram:  AppDelegate.kName,
+                    clientId:       clientId,
+                    isGui:          Defaults[.isGui]) {
             
       self._connectButton.title = self.kDisconnect.rawValue
       self._connectButton.identifier = self.kDisconnect
       self._sendButton.isEnabled = true
 
-      title()
+      titleSet()
       
       return true
     }
-    title()
+    titleSet()
     return false
   }
   /// Close the currently active Radio
@@ -780,9 +741,9 @@ public final class ViewController             : NSViewController, RadioPickerDel
     _sendButton.isEnabled = false
     _connectButton.title = kConnect.rawValue
     _connectButton.identifier = kConnect
-    _localRemote.stringValue = ""
+    _localRemoteTextField.stringValue = ""
     
-    title()
+    titleSet()
   }
   /// Close the application
   ///
@@ -844,7 +805,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
       
       if let previousIndex = previousIndex() {
         // show the previous command
-        _command.stringValue = _commandsArray[previousIndex]
+        _commandTextField.stringValue = _commandsArray[previousIndex]
       }
       return true
       
@@ -853,10 +814,10 @@ public final class ViewController             : NSViewController, RadioPickerDel
       if let index = nextIndex() {
         
         if index == -1 {
-          _command.stringValue = ""
+          _commandTextField.stringValue = ""
         } else {
           // show the next command
-          _command.stringValue = _commandsArray[index]
+          _commandTextField.stringValue = _commandsArray[index]
         }
       
       }
@@ -866,5 +827,3 @@ public final class ViewController             : NSViewController, RadioPickerDel
     return false
   }
 }
-
-

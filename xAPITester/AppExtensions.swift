@@ -34,9 +34,10 @@ extension UserDefaults {
 extension DefaultsKeys {
   
   static let auth0Email                     = DefaultsKey<String>("auth0Email")
+  static let boundClientId                  = DefaultsKey<String?>("boundClientId")
   static let clearAtConnect                 = DefaultsKey<Bool>("clearAtConnect")
   static let clearOnSend                    = DefaultsKey<Bool>("clearOnSend")
-  static let clientId                       = DefaultsKey<String?>("clientId")
+  static let myClientId                     = DefaultsKey<String?>("myClientId")
 //  static let commandColor                   = DefaultsKey<NSColor>("commandColor")
   static let defaultRadioSerialNumber       = DefaultsKey<String>("defaultRadioSerialNumber")
   static let enablePinging                  = DefaultsKey<Bool>("enablePinging")
@@ -50,6 +51,7 @@ extension DefaultsKeys {
   static let fontMinSize                    = DefaultsKey<Int>("fontMinSize")
   static let fontName                       = DefaultsKey<String>("fontName")
   static let fontSize                       = DefaultsKey<Int>("fontSize")
+  static let isBound                        = DefaultsKey<Bool>("isBound")
   static let isGui                          = DefaultsKey<Bool>("isGui")
   static let lowBandwidthEnabled            = DefaultsKey<Bool>("lowBandwidthEnabled")
 //  static let messageColor                   = DefaultsKey<NSColor>("messageColor")
@@ -66,6 +68,22 @@ extension DefaultsKeys {
   static let suppressUdp                    = DefaultsKey<Bool>("suppressUdp")
   static let useLowBw                       = DefaultsKey<Bool>("useLowBw")
   //  static let connectSimple                  = DefaultsKey<Bool>("connectSimple")
+}
+
+extension Bool {
+  
+  var state : NSControl.StateValue {
+    return self == true ? NSControl.StateValue.on : NSControl.StateValue.off
+  }
+}
+
+extension NSButton {
+  /// Boolean equivalent of an NSButton state property
+  ///
+  var boolState : Bool {
+    get { return self.state == NSControl.StateValue.on ? true : false }
+    set { self.state = (newValue == true ? NSControl.StateValue.on : NSControl.StateValue.off) }
+  }
 }
 
 extension URL {
@@ -176,7 +194,7 @@ func versionInfo(framework: String) -> (String, String) {
 ///
 /// - Parameter file:         a file name (w/wo extension)
 ///
-func defaults(from file: String) {
+func defaultsSetup(from file: String) {
   var fileURL : URL? = nil
   
   // get the name & extension

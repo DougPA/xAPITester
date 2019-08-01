@@ -641,7 +641,7 @@
                                 </connections>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="wSK-Bk-Ps3">
-                                <rect key="frame" x="527" y="535" width="99" height="18"/>
+                                <rect key="frame" x="472" y="535" width="99" height="18"/>
                                 <buttonCell key="cell" type="check" title="Use Low BW" bezelStyle="regularSquare" imagePosition="right" inset="2" id="i23-aM-87g">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -651,7 +651,7 @@
                                 </connections>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="Vxw-Of-l9v">
-                                <rect key="frame" x="496" y="558" width="130" height="18"/>
+                                <rect key="frame" x="441" y="558" width="130" height="18"/>
                                 <buttonCell key="cell" type="check" title="Show ALL Replies" bezelStyle="regularSquare" imagePosition="right" inset="2" id="Gcl-xw-6d1">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -660,18 +660,8 @@
                                     <binding destination="TYT-Zn-7lZ" name="value" keyPath="values.showAllReplies" id="c4w-tc-iS0"/>
                                 </connections>
                             </button>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="Kcc-Rj-HgG">
-                                <rect key="frame" x="651" y="535" width="124" height="18"/>
-                                <buttonCell key="cell" type="check" title="Clear at Connect" bezelStyle="regularSquare" imagePosition="right" inset="2" id="1HD-4C-Y8X">
-                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <binding destination="TYT-Zn-7lZ" name="value" keyPath="values.clearAtConnect" id="aG1-eS-4Se"/>
-                                </connections>
-                            </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="E0z-XX-aCd">
-                                <rect key="frame" x="333" y="558" width="112" height="18"/>
+                                <rect key="frame" x="298" y="558" width="112" height="18"/>
                                 <buttonCell key="cell" type="check" title="Enable pinging" bezelStyle="regularSquare" imagePosition="right" state="on" inset="2" id="D9N-yh-t1C">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -681,7 +671,7 @@
                                 </connections>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="Cz4-kd-MXb">
-                                <rect key="frame" x="353" y="535" width="92" height="18"/>
+                                <rect key="frame" x="318" y="535" width="92" height="18"/>
                                 <buttonCell key="cell" type="check" title="Show pings" bezelStyle="regularSquare" imagePosition="right" inset="2" id="fgO-KS-ARi">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -703,18 +693,8 @@
                                     <action selector="connect:" target="XfG-lQ-9wD" id="Xcs-oB-rq4"/>
                                 </connections>
                             </button>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="ivv-Oe-yQT">
-                                <rect key="frame" x="168" y="558" width="117" height="18"/>
-                                <buttonCell key="cell" type="check" title="Connect as GUI" bezelStyle="regularSquare" imagePosition="right" inset="2" id="jJd-jD-yNi">
-                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <binding destination="TYT-Zn-7lZ" name="value" keyPath="values.isGui" id="7Vf-nT-FF1"/>
-                                </connections>
-                            </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="YfR-Si-vPn">
-                                <rect key="frame" x="147" y="535" width="138" height="18"/>
+                                <rect key="frame" x="605" y="558" width="138" height="18"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="134" id="Zne-YF-v6n"/>
                                 </constraints>
@@ -1022,17 +1002,58 @@
                                     <constraint firstAttribute="width" constant="552" id="d7U-xN-WlP"/>
                                 </constraints>
                             </box>
+                            <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="BkI-bF-Ua7">
+                                <rect key="frame" x="148" y="535" width="62" height="18"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="check" title="Bound" bezelStyle="regularSquare" imagePosition="right" inset="2" id="kTc-Ut-wUt">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="TYT-Zn-7lZ" name="value" keyPath="values.isBound" id="yYP-A9-daf"/>
+                                    <binding destination="TYT-Zn-7lZ" name="enabled" keyPath="values.isGui" id="dca-2R-F05">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </button>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="ivv-Oe-yQT">
+                                <rect key="frame" x="148" y="558" width="62" height="18"/>
+                                <buttonCell key="cell" type="check" title="as GUI" bezelStyle="regularSquare" imagePosition="right" inset="2" id="jJd-jD-yNi">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="TYT-Zn-7lZ" name="enabled" keyPath="values.isBound" id="0C4-NG-7pa">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="TYT-Zn-7lZ" name="value" keyPath="values.isGui" id="7Vf-nT-FF1"/>
+                                </connections>
+                            </button>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="Kcc-Rj-HgG">
+                                <rect key="frame" x="619" y="535" width="124" height="18"/>
+                                <buttonCell key="cell" type="check" title="Clear at Connect" bezelStyle="regularSquare" imagePosition="right" inset="2" id="1HD-4C-Y8X">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="TYT-Zn-7lZ" name="value" keyPath="values.clearAtConnect" id="aG1-eS-4Se"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="Uck-pF-DBi" secondAttribute="trailing" constant="20" id="0bJ-aL-LZi"/>
                             <constraint firstItem="E0z-XX-aCd" firstAttribute="trailing" secondItem="Cz4-kd-MXb" secondAttribute="trailing" id="16F-w4-4IT"/>
-                            <constraint firstItem="YfR-Si-vPn" firstAttribute="baseline" secondItem="Cz4-kd-MXb" secondAttribute="baseline" id="1nS-4e-uM5"/>
+                            <constraint firstItem="YfR-Si-vPn" firstAttribute="baseline" secondItem="Cz4-kd-MXb" secondAttribute="baseline" constant="-23" id="1nS-4e-uM5"/>
                             <constraint firstItem="9Kf-4Y-9Yo" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" symbolic="YES" id="37G-Lw-KpQ"/>
-                            <constraint firstItem="E0z-XX-aCd" firstAttribute="leading" secondItem="ivv-Oe-yQT" secondAttribute="trailing" constant="52" id="3AS-sb-Zib"/>
-                            <constraint firstItem="Kcc-Rj-HgG" firstAttribute="leading" secondItem="wSK-Bk-Ps3" secondAttribute="trailing" constant="29" id="4Hz-ps-q5s"/>
+                            <constraint firstItem="E0z-XX-aCd" firstAttribute="leading" secondItem="ivv-Oe-yQT" secondAttribute="trailing" constant="92" id="3AS-sb-Zib"/>
+                            <constraint firstItem="Kcc-Rj-HgG" firstAttribute="leading" secondItem="wSK-Bk-Ps3" secondAttribute="trailing" constant="52" id="4Hz-ps-q5s"/>
                             <constraint firstItem="Ubx-d9-73G" firstAttribute="baseline" secondItem="HRF-dK-6Pm" secondAttribute="baseline" id="4nZ-IY-Ie5"/>
                             <constraint firstItem="Vxw-Of-l9v" firstAttribute="trailing" secondItem="wSK-Bk-Ps3" secondAttribute="trailing" id="5bL-yB-cSd"/>
-                            <constraint firstItem="Ubx-d9-73G" firstAttribute="top" secondItem="YfR-Si-vPn" secondAttribute="bottom" constant="12" id="6FU-sE-Bvt"/>
+                            <constraint firstItem="Ubx-d9-73G" firstAttribute="top" secondItem="YfR-Si-vPn" secondAttribute="bottom" constant="35" id="6FU-sE-Bvt"/>
                             <constraint firstItem="Ubx-d9-73G" firstAttribute="leading" secondItem="fOZ-ci-O28" secondAttribute="trailing" constant="21" id="7NJ-xi-8RU"/>
                             <constraint firstItem="Vxw-Of-l9v" firstAttribute="baseline" secondItem="O8a-FG-ek4" secondAttribute="baseline" id="9gq-T8-6r7"/>
                             <constraint firstItem="fOZ-ci-O28" firstAttribute="width" secondItem="9Kf-4Y-9Yo" secondAttribute="width" id="9qr-H0-OB2"/>
@@ -1043,9 +1064,9 @@
                             <constraint firstItem="ivv-Oe-yQT" firstAttribute="baseline" secondItem="E0z-XX-aCd" secondAttribute="baseline" id="GYE-l0-bEB"/>
                             <constraint firstItem="c72-AN-7lv" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="105" id="GkK-dp-p4P"/>
                             <constraint firstAttribute="bottom" secondItem="jLV-jw-rkX" secondAttribute="bottom" constant="61" id="H5l-cr-HoM"/>
-                            <constraint firstItem="ivv-Oe-yQT" firstAttribute="trailing" secondItem="YfR-Si-vPn" secondAttribute="trailing" id="LGA-XL-mrz"/>
+                            <constraint firstItem="ivv-Oe-yQT" firstAttribute="trailing" secondItem="YfR-Si-vPn" secondAttribute="trailing" constant="-533" id="LGA-XL-mrz"/>
                             <constraint firstItem="BOe-dA-oHf" firstAttribute="leading" secondItem="Lbr-rh-aaK" secondAttribute="leading" id="LUv-qm-Hwd"/>
-                            <constraint firstItem="Vxw-Of-l9v" firstAttribute="leading" secondItem="E0z-XX-aCd" secondAttribute="trailing" constant="55" id="NEF-AS-vIL"/>
+                            <constraint firstItem="Vxw-Of-l9v" firstAttribute="leading" secondItem="E0z-XX-aCd" secondAttribute="trailing" constant="35" id="NEF-AS-vIL"/>
                             <constraint firstItem="wSK-Bk-Ps3" firstAttribute="baseline" secondItem="Kcc-Rj-HgG" secondAttribute="baseline" id="Qnr-xA-uLW"/>
                             <constraint firstItem="jLV-jw-rkX" firstAttribute="top" secondItem="BOe-dA-oHf" secondAttribute="bottom" constant="34" id="TLV-ZW-7vB"/>
                             <constraint firstItem="O8a-FG-ek4" firstAttribute="baseline" secondItem="W2s-00-PIK" secondAttribute="baseline" id="TZ0-Zh-cGv"/>
@@ -1067,7 +1088,7 @@
                             <constraint firstItem="Dlv-08-jTt" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" id="qfI-W9-T5A"/>
                             <constraint firstItem="c72-AN-7lv" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="133" id="quK-ZV-NiW"/>
                             <constraint firstItem="E0z-XX-aCd" firstAttribute="baseline" secondItem="Vxw-Of-l9v" secondAttribute="baseline" id="s4u-6g-KgP"/>
-                            <constraint firstItem="ivv-Oe-yQT" firstAttribute="leading" secondItem="9Kf-4Y-9Yo" secondAttribute="trailing" constant="60" id="tMA-mE-SYR"/>
+                            <constraint firstItem="ivv-Oe-yQT" firstAttribute="leading" secondItem="9Kf-4Y-9Yo" secondAttribute="trailing" constant="40" id="tMA-mE-SYR"/>
                             <constraint firstItem="jLV-jw-rkX" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="180" id="uVJ-4c-sMF"/>
                             <constraint firstItem="Kcc-Rj-HgG" firstAttribute="top" secondItem="O8a-FG-ek4" secondAttribute="bottom" constant="8" symbolic="YES" id="vqc-fL-aC7"/>
                             <constraint firstItem="jLV-jw-rkX" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" id="xrn-Wn-cWQ"/>
@@ -1075,13 +1096,14 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="_command" destination="Ubx-d9-73G" id="rST-Cf-4l2"/>
+                        <outlet property="_boundCheckBox" destination="BkI-bF-Ua7" id="Exy-fk-TCE"/>
+                        <outlet property="_commandTextField" destination="Ubx-d9-73G" id="rST-Cf-4l2"/>
                         <outlet property="_connectButton" destination="9Kf-4Y-9Yo" id="vSh-vp-za4"/>
-                        <outlet property="_filterBy" destination="ar8-fN-ujq" id="oOd-Pj-5xo"/>
-                        <outlet property="_filterObjectsBy" destination="sSa-8o-g9y" id="iQs-Af-QZs"/>
-                        <outlet property="_localRemote" destination="BOe-dA-oHf" id="1gi-bo-wKP"/>
+                        <outlet property="_filterByPopUp" destination="ar8-fN-ujq" id="oOd-Pj-5xo"/>
+                        <outlet property="_filterObjectsByPopUp" destination="sSa-8o-g9y" id="iQs-Af-QZs"/>
+                        <outlet property="_localRemoteTextField" destination="BOe-dA-oHf" id="1gi-bo-wKP"/>
                         <outlet property="_sendButton" destination="fOZ-ci-O28" id="Glu-dN-9c4"/>
-                        <outlet property="_streamId" destination="W2s-00-PIK" id="fKY-Ug-mC9"/>
+                        <outlet property="_streamIdTextField" destination="W2s-00-PIK" id="fKY-Ug-mC9"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

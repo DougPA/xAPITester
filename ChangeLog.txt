@@ -1,5 +1,20 @@
 xAPITester V3 Change Log
 
+v2.5.1.2019_08_01
+
+Main.storyboard - added "Bound" checkbox
+Defaults.plist - added isBound, boundClientId & myClientId
+AppExtensions.swift - added isBound, boundClientId & myClientId to Defaults
+AppExtensions.swift - added Bool extensions (state & boolState)
+Main.storyboard - added Bound checkbox
+ViewController.swift - many small edits, mostly for clarity
+SplitViewController.swift - many small edits, mostly for clarity
+SplitViewController.swift - major changes to notificationsAdd() for ClientId handling
+LanRadioPickerViewCOntroller.swift - changes in support of Discovery singleton
+WanRadioPickerViewCOntroller.swift - changes in support of Discovery singleton
+
+
+
 v2.5.1.2019_07_25
 
 xLib6000.framework - updated to v2.5.1.2019_07_25

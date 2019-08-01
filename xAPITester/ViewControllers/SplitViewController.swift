@@ -16,12 +16,6 @@ import SwiftyUserDefaults
 
 class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelegate, NSTableViewDataSource {
   
-//  static let kOtherColor                      = NSColor(red: 1.0, green: 1.0, blue: 0.0, alpha: 0.2)
-//  static let kRadioColor                      = NSColor(red: 1.0, green: 0.0, blue: 1.0, alpha: 0.2)
-//  static let kStartedColor                    = NSColor(red: 0.0, green: 1.0, blue: 1.0, alpha: 0.2)
-//  static let kSubordinateColor                = NSColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 0.2)
-//  static let kStreamColor                     = NSColor(red: 0.0, green: 0.0, blue: 1.0, alpha: 0.1)
-  
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
   
@@ -122,9 +116,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     _tableView.rowHeight = _font.capHeight * 1.7
     
     // setup & start the Objects table timer
-    setupTimer()
+    timerSetup()
     
-    addNotifications()
+    notificationsAdd()
   }
 
   deinit {
@@ -181,7 +175,11 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
     _guiClients = _guiClients.filter { $0.program != AppDelegate.kName }
   }
-  
+
+  internal func removeAllGuiClients() {
+    _guiClients.removeAll()
+  }
+
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
@@ -213,7 +211,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   }
   /// Setup & start the Objects table timer
   ///
-  private func setupTimer() {
+  private func timerSetup() {
     // create a timer to periodically redraw the objects table
     _timeoutTimer = DispatchSource.makeTimerSource(flags: [.strict], queue: _timerQ)
     
@@ -320,8 +318,8 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       self.reloadObjectsTable()
       
       // ApiTester
-      if let radio = Api.sharedInstance.activeRadio {
-        self.showInObjectsTable("xAPITester  \(Defaults[.isGui] ? "Gui Client:    " : "NON-Gui Client:")  handle->\(self._api.connectionHandle!.hex)  program->\(self._api.clientProgram)  station->\(self._api.clientStation)  name->\(radio.nickname)  model->\(radio.model), version->\(radio.firmwareVersion)" +
+      if let activeRadio = Api.sharedInstance.activeRadio, let handle = Api.sharedInstance.connectionHandle {
+        self.showInObjectsTable("xAPITester  \(Defaults[.isGui] ? "Gui Client" : "NON-Gui Client") (\(Defaults[.isBound] ? "Bound" : "Unbound")):  handle->\(handle.hex)  program->\(self._api.clientProgram)  station->\(self._api.clientStation)  name->\(activeRadio.nickname)  model->\(activeRadio.model), version->\(activeRadio.firmwareVersion)" +
           ", atu->\(Api.sharedInstance.radio!.atuPresent ? "Yes" : "No"), gps->\(Api.sharedInstance.radio!.gpsPresent ? "Yes" : "No")" +
           ", scu's->\(Api.sharedInstance.radio!.numberOfScus)")
         
@@ -330,7 +328,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       // Gui Clients
       for client in self._guiClients {
         self.showInObjectsTable("DISCOVERED  Gui-Client:      handle->\(client.handle.hex)  program->\(client.program)  station->\(client.station)" +
-          " id->\(client.clientId?.uuidString == nil ? "" : client.clientId!.uuidString)")
+          " id->\(client.clientId ?? "")")
       
         if let _ = Api.sharedInstance.activeRadio {
           for stream in self._api.radio!.remoteRxAudioStreams.values where stream.clientHandle == client.handle {
@@ -438,7 +436,6 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
     
 //    Api.sharedInstance.radio!.opusStreams.removeAll()
   }
-
   
   // ----------------------------------------------------------------------------
   // MARK: - Notification Methods
@@ -446,10 +443,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   /// Add subsciptions to Notifications
   ///     (as of 10.11, subscriptions are automatically removed on deinit when using the Selector-based approach)
   ///
-  private func addNotifications() {
+  private func notificationsAdd() {
     
     NC.makeObserver(self, with: #selector(guiClientHasBeenAdded(_:)), of: .guiClientHasBeenAdded)
-    NC.makeObserver(self, with: #selector(guiClientHasBeenUpdated(_:)), of: .guiClientHasBeenUpdated)
     NC.makeObserver(self, with: #selector(guiClientHasBeenRemoved(_:)), of: .guiClientHasBeenRemoved)
   }
   /// Process guiClientHasBeenAdded Notification
@@ -459,26 +455,34 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   @objc private func guiClientHasBeenAdded(_ note: Notification) {
     
     if let guiClient = note.object as? GuiClient {
-      _guiClients.append(guiClient)
-    }
-  }
-  /// Process guiClientHasBeenUpdated Notification
-  ///
-  /// - Parameter note:       a Notification instance
-  ///
-  @objc private func guiClientHasBeenUpdated(_ note: Notification) {
-    
-    // the updated notification may be the first notification received
-    // due to the arrival of UDP Discovery packets concurrent with the
-    // arrival of TCP client status packets
 
-    if let guiClient = note.object as? GuiClient {
+      _log.msg("Gui Client Added:   Id = \(guiClient.clientId ?? "")", level: .info, function: #function, file: #file, line: #line)
+
       if let index = _guiClients.firstIndex(of: guiClient) {
         // a guiClientHasBeenAdded was received earlier, update it
         _guiClients[index] = guiClient
       } else {
         // the guiClientHasBeenUpdated arrived without a prior guiClientHasBeenAdded, add it
         _guiClients.append(guiClient)
+        
+        if Defaults[.isGui] && Defaults[.myClientId] == "" && guiClient.handle == _api.connectionHandle {
+          Defaults[.myClientId] = guiClient.clientId ?? ""
+          
+          _log.msg("Gui \(AppDelegate.kName) App Client Id: \(guiClient.clientId ?? "")", level: .info, function: #function, file: #file, line: #line)
+        }
+        // v2.5.1 can only be one Gui client
+        if Defaults[.isGui] == false && Defaults[.isBound] == true && Defaults[.boundClientId] == "" {
+          Defaults[.boundClientId] = guiClient.clientId
+          
+          // cause this Non-Gui Client to be bound
+          _api.radio?.boundClientId = UUID(uuidString: Defaults[.myClientId] ?? "")
+          
+          _log.msg("Non-Gui \(AppDelegate.kName) Bound To Added Client Id: \(guiClient.clientId ?? "")", level: .info, function: #function, file: #file, line: #line)
+          
+        } else if Defaults[.isGui] == false && Defaults[.isBound] == true && Defaults[.boundClientId] != "" {
+          _log.msg("Non-Gui \(AppDelegate.kName) Bound To Known Client Id: \(Defaults[.boundClientId]!)", level: .info, function: #function, file: #file, line: #line)
+        }
+
       }
     }
   }
@@ -488,10 +492,20 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
   ///
   @objc private func guiClientHasBeenRemoved(_ note: Notification) {
     
-    if let guiClient = note.object as? GuiClient {
-      if let index = _guiClients.firstIndex(of: guiClient) {
-        _guiClients.remove(at: index)
+    if let handle = note.object as? Handle {
+      
+      // find the GuiClient
+      for (i, guiClient) in _guiClients.enumerated() {
+        if guiClient.handle == handle {
+          _guiClients.remove(at: i)
+
+          _log.msg("Gui Client Removed: Handle = \(handle.hex)", level: .info, function: #function, file: #file, line: #line)
+
+          return
+        }
       }
+      // none found
+      return
     }
   }
 
@@ -528,7 +542,7 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       myHandle = suffix.handle ?? 0
       
       DispatchQueue.main.async { [unowned self] in
-        self._parent!._streamId.stringValue = self.myHandle!.toHex("%08X")
+        self._parent!._streamIdTextField.stringValue = self.myHandle!.toHex("%08X")
       }
       
       showInTable(text)
