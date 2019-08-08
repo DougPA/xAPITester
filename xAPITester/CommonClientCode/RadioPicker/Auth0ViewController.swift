@@ -73,6 +73,10 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   override func viewDidLoad() {
     super.viewDidLoad()
 
+    #if XDEBUG
+    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
+    #endif
+
 //    // clear all cookies to prevent falling back to earlier saved login credentials
 //    let storage = HTTPCookieStorage.shared
 //    if let cookies = storage.cookies {
@@ -132,6 +136,11 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
     // save its position
     view.window!.saveFrame(usingName: kAutosaveName)
   }
+  #if XDEBUG
+  deinit {
+    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
+  }
+  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Action methods

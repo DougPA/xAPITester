@@ -263,7 +263,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   /// - Returns: number of rows
   ///
   func numberOfRows(in aTableView: NSTableView) -> Int {
-    
+
     // get the number of rows
     return _radios.count
   }

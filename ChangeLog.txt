@@ -1,5 +1,14 @@
 xAPITester V3 Change Log
 
+v2.5.1.2019_08_07
+
+LanRadioPickerViewController.swift - updates to conform to xSDR6000 code
+WanRadioPickerViewController.swift - updates to conform to xSDR6000 code
+Auth0ViewController.swift - updates to conform to xSDR6000 code
+AppDelegate.swift - changed default log level to "debug" (removed parameter from scheme)
+xAPITester scheme - unchecked "allow debugging when using document versions browser"
+
+
 v2.5.1.2019_08_01
 
 Main.storyboard - added "Bound" checkbox
