@@ -104,7 +104,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
     Log.sharedInstance.delegate = _log
     
     // add Notifications subscriptions
-    notificationsAdd()
+    addNotifications()
     
     // setup filters
     _filterByPopUp.selectItem(withTag: Defaults[.filterByTag])
@@ -612,7 +612,7 @@ public final class ViewController             : NSViewController, RadioPickerDel
   
   /// Add Notifications subscriptions
   ///
-  private func notificationsAdd() {
+  private func addNotifications() {
     
     NC.makeObserver(self, with: #selector(radioDowngradeRequired(_:)), of: .radioDowngradeRequired)
     
