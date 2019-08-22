@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://en.wikipedia.org/wiki/MIT_License)
 
 ## API Explorer for the FlexRadio (TM) 6000 series software defined radios.
+##      For Radios with Version 2.5.1 or higher
 
 ### Built on:
 *  [![MacOS](https://img.shields.io/badge/macOS-10.14.6-orange.svg?style=flat)](https://www.apple.com/macos)
