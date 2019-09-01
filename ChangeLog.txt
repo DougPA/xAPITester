@@ -1,5 +1,10 @@
 xAPITester V3 Change Log
 
+v2.5.1.2019_09_01
+
+viewcontroller.swift - corrected radioUpgrade & radioDowngrade to allow user to continue
+
+
 v2.5.1.2019_08_07
 
 LanRadioPickerViewController.swift - updates to conform to xSDR6000 code
