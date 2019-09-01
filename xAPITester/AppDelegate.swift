@@ -15,7 +15,7 @@ final class AppDelegate                     : NSObject, NSApplicationDelegate , 
   
   // App parameters
   static let kName                          = "xAPITester"
-  static let kVersion                       = Version("2.5.1.2019_08_07")
+  static let kVersion                       = Version("2.5.1.2019_09_01")
   
   // Log parameters
   static let kLoggerName                    = AppDelegate.kName
