@@ -327,6 +327,9 @@ class SplitViewController: NSSplitViewController, ApiDelegate, NSTableViewDelega
       }
       // Gui Clients
       for client in self._guiClients {
+        
+        
+        
         self.showInObjectsTable("DISCOVERED  Gui-Client:      handle->\(client.handle.hex)  program->\(client.program)  station->\(client.station)" +
           " id->\(client.clientId ?? "")")
       

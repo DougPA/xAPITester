@@ -723,7 +723,15 @@ public final class ViewController             : NSViewController, RadioPickerDel
 
     // attempt to connect to it
     let station = (Host.current().localizedName ?? "Mac").replacingSpaces(with: "_")
-    let clientId = Defaults[.isGui] ? UUID(uuidString: Defaults[.myClientId] ?? "") : UUID(uuidString: Defaults[.boundClientId] ?? "")
+    let clientId : UUID?
+    // connecting as a Gui?
+    if Defaults[.isGui] {
+      // YES, use my stored UUID (or nil if none stored)
+      clientId = UUID(uuidString: Defaults[.myClientId] ?? "")
+    } else {
+      // NO, use the boundClientId if bound and one is stored (otherwise nil)
+      clientId = Defaults[.isBound] ? UUID(uuidString: Defaults[.boundClientId] ?? "") : nil
+    }
     if _api.connect(selectedRadio,
                     clientStation:  station,
                     clientProgram:  AppDelegate.kName,
