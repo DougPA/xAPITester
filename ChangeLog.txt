@@ -1,5 +1,13 @@
 xAPITester V2 Change Log
 
+v2.4.9.2019_07_??
+
+
+
+
+
+
+
 v2.4.9.2019_07_08
 
 ViewController.swift - added addNotifications() & code for version check
