@@ -1,5 +1,7 @@
 # xAPITester for v2
 
+# DEPRECATED - please see github.com/K3TZR for current code
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://en.wikipedia.org/wiki/MIT_License)
 
 ## API Explorer for the FlexRadio (TM) 6000 series software defined radios.
